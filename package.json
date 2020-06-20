@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "watch-ts": "tsc -w",
-    "watch": "watchify ./ts-dist/main.js -o ./dist/bundle.js",
-    "build": "browserify ./ts-dist/main.js -o ./dist/bundle.js",
+    "watch": "watchify ./dist/main.js -o ./dist/bundle.js",
+    "build": "browserify ./dist/main.js -o ./dist/bundle.js",
     "serve": "reload -b",
     "start": "concurrently \"npm run watch-ts\" \"npm run watch\" \"npm run serve\""
   },

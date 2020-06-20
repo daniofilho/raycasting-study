@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "ES5",
-    "outDir": "ts-dist",
+    "target": "es6",
+    "outDir": "dist",
     "rootDir": "src",
-    "noUnusedLocals": true,
-    "lib": ["es5", "dom"],
+    "lib": ["es6", "dom"],
     "baseUrl": "src"
   },
   "include": ["src"]

@@ -1,9 +1,8 @@
-import Canvas from './engine/Canvas';
-
-import * as config from './config';
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const Canvas_1 = require("./engine/Canvas");
 // Declarations
-const MyCanvas = new Canvas('screen');
+const MyCanvas = new Canvas_1.default('screen');
 /*
 // Init
 const drawPlayer = (x: number, y: number) => {
