@@ -14,6 +14,14 @@ class Canvas {
     this.run();
   }
 
+  // Draw a rectangle on canvas
+  public drawRect(x: number, y: number, width: number, height: number, color: string) {
+    let ctx = this.context;
+
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, width, height);
+  }
+
   // Initialize class
   private run() {
     const { width, height, backgroundColor } = config.canvas;
@@ -25,16 +33,6 @@ class Canvas {
 
     // Canvas Background color
     this.drawRect(0, 0, width, height, backgroundColor);
-  }
-
-  // Draw a rectangle on canvas
-  public drawRect(x: number, y: number, width: number, height: number, color: string) {
-    let context = this.context;
-
-    context.fillStyle = color;
-    context.fillRect(x, y, width, height);
-    context.clearRect(x, y, width, height);
-    context.strokeRect(x, y, width, height);
   }
 }
 

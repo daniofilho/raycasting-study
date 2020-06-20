@@ -10,8 +10,8 @@ exports.canvas = {
 exports.player = {
     x: 400,
     y: 300,
-    width: 50,
-    height: 50,
+    width: 10,
+    height: 10,
     color: '#FFFF00',
 };
 
@@ -27,6 +27,12 @@ class Canvas {
         this.context = context;
         this.run();
     }
+    // Draw a rectangle on canvas
+    drawRect(x, y, width, height, color) {
+        let ctx = this.context;
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, width, height);
+    }
     // Initialize class
     run() {
         const { width, height, backgroundColor } = config.canvas;
@@ -37,14 +43,6 @@ class Canvas {
         // Canvas Background color
         this.drawRect(0, 0, width, height, backgroundColor);
     }
-    // Draw a rectangle on canvas
-    drawRect(x, y, width, height, color) {
-        let context = this.context;
-        context.fillStyle = color;
-        context.fillRect(x, y, width, height);
-        context.clearRect(x, y, width, height);
-        context.strokeRect(x, y, width, height);
-    }
 }
 exports.default = Canvas;
 
@@ -52,14 +50,14 @@ exports.default = Canvas;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Canvas_1 = require("./engine/Canvas");
+const config = require("./config");
 // Declarations
 const MyCanvas = new Canvas_1.default('screen');
-/*
 // Init
-const drawPlayer = (x: number, y: number) => {
-  const { width, height, color } = config.player;
-  MyCanvas.drawRect(x, y, width, height, color);
+const drawPlayer = (x, y) => {
+    const { width, height, color } = config.player;
+    MyCanvas.drawRect(x, y, width, height, color);
 };
-drawPlayer(config.player.x, config.player.y);*/
+drawPlayer(config.player.x, config.player.y);
 
-},{"./engine/Canvas":2}]},{},[3]);
+},{"./config":1,"./engine/Canvas":2}]},{},[3]);

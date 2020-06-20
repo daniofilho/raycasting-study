@@ -9,7 +9,7 @@ export const canvas: CanvasType = {
 export const player: PlayerType = {
   x: 400,
   y: 300,
-  width: 50,
-  height: 50,
+  width: 10,
+  height: 10,
   color: '#FFFF00',
 };

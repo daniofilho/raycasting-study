@@ -9,6 +9,12 @@ class Canvas {
         this.context = context;
         this.run();
     }
+    // Draw a rectangle on canvas
+    drawRect(x, y, width, height, color) {
+        let ctx = this.context;
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, width, height);
+    }
     // Initialize class
     run() {
         const { width, height, backgroundColor } = config.canvas;
@@ -18,14 +24,6 @@ class Canvas {
         canvas.height = height;
         // Canvas Background color
         this.drawRect(0, 0, width, height, backgroundColor);
-    }
-    // Draw a rectangle on canvas
-    drawRect(x, y, width, height, color) {
-        let context = this.context;
-        context.fillStyle = color;
-        context.fillRect(x, y, width, height);
-        context.clearRect(x, y, width, height);
-        context.strokeRect(x, y, width, height);
     }
 }
 exports.default = Canvas;
