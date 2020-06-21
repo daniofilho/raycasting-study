@@ -20,6 +20,14 @@ body {
   align-items: center;
 }
 
-#screen {
-  background: #fff;
+section {
+  position: relative;
+  width: 90vw;
+  height: 90vh;
+}
+
+canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
 }

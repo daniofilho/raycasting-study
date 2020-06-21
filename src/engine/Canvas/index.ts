@@ -1,39 +1,73 @@
-import * as config from '../../config';
+import { CanvasPropType } from '../../types';
 
-class Canvas {
-  private canvas: HTMLCanvasElement;
-  private context: CanvasRenderingContext2D;
+const Canvas = (config: CanvasPropType) => {
+  // Constructor
+  const canvas = document.getElementById(config.canvasID) as HTMLCanvasElement;
+  const context = canvas.getContext('2d');
 
-  constructor(canvasID: string) {
-    let canvas = document.getElementById(canvasID) as HTMLCanvasElement;
-    let context = canvas.getContext('2d');
+  // Canvas Size
+  const { width, height } = config;
+  canvas.width = width;
+  canvas.height = height;
 
-    this.canvas = canvas;
-    this.context = context;
+  // Get some prop
+  const get = (prop: string) => {
+    return canvas[prop];
+  };
 
-    this.run();
-  }
+  const getConfig = () => {
+    return config;
+  };
+
+  const getContext = () => {
+    return context;
+  };
+
+  const getCanvasDOM = () => {
+    return canvas;
+  };
+
+  // Reset canvas
+  const reset = () => {
+    const { width, height, backgroundColor } = config;
+    // Background
+    drawRectangle(0, 0, width, height, backgroundColor);
+  };
 
   // Draw a rectangle on canvas
-  public drawRect(x: number, y: number, width: number, height: number, color: string) {
-    let ctx = this.context;
+  const drawRectangle = (x: number, y: number, width: number, height: number, color: string) => {
+    context.fillStyle = color;
+    context.fillRect(x, y, width, height);
+  };
 
-    ctx.fillStyle = color;
-    ctx.fillRect(x, y, width, height);
-  }
+  // Draw a line on canvas
+  const drawLine = (x: number, y: number, toX: number, toY: number, color: string) => {
+    context.strokeStyle = color;
+    context.beginPath();
+    context.moveTo(x, y);
+    context.lineTo(toX, toY);
+    context.stroke();
+  };
 
-  // Initialize class
-  private run() {
-    const { width, height, backgroundColor } = config.canvas;
+  // Draw a circle on canvas
+  const drawElipse = (x: number, y: number, radius: number, color: string) => {
+    context.strokeStyle = color;
+    context.beginPath();
+    context.arc(x, y, radius, 0, 2 * Math.PI);
+    context.stroke();
+  };
 
-    // Canvas Size
-    let canvas = this.canvas;
-    canvas.width = width;
-    canvas.height = height;
-
-    // Canvas Background color
-    this.drawRect(0, 0, width, height, backgroundColor);
-  }
-}
+  // Return all public functions
+  return {
+    reset,
+    get,
+    getConfig,
+    getContext,
+    getCanvasDOM,
+    drawRectangle,
+    drawLine,
+    drawElipse,
+  };
+};
 
 export default Canvas;
