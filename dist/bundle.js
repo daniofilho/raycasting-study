@@ -185,7 +185,7 @@ const Player = (canvas) => {
     const turnLeft = () => {
         const { angle } = props;
         // Define angle
-        let newAngle = angle - 0.1;
+        let newAngle = angle - 0.05;
         if (newAngle < 0)
             newAngle = angle + 2 * Math.PI;
         setAngle(newAngle);
@@ -196,7 +196,7 @@ const Player = (canvas) => {
     const turnRight = () => {
         const { angle } = props;
         // Define angle
-        let newAngle = angle + 0.1;
+        let newAngle = angle + 0.05;
         if (newAngle > 2 * Math.PI)
             newAngle = angle - 2 * Math.PI;
         setAngle(newAngle);
@@ -214,6 +214,7 @@ const Player = (canvas) => {
             goBack();
         if (keyCodes[38])
             goFront();
+        // @TODO strafe left and right
     };
     // Render the player
     const render = (keyCodes) => {
@@ -237,12 +238,33 @@ exports.default = Player;
 },{"../../config":1}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const Ray = () => {
+    const ray = 0;
+    const mx = 0;
+    const my = 0;
+    const mp = 0;
+    const dof = 90; // depth of field
+    const rayX = 0;
+    const rayY = 0;
+    const ra = 0;
+    const xOffset = 0;
+    const yOffset = 0;
+    return {};
+};
+exports.default = Ray;
+
+},{}],6:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const RayCasting_1 = require("./RayCasting");
 const Scenario = (player, canvasMiniMap, canvasScreen, config) => {
     const { tileSize, tilesX, tilesY, tiles, wallColor, floorColor } = config;
+    const rayCasting = RayCasting_1.default();
+    // Tiles
     const renderTiles = () => {
         // Loop tiles
         new Array(tilesX).fill('').forEach((_, x) => {
-            new Array(tilesX).fill('').forEach((_, y) => {
+            new Array(tilesY).fill('').forEach((_, y) => {
                 const x0 = x * tileSize;
                 const y0 = y * tileSize;
                 // Define tile color based on tile value (0,1)
@@ -252,11 +274,14 @@ const Scenario = (player, canvasMiniMap, canvasScreen, config) => {
             });
         });
     };
+    // Ray Casting
+    const renderRays = () => { };
     // Render
     const render = (keysDown) => {
         canvasScreen.reset();
         canvasMiniMap.reset();
         renderTiles();
+        renderRays();
         player.render(keysDown);
     };
     // Return all public functions
@@ -266,7 +291,7 @@ const Scenario = (player, canvasMiniMap, canvasScreen, config) => {
 };
 exports.default = Scenario;
 
-},{}],6:[function(require,module,exports){
+},{"./RayCasting":5}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Screen = (canvas) => {
@@ -286,7 +311,7 @@ const Screen = (canvas) => {
 };
 exports.default = Screen;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Canvas_1 = require("./Canvas");
@@ -366,7 +391,7 @@ const Game = () => {
 };
 exports.default = Game;
 
-},{"../config":1,"./Canvas":2,"./MiniMap":3,"./Player":4,"./Scenario":5,"./Screen":6}],8:[function(require,module,exports){
+},{"../config":1,"./Canvas":2,"./MiniMap":3,"./Player":4,"./Scenario":6,"./Screen":7}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const engine_1 = require("./engine");
@@ -374,4 +399,4 @@ const engine = engine_1.default();
 console.clear();
 engine.startGame();
 
-},{"./engine":7}]},{},[8]);
+},{"./engine":8}]},{},[9]);

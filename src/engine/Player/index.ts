@@ -50,7 +50,7 @@ const Player = (canvas: CanvasType) => {
     const { angle } = props;
 
     // Define angle
-    let newAngle = angle - 0.1;
+    let newAngle = angle - 0.05;
     if (newAngle < 0) newAngle = angle + 2 * Math.PI;
 
     setAngle(newAngle);
@@ -63,7 +63,7 @@ const Player = (canvas: CanvasType) => {
     const { angle } = props;
 
     // Define angle
-    let newAngle = angle + 0.1;
+    let newAngle = angle + 0.05;
     if (newAngle > 2 * Math.PI) newAngle = angle - 2 * Math.PI;
 
     setAngle(newAngle);
@@ -79,6 +79,8 @@ const Player = (canvas: CanvasType) => {
     if (keyCodes[37]) turnLeft();
     if (keyCodes[40]) goBack();
     if (keyCodes[38]) goFront();
+
+    // @TODO strafe left and right
   };
 
   // Render the player
