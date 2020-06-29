@@ -3,10 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.player = exports.miniMapAllRays = exports.miniMapSingleRay = exports.screen = exports.scenario = exports.game = void 0;
 exports.game = {
     fps: 60,
-    depthfOfField: 8,
+    depthfOfField: 10,
     render: {
-        line: {
-            maxHeight: 320,
+        light: 40,
+        wall: {
+            width: 3,
         },
     },
 };
@@ -76,6 +77,6 @@ exports.player = {
     height: exports.scenario.tileSize / 2.5,
     color: '#FFFF00',
     speed: 0.3,
-    turnSpeed: 0.08,
+    turnSpeed: 0.03,
     fieldOfView: 60,
 };

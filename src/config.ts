@@ -2,10 +2,11 @@ import * as Types from 'types';
 
 export const game: Types.GameType = {
   fps: 60,
-  depthfOfField: 8,
+  depthfOfField: 10,
   render: {
-    line: {
-      maxHeight: 320,
+    light: 40,
+    wall: {
+      width: 3,
     },
   },
 };
@@ -79,6 +80,6 @@ export const player: Types.PlayerPropsType = {
   height: scenario.tileSize / 2.5,
   color: '#FFFF00',
   speed: 0.3,
-  turnSpeed: 0.08,
+  turnSpeed: 0.03,
   fieldOfView: 60,
 };

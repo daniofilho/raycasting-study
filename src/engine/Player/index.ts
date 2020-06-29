@@ -20,12 +20,27 @@ const Player = (minimap: MiniMapType, debugmap: MiniMapType, screen: ScreenType)
     fieldOfView: config.player.fieldOfView,
   };
 
+  const scenarioWidth = config.scenario.tilesX * config.scenario.tileSize;
+  const scenarioHeight = config.scenario.tilesY * config.scenario.tileSize;
+
   // Middlwares for setting props
   const setX = (x: number) => {
-    props.x = x;
+    let newX = x;
+
+    // limit player
+    if (newX > scenarioWidth) newX = scenarioWidth;
+    if (newX < 0) newX = 0;
+
+    props.x = newX;
   };
   const setY = (y: number) => {
-    props.y = y;
+    let newY = y;
+
+    // limit player
+    if (newY > scenarioHeight) newY = scenarioHeight;
+    if (newY < 0) newY = 0;
+
+    props.y = newY;
   };
   const setAngle = (angle: number) => {
     props.angle = angle;

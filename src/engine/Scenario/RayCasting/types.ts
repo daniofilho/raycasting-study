@@ -21,4 +21,5 @@ export interface debugSingleRayType {
 export interface render3DType {
   distance: number;
   index: number;
+  rayAngle: number;
 }

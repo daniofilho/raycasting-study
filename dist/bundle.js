@@ -4,10 +4,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.player = exports.miniMapAllRays = exports.miniMapSingleRay = exports.screen = exports.scenario = exports.game = void 0;
 exports.game = {
     fps: 60,
-    depthfOfField: 8,
+    depthfOfField: 10,
     render: {
-        line: {
-            maxHeight: 320,
+        light: 40,
+        wall: {
+            width: 3,
         },
     },
 };
@@ -77,7 +78,7 @@ exports.player = {
     height: exports.scenario.tileSize / 2.5,
     color: '#FFFF00',
     speed: 0.3,
-    turnSpeed: 0.08,
+    turnSpeed: 0.03,
     fieldOfView: 60,
 };
 
@@ -199,12 +200,26 @@ const Player = (minimap, debugmap, screen) => {
         speed: config.player.speed,
         fieldOfView: config.player.fieldOfView,
     };
+    const scenarioWidth = config.scenario.tilesX * config.scenario.tileSize;
+    const scenarioHeight = config.scenario.tilesY * config.scenario.tileSize;
     // Middlwares for setting props
     const setX = (x) => {
-        props.x = x;
+        let newX = x;
+        // limit player
+        if (newX > scenarioWidth)
+            newX = scenarioWidth;
+        if (newX < 0)
+            newX = 0;
+        props.x = newX;
     };
     const setY = (y) => {
-        props.y = y;
+        let newY = y;
+        // limit player
+        if (newY > scenarioHeight)
+            newY = scenarioHeight;
+        if (newY < 0)
+            newY = 0;
+        props.y = newY;
     };
     const setAngle = (angle) => {
         props.angle = angle;
@@ -356,19 +371,22 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
         });
     };
     // # Render the fake 3D
-    const render3D = ({ distance, index }) => {
-        const maxLineHeight = config.game.render.line.maxHeight;
+    const render3D = ({ rayAngle, distance, index }) => {
+        const wallWidth = config.game.render.wall.width;
+        const correctWallDistance = distance * Math.cos(rayAngle - player.get('angle'));
+        var distanceProjectionPlane = canvasScreen.canvas.getConfig().width / 2 / Math.tan(fovAngle / 2);
         // Define the line height to draw
-        let lineHeight = (maxLineHeight * tileSize) / distance;
-        lineHeight = lineHeight > maxLineHeight ? maxLineHeight : lineHeight;
+        const lineHeight = (tileSize / correctWallDistance) * distanceProjectionPlane;
+        // Find positions
+        const x = index * wallWidth;
+        const y = canvasScreen.canvas.getConfig().height / 2 - lineHeight / 2;
+        // Define sizes
+        const width = wallWidth;
+        const height = lineHeight;
+        // Set alpha color to simulate lighting
+        const alpha = config.game.render.light / correctWallDistance;
         // Draw the line
-        canvasScreen.canvas.drawRectangle({
-            x: 0 + index,
-            y: 0,
-            toX: lineHeight,
-            toY: 0,
-            color: '',
-        });
+        canvasScreen.canvas.drawRectangle({ x, y, width, height, color: `rgba(255,100,100,${alpha})` });
     };
     // # Ray Casting on horizontal lines
     const castHorizontalRays = ({ rayAngle }) => {
@@ -529,15 +547,14 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
         let rayAngle = player.get('angle') - fovAngle / 2;
         // Cast debug Ray
         castDebugRay();
-        // cast the rays
+        // Cast the rays
         for (let i = 0; i < raysQuantity; i++) {
             // Cast rays
             const { rayX, rayY, distance } = castRays({ rayAngle });
-            // # Now render the slowest value
             // 2D ray
             renderRay({ rayX, rayY });
             // 3D wall - This is where we wanted to go
-            //render3D({ index: i, distance });
+            render3D({ index: i, distance, rayAngle });
             // Increase angle for next ray
             rayAngle += fovAngle / raysQuantity;
         }
@@ -584,13 +601,13 @@ const Scenario = (player, canvasMiniMap, canvasMiniMapDebug, canvasScreen, confi
     };
     // Ray Casting
     const renderRays = () => {
+        canvasScreen.render();
         rayCasting.render();
     };
     // Render
     const render = (keysDown) => {
-        canvasScreen.canvas.reset();
-        canvasMiniMap.canvas.reset();
-        canvasMiniMapDebug.canvas.reset();
+        canvasMiniMap.render();
+        canvasMiniMapDebug.render();
         renderTiles();
         renderRays();
         player.render(keysDown);

@@ -91,21 +91,30 @@ const RayCasting = (
   };
 
   // # Render the fake 3D
-  const render3D = ({ distance, index }: render3DType) => {
-    const maxLineHeight = config.game.render.line.maxHeight;
+  const render3D = ({ rayAngle, distance, index }: render3DType) => {
+    const wallWidth = config.game.render.wall.width;
+
+    const correctWallDistance = distance * Math.cos(rayAngle - player.get('angle'));
+
+    var distanceProjectionPlane =
+      canvasScreen.canvas.getConfig().width / 2 / Math.tan(fovAngle / 2);
 
     // Define the line height to draw
-    let lineHeight = (maxLineHeight * tileSize) / distance;
-    lineHeight = lineHeight > maxLineHeight ? maxLineHeight : lineHeight;
+    const lineHeight = (tileSize / correctWallDistance) * distanceProjectionPlane;
+
+    // Find positions
+    const x = index * wallWidth;
+    const y = canvasScreen.canvas.getConfig().height / 2 - lineHeight / 2;
+
+    // Define sizes
+    const width = wallWidth;
+    const height = lineHeight;
+
+    // Set alpha color to simulate lighting
+    const alpha = config.game.render.light / correctWallDistance;
 
     // Draw the line
-    canvasScreen.canvas.drawRectangle({
-      x: 0 + index,
-      y: 0,
-      toX: lineHeight,
-      toY: 0,
-      color: '',
-    });
+    canvasScreen.canvas.drawRectangle({ x, y, width, height, color: `rgba(255,100,100,${alpha})` });
   };
 
   // # Ray Casting on horizontal lines
@@ -299,17 +308,16 @@ const RayCasting = (
     // Cast debug Ray
     castDebugRay();
 
-    // cast the rays
+    // Cast the rays
     for (let i = 0; i < raysQuantity; i++) {
       // Cast rays
       const { rayX, rayY, distance } = castRays({ rayAngle });
 
-      // # Now render the slowest value
       // 2D ray
       renderRay({ rayX, rayY });
 
       // 3D wall - This is where we wanted to go
-      //render3D({ index: i, distance });
+      render3D({ index: i, distance, rayAngle });
 
       // Increase angle for next ray
       rayAngle += fovAngle / raysQuantity;

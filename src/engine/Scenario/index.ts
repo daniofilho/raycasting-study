@@ -48,14 +48,14 @@ const Scenario = (
 
   // Ray Casting
   const renderRays = () => {
+    canvasScreen.render();
     rayCasting.render();
   };
 
   // Render
   const render = (keysDown: any) => {
-    canvasScreen.canvas.reset();
-    canvasMiniMap.canvas.reset();
-    canvasMiniMapDebug.canvas.reset();
+    canvasMiniMap.render();
+    canvasMiniMapDebug.render();
 
     renderTiles();
 

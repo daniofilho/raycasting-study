@@ -4,8 +4,9 @@ export interface GameType {
   fps: number;
   depthfOfField: number;
   render: {
-    line: {
-      maxHeight: number;
+    light: number;
+    wall: {
+      width: number;
     };
   };
 }
