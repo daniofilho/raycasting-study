@@ -23,6 +23,7 @@ const MiniMap = (canvas: CanvasType, config: MiniMapPropType) => {
   return {
     get,
     render,
+    canvas,
   };
 };
 

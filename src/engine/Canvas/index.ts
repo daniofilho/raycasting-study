@@ -1,5 +1,7 @@
 import { CanvasPropType } from '../../types';
 
+import { drawElipseType, drawLineType, drawRectangleType, drawTextType } from './types';
+
 const Canvas = (config: CanvasPropType) => {
   // Constructor
   const canvas = document.getElementById(config.canvasID) as HTMLCanvasElement;
@@ -35,14 +37,7 @@ const Canvas = (config: CanvasPropType) => {
   };
 
   // Draw a text
-  interface drawTextType {
-    text: string;
-    x: number;
-    y: number;
-    color?: string;
-    size?: number;
-    align?: CanvasTextAlign;
-  }
+
   const drawText = ({ text, x, y, color = '#000', size = 20, align = 'left' }: drawTextType) => {
     context.font = `${size}px Arial`;
     context.fillStyle = color;
@@ -51,26 +46,12 @@ const Canvas = (config: CanvasPropType) => {
   };
 
   // Draw a rectangle on canvas
-  interface drawRectangleType {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    color: string;
-  }
   const drawRectangle = ({ x, y, width, height, color }: drawRectangleType) => {
     context.fillStyle = color;
     context.fillRect(x, y, width, height);
   };
 
   // Draw a line on canvas
-  interface drawLineType {
-    x: number;
-    y: number;
-    toX: number;
-    toY: number;
-    color: string;
-  }
   const drawLine = ({ x, y, toX, toY, color }: drawLineType) => {
     context.strokeStyle = color;
     context.beginPath();
@@ -80,12 +61,6 @@ const Canvas = (config: CanvasPropType) => {
   };
 
   // Draw a circle on canvas
-  interface drawElipseType {
-    x: number;
-    y: number;
-    radius: number;
-    color?: string;
-  }
   const drawElipse = ({ x, y, radius, color = '#FFF' }: drawElipseType) => {
     context.strokeStyle = color;
     context.beginPath();

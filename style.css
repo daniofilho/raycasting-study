@@ -2,6 +2,7 @@
   margin: 0;
   padding: 0;
   outline: 0;
+  font-family: 'Arial';
 }
 
 html,
@@ -18,22 +19,17 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
 }
 
 section {
   position: relative;
   width: 90vw;
   height: 90vh;
+  display: flex;
+  justify-content: space-around;
 }
 
-canvas {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
-#minimap {
-  position: absolute;
-  right: 0;
-  bottom: 0;
+p {
+  color: #fff;
 }

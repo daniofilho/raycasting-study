@@ -15,6 +15,7 @@ const Screen = (canvas: CanvasType) => {
   return {
     get,
     render,
+    canvas,
   };
 };
 

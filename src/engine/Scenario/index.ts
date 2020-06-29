@@ -1,4 +1,5 @@
-import { CanvasType } from '../Canvas/types';
+import { MiniMapType } from '../MiniMap/types';
+import { ScreenType } from '../Screen/types';
 import { PlayerType } from '../Player/types';
 import { ScenarioType } from '../../types';
 
@@ -6,13 +7,14 @@ import RayCasting from './RayCasting';
 
 const Scenario = (
   player: PlayerType,
-  canvasMiniMap: CanvasType,
-  canvasScreen: CanvasType,
+  canvasMiniMap: MiniMapType,
+  canvasMiniMapDebug: MiniMapType,
+  canvasScreen: ScreenType,
   config: ScenarioType
 ) => {
   const { tileSize, tilesX, tilesY, tiles, wallColor, floorColor } = config;
 
-  const rayCasting = RayCasting(config, player, canvasMiniMap, canvasScreen);
+  const rayCasting = RayCasting(config, player, canvasMiniMap, canvasMiniMapDebug, canvasScreen);
 
   // Tiles
   const renderTiles = () => {
@@ -26,7 +28,14 @@ const Scenario = (
         const tileColor = tiles[y * tilesX + x] === 1 ? wallColor : floorColor;
 
         // Minimap
-        canvasMiniMap.drawRectangle({
+        canvasMiniMap.canvas.drawRectangle({
+          x: x0,
+          y: y0,
+          width: tileSize - 1,
+          height: tileSize - 1,
+          color: tileColor,
+        });
+        canvasMiniMapDebug.canvas.drawRectangle({
           x: x0,
           y: y0,
           width: tileSize - 1,
@@ -44,8 +53,9 @@ const Scenario = (
 
   // Render
   const render = (keysDown: any) => {
-    canvasScreen.reset();
-    canvasMiniMap.reset();
+    canvasScreen.canvas.reset();
+    canvasMiniMap.canvas.reset();
+    canvasMiniMapDebug.canvas.reset();
 
     renderTiles();
 

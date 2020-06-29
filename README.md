@@ -21,7 +21,11 @@ If you have error running, try to create a folder `dist`. Sometimes browserify t
 A Técnica de Ray-Casting - Márcio Sarroglia Pinho
 https://www.inf.pucrs.br/~pinho/CG/Aulas/Iluminacao/RayTracing.pdf
 
-Raycasting Basics with JavaScript free course
+Raycasting Basics with JavaScript - Gustavo Pezzi
+https://courses.pikuma.com/courses/raycasting
+
+Ray Casting em JavaScript - Angelito Goulart
+https://github.com/angelitomg/raycasting/
 
 Make Your Own Raycaster Game : 3DSage
 https://www.youtube.com/watch?v=gYRrGTC7GtA

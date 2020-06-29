@@ -3,12 +3,29 @@ import * as Types from 'types';
 export const game: Types.GameType = {
   fps: 60,
   depthfOfField: 8,
+  render: {
+    line: {
+      maxHeight: 320,
+    },
+  },
 };
 
 export const scenario: Types.ScenarioType = {
   tileSize: 32,
   tilesX: 9,
   tilesY: 9,
+  // prettier-ignore
+  /*tiles: [
+    1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1,
+  ],*/
   // prettier-ignore
   tiles: [
     1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -32,24 +49,36 @@ export const screen: Types.ScreenPropType = {
   height: 600,
 };
 
-export const miniMap: Types.MiniMapPropType = {
-  canvasID: 'minimap',
+export const miniMapSingleRay: Types.MiniMapPropType = {
+  canvasID: 'minimap_singleRay',
   backgroundColor: '#000',
-  opacity: 0.5,
+  opacity: 1,
   width: scenario.tilesX * scenario.tileSize,
   height: scenario.tilesY * scenario.tileSize,
-  relativeWidth: 800, //150,
-  relativeHeight: 800, //150,
+  relativeWidth: 300, //150,
+  relativeHeight: 300, //150,
+  x: screen.width - 100,
+  y: screen.height - 100,
+};
+export const miniMapAllRays: Types.MiniMapPropType = {
+  canvasID: 'minimap_allRays',
+  backgroundColor: '#000',
+  opacity: 1,
+  width: scenario.tilesX * scenario.tileSize,
+  height: scenario.tilesY * scenario.tileSize,
+  relativeWidth: 300, //150,
+  relativeHeight: 300, //150,
   x: screen.width - 100,
   y: screen.height - 100,
 };
 
 export const player: Types.PlayerPropsType = {
-  x: miniMap.width / 2,
-  y: miniMap.height / 2,
+  x: miniMapAllRays.width / 2,
+  y: miniMapAllRays.height / 2,
   width: scenario.tileSize / 2.5,
   height: scenario.tileSize / 2.5,
   color: '#FFFF00',
   speed: 0.3,
+  turnSpeed: 0.08,
   fieldOfView: 60,
 };

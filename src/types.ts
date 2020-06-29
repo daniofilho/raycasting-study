@@ -3,6 +3,11 @@
 export interface GameType {
   fps: number;
   depthfOfField: number;
+  render: {
+    line: {
+      maxHeight: number;
+    };
+  };
 }
 
 export interface ScenarioType {
@@ -47,5 +52,6 @@ export interface PlayerPropsType {
   height: number;
   color: string;
   speed: number;
+  turnSpeed: number;
   fieldOfView: number;
 }

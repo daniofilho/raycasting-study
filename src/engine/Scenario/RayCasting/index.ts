@@ -1,21 +1,28 @@
-import { CanvasType } from '../../Canvas/types';
+import { MiniMapType } from '../../MiniMap/types';
+import { ScreenType } from '../../Screen/types';
 import { PlayerType } from '../../Player/types';
 import { ScenarioType } from '../../../types';
 
-import { calcDistanceType, castType, renderRayType } from './types';
+import {
+  calcDistanceType,
+  castType,
+  renderRayType,
+  debugSingleRayType,
+  render3DType,
+} from './types';
 
 import * as config from '../../../config';
 
 // Math PI relative variables - pure matemagician here
 const PI2 = Math.PI / 2;
 const PI3 = (3 * Math.PI) / 2;
-const DR = 0.0174533; // one degree in radians
 
 const RayCasting = (
   scenario: ScenarioType,
   player: PlayerType,
-  canvasMinimap: CanvasType,
-  canvasScreen: CanvasType
+  canvasMinimap: MiniMapType,
+  canvasMiniMapDebug: MiniMapType,
+  canvasScreen: ScreenType
 ) => {
   const { tiles, tilesX, tilesY, tileSize } = scenario;
 
@@ -27,6 +34,7 @@ const RayCasting = (
   };
 
   const raysQuantity = tilesX * tileSize;
+  const fovAngle = props.fov * (Math.PI / 180);
 
   // Ray
   let rayX: number, rayY: number;
@@ -36,10 +44,12 @@ const RayCasting = (
   let mapX: number, mapY: number, mapPosition: number;
 
   const normalizeAngle = (angle: number) => {
+    //return angle;
     angle = angle % (2 * Math.PI);
     if (angle < 0) {
       angle = 2 * Math.PI + angle;
     }
+
     return angle;
   };
 
@@ -50,6 +60,20 @@ const RayCasting = (
     );
   };
 
+  // # Draw a debug Ray
+  const debugSingleRay = ({ toX, toY, color }: debugSingleRayType) => {
+    const playerX = player.get('x');
+    const playerY = player.get('y');
+
+    canvasMiniMapDebug.canvas.drawLine({
+      x: playerX,
+      y: playerY,
+      toX: toX,
+      toY: toY,
+      color,
+    });
+  };
+
   // # Render Casted ray
   const renderRay = ({ rayX, rayY }: renderRayType) => {
     // ## Mini map 2D rendering
@@ -57,7 +81,7 @@ const RayCasting = (
     const playerX = player.get('x');
     const playerY = player.get('y');
 
-    canvasMinimap.drawLine({
+    canvasMinimap.canvas.drawLine({
       x: playerX,
       y: playerY,
       toX: rayX,
@@ -66,16 +90,37 @@ const RayCasting = (
     });
   };
 
+  // # Render the fake 3D
+  const render3D = ({ distance, index }: render3DType) => {
+    const maxLineHeight = config.game.render.line.maxHeight;
+
+    // Define the line height to draw
+    let lineHeight = (maxLineHeight * tileSize) / distance;
+    lineHeight = lineHeight > maxLineHeight ? maxLineHeight : lineHeight;
+
+    // Draw the line
+    canvasScreen.canvas.drawRectangle({
+      x: 0 + index,
+      y: 0,
+      toX: lineHeight,
+      toY: 0,
+      color: '',
+    });
+  };
+
   // # Ray Casting on horizontal lines
-  const castHorizontalRays = ({
-    rayAngle,
-    playerX,
-    playerY,
-    isRayFacingDown,
-    isRayFacingUp,
-    isRayFacingRight,
-    isRayFacingLeft,
-  }: castType) => {
+  const castHorizontalRays = ({ rayAngle }: castType) => {
+    rayAngle = normalizeAngle(rayAngle);
+
+    const playerY = Math.floor(player.get('y'));
+    const playerX = Math.floor(player.get('x'));
+
+    const isRayFacingDown = rayAngle < Math.PI;
+    const isRayFacingUp = !isRayFacingDown;
+
+    const isRayFacingRight = rayAngle < PI2 || rayAngle > PI3;
+    const isRayFacingLeft = !isRayFacingRight;
+
     let currentDOF = 0;
 
     let horizontalDistance = 1000000; //we need to check the lowest value, so let's make it high
@@ -97,15 +142,6 @@ const RayCasting = (
     rayXoffset = tileSize / Math.tan(rayAngle);
     rayXoffset *= isRayFacingLeft && rayXoffset > 0 ? -1 : 1;
     rayXoffset *= isRayFacingRight && rayXoffset < 0 ? -1 : 1;
-
-    // ## ray os looking straight? left or right
-    // in this situation it's impossible for ray hit a horizontal line
-    if (rayAngle === 0 || rayAngle === Math.PI) {
-      rayX = playerX;
-      rayY = playerY;
-
-      currentDOF = props.dof; // so end loop
-    }
 
     // If facing up, need to add tile size so rayY will be right
     if (isRayFacingUp) rayY--;
@@ -149,15 +185,18 @@ const RayCasting = (
   };
 
   // # Ray Casting on vertical lines
-  const castVerticalRays = ({
-    rayAngle,
-    playerX,
-    playerY,
-    isRayFacingDown,
-    isRayFacingUp,
-    isRayFacingRight,
-    isRayFacingLeft,
-  }: castType) => {
+  const castVerticalRays = ({ rayAngle }: castType) => {
+    rayAngle = normalizeAngle(rayAngle);
+
+    const playerY = Math.floor(player.get('y'));
+    const playerX = Math.floor(player.get('x'));
+
+    const isRayFacingDown = rayAngle < Math.PI;
+    const isRayFacingUp = !isRayFacingDown;
+
+    const isRayFacingRight = rayAngle < PI2 || rayAngle > PI3;
+    const isRayFacingLeft = !isRayFacingRight;
+
     let currentDOF = 0;
 
     let verticalDistance = 1000000; //we need to check the lowest value, so let's make it high
@@ -179,15 +218,6 @@ const RayCasting = (
     rayYoffset = tileSize * Math.tan(rayAngle);
     rayYoffset *= isRayFacingUp && rayYoffset > 0 ? -1 : 1;
     rayYoffset *= isRayFacingDown && rayYoffset < 0 ? -1 : 1;
-
-    // ## ray os looking straight? left or right
-    // in this situation it's impossible for ray hit a horizontal line
-    if (rayAngle === 0 || rayAngle === Math.PI) {
-      rayX = playerX;
-      rayY = playerY;
-
-      currentDOF = props.dof; // so end loop
-    }
 
     // If facing left, need to add tile size so rayX will be right
     if (isRayFacingLeft) rayX--;
@@ -229,81 +259,60 @@ const RayCasting = (
     };
   };
 
+  // # Cast all Rays
+  const castRays = ({ rayAngle }: castType) => {
+    const HorRays = castHorizontalRays({ rayAngle });
+    const VertRays = castVerticalRays({ rayAngle });
+    let distance: number;
+
+    // Which function gave the lowest value (lowest distance)?
+    let rayX: number, rayY: number;
+    if (VertRays.verticalDistance < HorRays.horizontalDistance) {
+      rayX = VertRays.verticalX;
+      rayY = VertRays.verticalY;
+      distance = VertRays.verticalDistance;
+    }
+    if (HorRays.horizontalDistance < VertRays.verticalDistance) {
+      rayX = HorRays.horizontalX;
+      rayY = HorRays.horizontalY;
+      distance = HorRays.horizontalDistance;
+    }
+
+    return {
+      rayX,
+      rayY,
+      distance,
+    };
+  };
+
+  // # Debug the Ray on front of player
+  const castDebugRay = () => {
+    const { rayX, rayY } = castRays({ rayAngle: player.get('angle') });
+    debugSingleRay({ toX: rayX, toY: rayY, color: '#BBFF00' });
+  };
+
+  // Render everything
   const render = () => {
     // Determine the ray angle of casting acording to player field of view
-    let rayAngle = player.get('angle') - DR * (props.fov / 2);
-    if (rayAngle < 0) {
-      rayAngle += 2 * Math.PI;
-    }
-    if (rayAngle > 2 * Math.PI) {
-      rayAngle -= 2 * Math.PI;
-    }
-    rayAngle = normalizeAngle(rayAngle);
+    let rayAngle = player.get('angle') - fovAngle / 2;
 
-    const playerY = Math.floor(player.get('y'));
-    const playerX = Math.floor(player.get('x'));
+    // Cast debug Ray
+    castDebugRay();
 
-    const isRayFacingDown = rayAngle < Math.PI;
-    const isRayFacingUp = !isRayFacingDown;
-
-    const isRayFacingRight = rayAngle < PI2 || rayAngle > PI3;
-    const isRayFacingLeft = !isRayFacingRight;
-
-    // cast the rays  - substitute of FOR for performance reasons
-    for (let i = 0; i < props.fov; i++) {
-      const HorRays = castHorizontalRays({
-        rayAngle,
-        playerX,
-        playerY,
-        isRayFacingDown,
-        isRayFacingUp,
-        isRayFacingRight,
-        isRayFacingLeft,
-      });
-      const VertRays = castVerticalRays({
-        rayAngle,
-        playerX,
-        playerY,
-        isRayFacingDown,
-        isRayFacingUp,
-        isRayFacingRight,
-        isRayFacingLeft,
-      });
-
-      // Which function gave the lowest value (lowest distance)?
-      let rayX: number, rayY: number;
-      if (VertRays.verticalDistance < HorRays.horizontalDistance) {
-        rayX = VertRays.verticalX;
-        rayY = VertRays.verticalY;
-      }
-      if (HorRays.horizontalDistance < VertRays.verticalDistance) {
-        rayX = HorRays.horizontalX;
-        rayY = HorRays.horizontalY;
-      }
-
-      //const distance
+    // cast the rays
+    for (let i = 0; i < raysQuantity; i++) {
+      // Cast rays
+      const { rayX, rayY, distance } = castRays({ rayAngle });
 
       // # Now render the slowest value
       // 2D ray
       renderRay({ rayX, rayY });
 
       // 3D wall - This is where we wanted to go
-      //render3DRay()
-
-      canvasScreen.drawText({
-        x: 0,
-        y: i * 25 + 25,
-        text: `rayAngle: ${rayAngle}`,
-      });
+      //render3D({ index: i, distance });
 
       // Increase angle for next ray
-      rayAngle += DR;
-      if (rayAngle < 0) {
-        rayAngle += 2 * Math.PI;
-      }
-      if (rayAngle > 2 * Math.PI) {
-        rayAngle -= 2 * Math.PI;
-      }
+      rayAngle += fovAngle / raysQuantity;
     }
   };
 

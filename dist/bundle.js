@@ -1,15 +1,32 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.player = exports.miniMap = exports.screen = exports.scenario = exports.game = void 0;
+exports.player = exports.miniMapAllRays = exports.miniMapSingleRay = exports.screen = exports.scenario = exports.game = void 0;
 exports.game = {
     fps: 60,
     depthfOfField: 8,
+    render: {
+        line: {
+            maxHeight: 320,
+        },
+    },
 };
 exports.scenario = {
     tileSize: 32,
     tilesX: 9,
     tilesY: 9,
+    // prettier-ignore
+    /*tiles: [
+      1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1,
+    ],*/
     // prettier-ignore
     tiles: [
         1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -31,24 +48,36 @@ exports.screen = {
     width: 800,
     height: 600,
 };
-exports.miniMap = {
-    canvasID: 'minimap',
+exports.miniMapSingleRay = {
+    canvasID: 'minimap_singleRay',
     backgroundColor: '#000',
-    opacity: 0.5,
+    opacity: 1,
     width: exports.scenario.tilesX * exports.scenario.tileSize,
     height: exports.scenario.tilesY * exports.scenario.tileSize,
-    relativeWidth: 800,
-    relativeHeight: 800,
+    relativeWidth: 300,
+    relativeHeight: 300,
+    x: exports.screen.width - 100,
+    y: exports.screen.height - 100,
+};
+exports.miniMapAllRays = {
+    canvasID: 'minimap_allRays',
+    backgroundColor: '#000',
+    opacity: 1,
+    width: exports.scenario.tilesX * exports.scenario.tileSize,
+    height: exports.scenario.tilesY * exports.scenario.tileSize,
+    relativeWidth: 300,
+    relativeHeight: 300,
     x: exports.screen.width - 100,
     y: exports.screen.height - 100,
 };
 exports.player = {
-    x: exports.miniMap.width / 2,
-    y: exports.miniMap.height / 2,
+    x: exports.miniMapAllRays.width / 2,
+    y: exports.miniMapAllRays.height / 2,
     width: exports.scenario.tileSize / 2.5,
     height: exports.scenario.tileSize / 2.5,
     color: '#FFFF00',
     speed: 0.3,
+    turnSpeed: 0.08,
     fieldOfView: 60,
 };
 
@@ -82,16 +111,19 @@ const Canvas = (config) => {
         // Background
         drawRectangle({ x: 0, y: 0, width, height, color: backgroundColor });
     };
+    // Draw a text
     const drawText = ({ text, x, y, color = '#000', size = 20, align = 'left' }) => {
         context.font = `${size}px Arial`;
         context.fillStyle = color;
         context.textAlign = align;
         context.fillText(text, x, y);
     };
+    // Draw a rectangle on canvas
     const drawRectangle = ({ x, y, width, height, color }) => {
         context.fillStyle = color;
         context.fillRect(x, y, width, height);
     };
+    // Draw a line on canvas
     const drawLine = ({ x, y, toX, toY, color }) => {
         context.strokeStyle = color;
         context.beginPath();
@@ -99,6 +131,7 @@ const Canvas = (config) => {
         context.lineTo(toX, toY);
         context.stroke();
     };
+    // Draw a circle on canvas
     const drawElipse = ({ x, y, radius, color = '#FFF' }) => {
         context.strokeStyle = color;
         context.beginPath();
@@ -140,6 +173,7 @@ const MiniMap = (canvas, config) => {
     return {
         get,
         render,
+        canvas,
     };
 };
 exports.default = MiniMap;
@@ -148,15 +182,21 @@ exports.default = MiniMap;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config = require("../../config");
-const Player = (canvas) => {
+const Player = (minimap, debugmap, screen) => {
     // Constructor
     const props = {
-        canvas,
+        minimap,
+        debugmap,
+        screen,
+        width: config.player.width,
+        height: config.player.height,
         x: config.player.x,
         y: config.player.y,
         deltaX: Math.cos(2 * Math.PI) * 5,
         deltaY: Math.sin(2 * Math.PI) * 5,
-        angle: Math.PI / 2,
+        angle: 0,
+        turnSpeed: config.player.turnSpeed,
+        speed: config.player.speed,
         fieldOfView: config.player.fieldOfView,
     };
     // Middlwares for setting props
@@ -180,30 +220,30 @@ const Player = (canvas) => {
     };
     // Player movements
     const goFront = () => {
-        const { x, y, deltaX, deltaY } = props;
-        setX(x + config.player.speed * deltaX);
-        setY(y + config.player.speed * deltaY);
+        const { x, y, deltaX, deltaY, speed } = props;
+        setX(x + speed * deltaX);
+        setY(y + speed * deltaY);
     };
     const goBack = () => {
-        const { x, y, deltaX, deltaY } = props;
-        setX(x - config.player.speed * deltaX);
-        setY(y - config.player.speed * deltaY);
+        const { x, y, deltaX, deltaY, speed } = props;
+        setX(x - speed * deltaX);
+        setY(y - speed * deltaY);
     };
     const turnLeft = () => {
-        const { angle } = props;
+        const { angle, turnSpeed } = props;
         // Define angle
-        let newAngle = angle - 0.05;
+        let newAngle = angle - turnSpeed;
         if (newAngle < 0)
-            newAngle = angle + 2 * Math.PI;
+            newAngle = angle + 2 * Math.PI; // invert
         setAngle(newAngle);
         // Deltas
         setDeltaX(Math.cos(newAngle) * 5);
         setDeltaY(Math.sin(newAngle) * 5);
     };
     const turnRight = () => {
-        const { angle } = props;
+        const { angle, turnSpeed } = props;
         // Define angle
-        let newAngle = angle + 0.05;
+        let newAngle = angle + turnSpeed;
         if (newAngle > 2 * Math.PI)
             newAngle = angle - 2 * Math.PI;
         setAngle(newAngle);
@@ -230,9 +270,17 @@ const Player = (canvas) => {
         handleKeyUp(keyCodes);
         // player body
         //props.canvas.drawRectangle({ x, y, width, height, color });
-        props.canvas.drawElipse({ x, y, radius: width, color });
+        props.minimap.canvas.drawElipse({ x, y, radius: width, color });
+        props.debugmap.canvas.drawElipse({ x, y, radius: width, color });
         // player eye direction
-        props.canvas.drawLine({
+        props.minimap.canvas.drawLine({
+            x,
+            y,
+            toX: x + deltaX * 5,
+            toY: y + deltaY * 5,
+            color: '#FF0000',
+        });
+        props.debugmap.canvas.drawLine({
             x,
             y,
             toX: x + deltaX * 5,
@@ -255,8 +303,7 @@ const config = require("../../../config");
 // Math PI relative variables - pure matemagician here
 const PI2 = Math.PI / 2;
 const PI3 = (3 * Math.PI) / 2;
-const DR = 0.0174533; // one degree in radians
-const RayCasting = (scenario, player, canvasMinimap, canvasScreen) => {
+const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasScreen) => {
     const { tiles, tilesX, tilesY, tileSize } = scenario;
     const props = {
         rays: player.get('fieldOfView'),
@@ -264,12 +311,14 @@ const RayCasting = (scenario, player, canvasMinimap, canvasScreen) => {
         fov: player.get('fieldOfView'),
     };
     const raysQuantity = tilesX * tileSize;
+    const fovAngle = props.fov * (Math.PI / 180);
     // Ray
     let rayX, rayY;
     let rayXoffset, rayYoffset;
     // Position of ray on map
     let mapX, mapY, mapPosition;
     const normalizeAngle = (angle) => {
+        //return angle;
         angle = angle % (2 * Math.PI);
         if (angle < 0) {
             angle = 2 * Math.PI + angle;
@@ -280,13 +329,25 @@ const RayCasting = (scenario, player, canvasMinimap, canvasScreen) => {
     const calcDistance = ({ object, target }) => {
         return Math.sqrt((target.x - object.x) * (target.x - object.x) + (target.y - object.y) * (target.y - object.y));
     };
+    // # Draw a debug Ray
+    const debugSingleRay = ({ toX, toY, color }) => {
+        const playerX = player.get('x');
+        const playerY = player.get('y');
+        canvasMiniMapDebug.canvas.drawLine({
+            x: playerX,
+            y: playerY,
+            toX: toX,
+            toY: toY,
+            color,
+        });
+    };
     // # Render Casted ray
     const renderRay = ({ rayX, rayY }) => {
         // ## Mini map 2D rendering
         // starting from where the player is to where it ends
         const playerX = player.get('x');
         const playerY = player.get('y');
-        canvasMinimap.drawLine({
+        canvasMinimap.canvas.drawLine({
             x: playerX,
             y: playerY,
             toX: rayX,
@@ -294,8 +355,30 @@ const RayCasting = (scenario, player, canvasMinimap, canvasScreen) => {
             color: '#00FFFF',
         });
     };
+    // # Render the fake 3D
+    const render3D = ({ distance, index }) => {
+        const maxLineHeight = config.game.render.line.maxHeight;
+        // Define the line height to draw
+        let lineHeight = (maxLineHeight * tileSize) / distance;
+        lineHeight = lineHeight > maxLineHeight ? maxLineHeight : lineHeight;
+        // Draw the line
+        canvasScreen.canvas.drawRectangle({
+            x: 0 + index,
+            y: 0,
+            toX: lineHeight,
+            toY: 0,
+            color: '',
+        });
+    };
     // # Ray Casting on horizontal lines
-    const castHorizontalRays = ({ rayAngle, playerX, playerY, isRayFacingDown, isRayFacingUp, isRayFacingRight, isRayFacingLeft, }) => {
+    const castHorizontalRays = ({ rayAngle }) => {
+        rayAngle = normalizeAngle(rayAngle);
+        const playerY = Math.floor(player.get('y'));
+        const playerX = Math.floor(player.get('x'));
+        const isRayFacingDown = rayAngle < Math.PI;
+        const isRayFacingUp = !isRayFacingDown;
+        const isRayFacingRight = rayAngle < PI2 || rayAngle > PI3;
+        const isRayFacingLeft = !isRayFacingRight;
         let currentDOF = 0;
         let horizontalDistance = 1000000; //we need to check the lowest value, so let's make it high
         let horizontalX = playerX;
@@ -313,13 +396,6 @@ const RayCasting = (scenario, player, canvasMinimap, canvasScreen) => {
         rayXoffset = tileSize / Math.tan(rayAngle);
         rayXoffset *= isRayFacingLeft && rayXoffset > 0 ? -1 : 1;
         rayXoffset *= isRayFacingRight && rayXoffset < 0 ? -1 : 1;
-        // ## ray os looking straight? left or right
-        // in this situation it's impossible for ray hit a horizontal line
-        if (rayAngle === 0 || rayAngle === Math.PI) {
-            rayX = playerX;
-            rayY = playerY;
-            currentDOF = props.dof; // so end loop
-        }
         // If facing up, need to add tile size so rayY will be right
         if (isRayFacingUp)
             rayY--;
@@ -358,7 +434,14 @@ const RayCasting = (scenario, player, canvasMinimap, canvasScreen) => {
         };
     };
     // # Ray Casting on vertical lines
-    const castVerticalRays = ({ rayAngle, playerX, playerY, isRayFacingDown, isRayFacingUp, isRayFacingRight, isRayFacingLeft, }) => {
+    const castVerticalRays = ({ rayAngle }) => {
+        rayAngle = normalizeAngle(rayAngle);
+        const playerY = Math.floor(player.get('y'));
+        const playerX = Math.floor(player.get('x'));
+        const isRayFacingDown = rayAngle < Math.PI;
+        const isRayFacingUp = !isRayFacingDown;
+        const isRayFacingRight = rayAngle < PI2 || rayAngle > PI3;
+        const isRayFacingLeft = !isRayFacingRight;
         let currentDOF = 0;
         let verticalDistance = 1000000; //we need to check the lowest value, so let's make it high
         let verticalX = playerX;
@@ -376,13 +459,6 @@ const RayCasting = (scenario, player, canvasMinimap, canvasScreen) => {
         rayYoffset = tileSize * Math.tan(rayAngle);
         rayYoffset *= isRayFacingUp && rayYoffset > 0 ? -1 : 1;
         rayYoffset *= isRayFacingDown && rayYoffset < 0 ? -1 : 1;
-        // ## ray os looking straight? left or right
-        // in this situation it's impossible for ray hit a horizontal line
-        if (rayAngle === 0 || rayAngle === Math.PI) {
-            rayX = playerX;
-            rayY = playerY;
-            currentDOF = props.dof; // so end loop
-        }
         // If facing left, need to add tile size so rayX will be right
         if (isRayFacingLeft)
             rayX--;
@@ -419,71 +495,51 @@ const RayCasting = (scenario, player, canvasMinimap, canvasScreen) => {
             verticalDistance,
         };
     };
+    // # Cast all Rays
+    const castRays = ({ rayAngle }) => {
+        const HorRays = castHorizontalRays({ rayAngle });
+        const VertRays = castVerticalRays({ rayAngle });
+        let distance;
+        // Which function gave the lowest value (lowest distance)?
+        let rayX, rayY;
+        if (VertRays.verticalDistance < HorRays.horizontalDistance) {
+            rayX = VertRays.verticalX;
+            rayY = VertRays.verticalY;
+            distance = VertRays.verticalDistance;
+        }
+        if (HorRays.horizontalDistance < VertRays.verticalDistance) {
+            rayX = HorRays.horizontalX;
+            rayY = HorRays.horizontalY;
+            distance = HorRays.horizontalDistance;
+        }
+        return {
+            rayX,
+            rayY,
+            distance,
+        };
+    };
+    // # Debug the Ray on front of player
+    const castDebugRay = () => {
+        const { rayX, rayY } = castRays({ rayAngle: player.get('angle') });
+        debugSingleRay({ toX: rayX, toY: rayY, color: '#BBFF00' });
+    };
+    // Render everything
     const render = () => {
         // Determine the ray angle of casting acording to player field of view
-        let rayAngle = player.get('angle') - DR * (props.fov / 2);
-        if (rayAngle < 0) {
-            rayAngle += 2 * Math.PI;
-        }
-        if (rayAngle > 2 * Math.PI) {
-            rayAngle -= 2 * Math.PI;
-        }
-        rayAngle = normalizeAngle(rayAngle);
-        const playerY = Math.floor(player.get('y'));
-        const playerX = Math.floor(player.get('x'));
-        const isRayFacingDown = rayAngle < Math.PI;
-        const isRayFacingUp = !isRayFacingDown;
-        const isRayFacingRight = rayAngle < PI2 || rayAngle > PI3;
-        const isRayFacingLeft = !isRayFacingRight;
-        // cast the rays  - substitute of FOR for performance reasons
-        for (let i = 0; i < props.fov; i++) {
-            const HorRays = castHorizontalRays({
-                rayAngle,
-                playerX,
-                playerY,
-                isRayFacingDown,
-                isRayFacingUp,
-                isRayFacingRight,
-                isRayFacingLeft,
-            });
-            const VertRays = castVerticalRays({
-                rayAngle,
-                playerX,
-                playerY,
-                isRayFacingDown,
-                isRayFacingUp,
-                isRayFacingRight,
-                isRayFacingLeft,
-            });
-            // Which function gave the lowest value (lowest distance)?
-            let rayX, rayY;
-            if (VertRays.verticalDistance < HorRays.horizontalDistance) {
-                rayX = VertRays.verticalX;
-                rayY = VertRays.verticalY;
-            }
-            if (HorRays.horizontalDistance < VertRays.verticalDistance) {
-                rayX = HorRays.horizontalX;
-                rayY = HorRays.horizontalY;
-            }
-            //const distance
+        let rayAngle = player.get('angle') - fovAngle / 2;
+        // Cast debug Ray
+        castDebugRay();
+        // cast the rays
+        for (let i = 0; i < raysQuantity; i++) {
+            // Cast rays
+            const { rayX, rayY, distance } = castRays({ rayAngle });
             // # Now render the slowest value
             // 2D ray
             renderRay({ rayX, rayY });
             // 3D wall - This is where we wanted to go
-            //render3DRay()
-            canvasScreen.drawText({
-                x: 0,
-                y: i * 25 + 25,
-                text: `rayAngle: ${rayAngle}`,
-            });
+            //render3D({ index: i, distance });
             // Increase angle for next ray
-            rayAngle += DR;
-            if (rayAngle < 0) {
-                rayAngle += 2 * Math.PI;
-            }
-            if (rayAngle > 2 * Math.PI) {
-                rayAngle -= 2 * Math.PI;
-            }
+            rayAngle += fovAngle / raysQuantity;
         }
     };
     return {
@@ -496,9 +552,9 @@ exports.default = RayCasting;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const RayCasting_1 = require("./RayCasting");
-const Scenario = (player, canvasMiniMap, canvasScreen, config) => {
+const Scenario = (player, canvasMiniMap, canvasMiniMapDebug, canvasScreen, config) => {
     const { tileSize, tilesX, tilesY, tiles, wallColor, floorColor } = config;
-    const rayCasting = RayCasting_1.default(config, player, canvasMiniMap, canvasScreen);
+    const rayCasting = RayCasting_1.default(config, player, canvasMiniMap, canvasMiniMapDebug, canvasScreen);
     // Tiles
     const renderTiles = () => {
         // Loop tiles
@@ -509,7 +565,14 @@ const Scenario = (player, canvasMiniMap, canvasScreen, config) => {
                 // Define tile color based on tile value (0,1)
                 const tileColor = tiles[y * tilesX + x] === 1 ? wallColor : floorColor;
                 // Minimap
-                canvasMiniMap.drawRectangle({
+                canvasMiniMap.canvas.drawRectangle({
+                    x: x0,
+                    y: y0,
+                    width: tileSize - 1,
+                    height: tileSize - 1,
+                    color: tileColor,
+                });
+                canvasMiniMapDebug.canvas.drawRectangle({
                     x: x0,
                     y: y0,
                     width: tileSize - 1,
@@ -525,8 +588,9 @@ const Scenario = (player, canvasMiniMap, canvasScreen, config) => {
     };
     // Render
     const render = (keysDown) => {
-        canvasScreen.reset();
-        canvasMiniMap.reset();
+        canvasScreen.canvas.reset();
+        canvasMiniMap.canvas.reset();
+        canvasMiniMapDebug.canvas.reset();
         renderTiles();
         renderRays();
         player.render(keysDown);
@@ -554,6 +618,7 @@ const Screen = (canvas) => {
     return {
         get,
         render,
+        canvas,
     };
 };
 exports.default = Screen;
@@ -571,10 +636,12 @@ const Game = () => {
     // constructor
     const screenCanvas = Canvas_1.default(config.screen);
     const screen = Screen_1.default(screenCanvas);
-    const minimapCanvas = Canvas_1.default(config.miniMap);
-    const minimap = MiniMap_1.default(minimapCanvas, config.miniMap);
-    const player = Player_1.default(minimapCanvas);
-    const scenario = Scenario_1.default(player, minimapCanvas, screenCanvas, config.scenario);
+    const minimap_singleRayCanvas = Canvas_1.default(config.miniMapSingleRay);
+    const minimap_singleRay = MiniMap_1.default(minimap_singleRayCanvas, config.miniMapSingleRay);
+    const minimapCanvas = Canvas_1.default(config.miniMapAllRays);
+    const minimap = MiniMap_1.default(minimapCanvas, config.miniMapAllRays);
+    const player = Player_1.default(minimap, minimap_singleRay, screen);
+    const scenario = Scenario_1.default(player, minimap, minimap_singleRay, screen, config.scenario);
     // FPS Control
     let fpsInterval = 0;
     let now = 0;

@@ -1,15 +1,22 @@
 import * as config from '../../config';
-import { CanvasType } from '../Canvas/types';
+import { MiniMapType } from '../MiniMap/types';
+import { ScreenType } from '../Screen/types';
 
-const Player = (canvas: CanvasType) => {
+const Player = (minimap: MiniMapType, debugmap: MiniMapType, screen: ScreenType) => {
   // Constructor
   const props = {
-    canvas,
+    minimap,
+    debugmap,
+    screen,
+    width: config.player.width,
+    height: config.player.height,
     x: config.player.x,
     y: config.player.y,
     deltaX: Math.cos(2 * Math.PI) * 5,
     deltaY: Math.sin(2 * Math.PI) * 5,
-    angle: Math.PI / 2,
+    angle: 0,
+    turnSpeed: config.player.turnSpeed,
+    speed: config.player.speed,
     fieldOfView: config.player.fieldOfView,
   };
 
@@ -36,23 +43,23 @@ const Player = (canvas: CanvasType) => {
 
   // Player movements
   const goFront = () => {
-    const { x, y, deltaX, deltaY } = props;
+    const { x, y, deltaX, deltaY, speed } = props;
 
-    setX(x + config.player.speed * deltaX);
-    setY(y + config.player.speed * deltaY);
+    setX(x + speed * deltaX);
+    setY(y + speed * deltaY);
   };
   const goBack = () => {
-    const { x, y, deltaX, deltaY } = props;
+    const { x, y, deltaX, deltaY, speed } = props;
 
-    setX(x - config.player.speed * deltaX);
-    setY(y - config.player.speed * deltaY);
+    setX(x - speed * deltaX);
+    setY(y - speed * deltaY);
   };
   const turnLeft = () => {
-    const { angle } = props;
+    const { angle, turnSpeed } = props;
 
     // Define angle
-    let newAngle = angle - 0.05;
-    if (newAngle < 0) newAngle = angle + 2 * Math.PI;
+    let newAngle = angle - turnSpeed;
+    if (newAngle < 0) newAngle = angle + 2 * Math.PI; // invert
 
     setAngle(newAngle);
 
@@ -61,10 +68,10 @@ const Player = (canvas: CanvasType) => {
     setDeltaY(Math.sin(newAngle) * 5);
   };
   const turnRight = () => {
-    const { angle } = props;
+    const { angle, turnSpeed } = props;
 
     // Define angle
-    let newAngle = angle + 0.05;
+    let newAngle = angle + turnSpeed;
     if (newAngle > 2 * Math.PI) newAngle = angle - 2 * Math.PI;
 
     setAngle(newAngle);
@@ -92,10 +99,18 @@ const Player = (canvas: CanvasType) => {
 
     // player body
     //props.canvas.drawRectangle({ x, y, width, height, color });
-    props.canvas.drawElipse({ x, y, radius: width, color });
+    props.minimap.canvas.drawElipse({ x, y, radius: width, color });
+    props.debugmap.canvas.drawElipse({ x, y, radius: width, color });
 
     // player eye direction
-    props.canvas.drawLine({
+    props.minimap.canvas.drawLine({
+      x,
+      y,
+      toX: x + deltaX * 5,
+      toY: y + deltaY * 5,
+      color: '#FF0000',
+    });
+    props.debugmap.canvas.drawLine({
       x,
       y,
       toX: x + deltaX * 5,

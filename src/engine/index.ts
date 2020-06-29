@@ -12,12 +12,15 @@ const Game = () => {
   const screenCanvas = Canvas(config.screen);
   const screen = Screen(screenCanvas);
 
-  const minimapCanvas = Canvas(config.miniMap);
-  const minimap = MiniMap(minimapCanvas, config.miniMap);
+  const minimap_singleRayCanvas = Canvas(config.miniMapSingleRay);
+  const minimap_singleRay = MiniMap(minimap_singleRayCanvas, config.miniMapSingleRay);
 
-  const player = Player(minimapCanvas);
+  const minimapCanvas = Canvas(config.miniMapAllRays);
+  const minimap = MiniMap(minimapCanvas, config.miniMapAllRays);
 
-  const scenario = Scenario(player, minimapCanvas, screenCanvas, config.scenario);
+  const player = Player(minimap, minimap_singleRay, screen);
+
+  const scenario = Scenario(player, minimap, minimap_singleRay, screen, config.scenario);
 
   // FPS Control
   let fpsInterval = 0;
