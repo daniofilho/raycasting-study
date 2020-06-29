@@ -38,8 +38,8 @@ export const miniMap: Types.MiniMapPropType = {
   opacity: 0.5,
   width: scenario.tilesX * scenario.tileSize,
   height: scenario.tilesY * scenario.tileSize,
-  relativeWidth: 200, //150,
-  relativeHeight: 200, //150,
+  relativeWidth: 800, //150,
+  relativeHeight: 800, //150,
   x: screen.width - 100,
   y: screen.height - 100,
 };
@@ -51,5 +51,5 @@ export const player: Types.PlayerPropsType = {
   height: scenario.tileSize / 2.5,
   color: '#FFFF00',
   speed: 0.3,
-  fieldOfView: 1,
+  fieldOfView: 60,
 };

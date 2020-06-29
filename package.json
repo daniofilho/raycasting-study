@@ -24,6 +24,7 @@
   "devDependencies": {
     "concurrently": "^5.2.0",
     "reload": "^3.1.0",
-    "typescript": "^3.9.5"
+    "typescript": "^3.9.5",
+    "watchify": "^3.11.1"
   }
 }

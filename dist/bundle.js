@@ -37,8 +37,8 @@ exports.miniMap = {
     opacity: 0.5,
     width: exports.scenario.tilesX * exports.scenario.tileSize,
     height: exports.scenario.tilesY * exports.scenario.tileSize,
-    relativeWidth: 200,
-    relativeHeight: 200,
+    relativeWidth: 800,
+    relativeHeight: 800,
     x: exports.screen.width - 100,
     y: exports.screen.height - 100,
 };
@@ -49,7 +49,7 @@ exports.player = {
     height: exports.scenario.tileSize / 2.5,
     color: '#FFFF00',
     speed: 0.3,
-    fieldOfView: 1,
+    fieldOfView: 60,
 };
 
 },{}],2:[function(require,module,exports){

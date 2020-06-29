@@ -4,6 +4,7 @@ import { CanvasType } from '../Canvas/types';
 
 const MiniMap = (canvas: CanvasType, config: MiniMapPropType) => {
   // Canvas relative size
+
   canvas.getCanvasDOM().style.width = config.relativeWidth + 'px';
   canvas.getCanvasDOM().style.height = config.relativeHeight + 'px';
   canvas.getCanvasDOM().style.opacity = config.opacity.toString();
