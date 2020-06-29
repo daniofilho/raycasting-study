@@ -2,6 +2,8 @@
 
 The game consist of moving a block (player) on a 2D map and render in a fake 3D canvas everything that player is seeing.
 
+[DEMO](https://daniofilho.com.br/estudo/raycasting-study/)
+
 # Install
 
 Install Typescript globally:

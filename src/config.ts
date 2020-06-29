@@ -56,8 +56,8 @@ export const miniMapSingleRay: Types.MiniMapPropType = {
   opacity: 1,
   width: scenario.tilesX * scenario.tileSize,
   height: scenario.tilesY * scenario.tileSize,
-  relativeWidth: 300, //150,
-  relativeHeight: 300, //150,
+  relativeWidth: 250,
+  relativeHeight: 250,
   x: screen.width - 100,
   y: screen.height - 100,
 };
@@ -67,8 +67,8 @@ export const miniMapAllRays: Types.MiniMapPropType = {
   opacity: 1,
   width: scenario.tilesX * scenario.tileSize,
   height: scenario.tilesY * scenario.tileSize,
-  relativeWidth: 300, //150,
-  relativeHeight: 300, //150,
+  relativeWidth: 250,
+  relativeHeight: 250,
   x: screen.width - 100,
   y: screen.height - 100,
 };

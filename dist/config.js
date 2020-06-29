@@ -54,8 +54,8 @@ exports.miniMapSingleRay = {
     opacity: 1,
     width: exports.scenario.tilesX * exports.scenario.tileSize,
     height: exports.scenario.tilesY * exports.scenario.tileSize,
-    relativeWidth: 300,
-    relativeHeight: 300,
+    relativeWidth: 250,
+    relativeHeight: 250,
     x: exports.screen.width - 100,
     y: exports.screen.height - 100,
 };
@@ -65,8 +65,8 @@ exports.miniMapAllRays = {
     opacity: 1,
     width: exports.scenario.tilesX * exports.scenario.tileSize,
     height: exports.scenario.tilesY * exports.scenario.tileSize,
-    relativeWidth: 300,
-    relativeHeight: 300,
+    relativeWidth: 250,
+    relativeHeight: 250,
     x: exports.screen.width - 100,
     y: exports.screen.height - 100,
 };

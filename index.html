@@ -7,23 +7,27 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <section>
-      <div>
-        <p>Single Ray calculation</p>
-        <canvas id="minimap_singleRay"></canvas>
-      </div>
-      <div>
-        <p>All rays casted</p>
-        <canvas id="minimap_allRays"></canvas>
-      </div>
-    </section>
+    <main>
+      <section>
+        <div>
+          <p>Single Ray calculation</p>
+          <canvas id="minimap_singleRay"></canvas>
+        </div>
+        <div>
+          <p>All rays casted</p>
+          <canvas id="minimap_allRays"></canvas>
+        </div>
+      </section>
 
-    <section>
-      <div>
-        <p>"3D" Render Result - Use arrow keys to move</p>
-        <canvas id="screen"></canvas>
-      </div>
-    </section>
+      <section>
+        <div>
+          <p>
+            "3D" Render Result - Use arrow keys to move<br />Be careful, there is no wall collision!
+          </p>
+          <canvas id="screen"></canvas>
+        </div>
+      </section>
+    </main>
 
     <script src="dist/bundle.js"></script>
   </body>
