@@ -3,6 +3,7 @@ export interface CanvasType {
   drawRectangle: Function;
   drawLine: Function;
   drawElipse: Function;
+  drawText: Function;
   get: Function;
   getConfig: Function;
   getContext: Function;

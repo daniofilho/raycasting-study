@@ -2,6 +2,7 @@ import Canvas from './Canvas';
 import Screen from './Screen';
 import MiniMap from './MiniMap';
 import Player from './Player';
+
 import Scenario from './Scenario';
 
 import * as config from '../config';

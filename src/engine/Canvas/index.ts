@@ -31,17 +31,47 @@ const Canvas = (config: CanvasPropType) => {
   const reset = () => {
     const { width, height, backgroundColor } = config;
     // Background
-    drawRectangle(0, 0, width, height, backgroundColor);
+    drawRectangle({ x: 0, y: 0, width, height, color: backgroundColor });
+  };
+
+  // Draw a text
+  interface drawTextType {
+    text: string;
+    x: number;
+    y: number;
+    color?: string;
+    size?: number;
+    align?: CanvasTextAlign;
+  }
+  const drawText = ({ text, x, y, color = '#000', size = 20, align = 'left' }: drawTextType) => {
+    context.font = `${size}px Arial`;
+    context.fillStyle = color;
+    context.textAlign = align;
+    context.fillText(text, x, y);
   };
 
   // Draw a rectangle on canvas
-  const drawRectangle = (x: number, y: number, width: number, height: number, color: string) => {
+  interface drawRectangleType {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    color: string;
+  }
+  const drawRectangle = ({ x, y, width, height, color }: drawRectangleType) => {
     context.fillStyle = color;
     context.fillRect(x, y, width, height);
   };
 
   // Draw a line on canvas
-  const drawLine = (x: number, y: number, toX: number, toY: number, color: string) => {
+  interface drawLineType {
+    x: number;
+    y: number;
+    toX: number;
+    toY: number;
+    color: string;
+  }
+  const drawLine = ({ x, y, toX, toY, color }: drawLineType) => {
     context.strokeStyle = color;
     context.beginPath();
     context.moveTo(x, y);
@@ -50,7 +80,13 @@ const Canvas = (config: CanvasPropType) => {
   };
 
   // Draw a circle on canvas
-  const drawElipse = (x: number, y: number, radius: number, color: string) => {
+  interface drawElipseType {
+    x: number;
+    y: number;
+    radius: number;
+    color?: string;
+  }
+  const drawElipse = ({ x, y, radius, color = '#FFF' }: drawElipseType) => {
     context.strokeStyle = color;
     context.beginPath();
     context.arc(x, y, radius, 0, 2 * Math.PI);
@@ -67,6 +103,7 @@ const Canvas = (config: CanvasPropType) => {
     drawRectangle,
     drawLine,
     drawElipse,
+    drawText,
   };
 };
 

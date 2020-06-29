@@ -3,9 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.player = exports.miniMap = exports.screen = exports.scenario = exports.game = void 0;
 exports.game = {
     fps: 60,
+    depthfOfField: 8,
 };
 exports.scenario = {
-    tileSize: 50,
+    tileSize: 32,
     tilesX: 9,
     tilesY: 9,
     // prettier-ignore
@@ -35,16 +36,17 @@ exports.miniMap = {
     opacity: 0.5,
     width: exports.scenario.tilesX * exports.scenario.tileSize,
     height: exports.scenario.tilesY * exports.scenario.tileSize,
-    relativeHeight: 500,
-    relativeWidth: 500,
+    relativeWidth: 200,
+    relativeHeight: 200,
     x: exports.screen.width - 100,
     y: exports.screen.height - 100,
 };
 exports.player = {
     x: exports.miniMap.width / 2,
     y: exports.miniMap.height / 2,
-    width: exports.scenario.tileSize / 2,
-    height: exports.scenario.tileSize / 2,
+    width: exports.scenario.tileSize / 2.5,
+    height: exports.scenario.tileSize / 2.5,
     color: '#FFFF00',
     speed: 0.3,
+    fieldOfView: 1,
 };

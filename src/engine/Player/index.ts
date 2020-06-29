@@ -9,7 +9,8 @@ const Player = (canvas: CanvasType) => {
     y: config.player.y,
     deltaX: Math.cos(2 * Math.PI) * 5,
     deltaY: Math.sin(2 * Math.PI) * 5,
-    angle: 0,
+    angle: Math.PI / 2,
+    fieldOfView: config.player.fieldOfView,
   };
 
   // Middlwares for setting props
@@ -90,11 +91,17 @@ const Player = (canvas: CanvasType) => {
     handleKeyUp(keyCodes);
 
     // player body
-    //props.canvas.drawRectangle(x, y, width, height, color);
-    props.canvas.drawElipse(x, y, width, color);
+    //props.canvas.drawRectangle({ x, y, width, height, color });
+    props.canvas.drawElipse({ x, y, radius: width, color });
 
     // player eye direction
-    props.canvas.drawLine(x, y, x + deltaX * 5, y + deltaY * 5, '#FF0000');
+    props.canvas.drawLine({
+      x,
+      y,
+      toX: x + deltaX * 5,
+      toY: y + deltaY * 5,
+      color: '#FF0000',
+    });
   };
 
   // Return all public functions

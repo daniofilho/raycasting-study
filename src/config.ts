@@ -2,10 +2,11 @@ import * as Types from 'types';
 
 export const game: Types.GameType = {
   fps: 60,
+  depthfOfField: 8,
 };
 
 export const scenario: Types.ScenarioType = {
-  tileSize: 50,
+  tileSize: 32,
   tilesX: 9,
   tilesY: 9,
   // prettier-ignore
@@ -37,8 +38,8 @@ export const miniMap: Types.MiniMapPropType = {
   opacity: 0.5,
   width: scenario.tilesX * scenario.tileSize,
   height: scenario.tilesY * scenario.tileSize,
-  relativeHeight: 500, //150
-  relativeWidth: 500, // 150
+  relativeWidth: 200, //150,
+  relativeHeight: 200, //150,
   x: screen.width - 100,
   y: screen.height - 100,
 };
@@ -46,8 +47,9 @@ export const miniMap: Types.MiniMapPropType = {
 export const player: Types.PlayerPropsType = {
   x: miniMap.width / 2,
   y: miniMap.height / 2,
-  width: scenario.tileSize / 2,
-  height: scenario.tileSize / 2,
+  width: scenario.tileSize / 2.5,
+  height: scenario.tileSize / 2.5,
   color: '#FFFF00',
   speed: 0.3,
+  fieldOfView: 1,
 };

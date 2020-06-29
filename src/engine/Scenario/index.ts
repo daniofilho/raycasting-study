@@ -12,7 +12,7 @@ const Scenario = (
 ) => {
   const { tileSize, tilesX, tilesY, tiles, wallColor, floorColor } = config;
 
-  const rayCasting = RayCasting();
+  const rayCasting = RayCasting(config, player, canvasMiniMap, canvasScreen);
 
   // Tiles
   const renderTiles = () => {
@@ -26,13 +26,21 @@ const Scenario = (
         const tileColor = tiles[y * tilesX + x] === 1 ? wallColor : floorColor;
 
         // Minimap
-        canvasMiniMap.drawRectangle(x0, y0, tileSize - 1, tileSize - 1, tileColor);
+        canvasMiniMap.drawRectangle({
+          x: x0,
+          y: y0,
+          width: tileSize - 1,
+          height: tileSize - 1,
+          color: tileColor,
+        });
       });
     });
   };
 
   // Ray Casting
-  const renderRays = () => {};
+  const renderRays = () => {
+    rayCasting.render();
+  };
 
   // Render
   const render = (keysDown: any) => {

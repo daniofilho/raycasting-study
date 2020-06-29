@@ -2,6 +2,7 @@
 
 export interface GameType {
   fps: number;
+  depthfOfField: number;
 }
 
 export interface ScenarioType {
@@ -46,4 +47,5 @@ export interface PlayerPropsType {
   height: number;
   color: string;
   speed: number;
+  fieldOfView: number;
 }
