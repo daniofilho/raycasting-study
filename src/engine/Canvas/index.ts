@@ -2,43 +2,47 @@ import { CanvasPropType } from '../../types';
 
 import { drawElipseType, drawLineType, drawRectangleType, drawTextType } from './types';
 
-const Canvas = (config: CanvasPropType) => {
-  // Constructor
-  const canvas = document.getElementById(config.canvasID) as HTMLCanvasElement;
-  const context = canvas.getContext('2d');
+class Canvas {
+  canvas: HTMLCanvasElement;
+  context: any;
+  config: CanvasPropType;
 
-  // Canvas Size
-  const { width, height } = config;
-  canvas.width = width;
-  canvas.height = height;
+  constructor(config: CanvasPropType) {
+    this.canvas = document.getElementById(config.canvasID) as HTMLCanvasElement;
+    this.context = this.canvas.getContext('2d');
+
+    this.config = config;
+
+    // Canvas Size
+    const { width, height } = config;
+    this.canvas.width = width;
+    this.canvas.height = height;
+  }
 
   // Get some prop
-  const get = (prop: string) => {
-    return canvas[prop];
+  get = (prop: string) => {
+    return this.canvas[prop];
   };
 
-  const getConfig = () => {
-    return config;
+  getConfig = () => {
+    return this.config;
   };
 
-  const getContext = () => {
-    return context;
-  };
-
-  const getCanvasDOM = () => {
-    return canvas;
+  getContext = () => {
+    return this.context;
   };
 
   // Reset canvas
-  const reset = () => {
-    const { width, height, backgroundColor } = config;
+  reset = () => {
+    const { width, height, backgroundColor } = this.config;
     // Background
-    drawRectangle({ x: 0, y: 0, width, height, color: backgroundColor });
+    this.drawRectangle({ x: 0, y: 0, width, height, color: backgroundColor });
   };
 
   // Draw a text
+  drawText = ({ text, x, y, color = '#000', size = 20, align = 'left' }: drawTextType) => {
+    const { context } = this;
 
-  const drawText = ({ text, x, y, color = '#000', size = 20, align = 'left' }: drawTextType) => {
     context.font = `${size}px Arial`;
     context.fillStyle = color;
     context.textAlign = align;
@@ -46,13 +50,17 @@ const Canvas = (config: CanvasPropType) => {
   };
 
   // Draw a rectangle on canvas
-  const drawRectangle = ({ x, y, width, height, color }: drawRectangleType) => {
+  drawRectangle = ({ x, y, width, height, color }: drawRectangleType) => {
+    const { context } = this;
+
     context.fillStyle = color;
     context.fillRect(x, y, width, height);
   };
 
   // Draw a line on canvas
-  const drawLine = ({ x, y, toX, toY, color }: drawLineType) => {
+  drawLine = ({ x, y, toX, toY, color }: drawLineType) => {
+    const { context } = this;
+
     context.strokeStyle = color;
     context.beginPath();
     context.moveTo(x, y);
@@ -61,25 +69,14 @@ const Canvas = (config: CanvasPropType) => {
   };
 
   // Draw a circle on canvas
-  const drawElipse = ({ x, y, radius, color = '#FFF' }: drawElipseType) => {
+  drawElipse = ({ x, y, radius, color = '#FFF' }: drawElipseType) => {
+    const { context } = this;
+
     context.strokeStyle = color;
     context.beginPath();
     context.arc(x, y, radius, 0, 2 * Math.PI);
     context.stroke();
   };
-
-  // Return all public functions
-  return {
-    reset,
-    get,
-    getConfig,
-    getContext,
-    getCanvasDOM,
-    drawRectangle,
-    drawLine,
-    drawElipse,
-    drawText,
-  };
-};
+}
 
 export default Canvas;

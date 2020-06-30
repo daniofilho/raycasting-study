@@ -39,5 +39,4 @@ export interface CanvasType {
   get: Function;
   getConfig: Function;
   getContext: Function;
-  getCanvasDOM: Function;
 }

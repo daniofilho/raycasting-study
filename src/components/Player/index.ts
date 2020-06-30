@@ -20,8 +20,22 @@ const Player = (minimap: MiniMapType, debugmap: MiniMapType, screen: ScreenType)
     fieldOfView: config.player.fieldOfView,
   };
 
-  const scenarioWidth = config.scenario.tilesX * config.scenario.tileSize;
-  const scenarioHeight = config.scenario.tilesY * config.scenario.tileSize;
+  const tiles = config.scenario.tiles;
+  const tileSize = config.scenario.tileSize;
+
+  const scenarioWidth = config.scenario.tilesX * tileSize;
+  const scenarioHeight = config.scenario.tilesY * tileSize;
+
+  const isPlayerCollidingWall = (x: number, y: number) => {
+    // # Simple Check, based on tile number
+
+    // Check Tile on position
+    const mapX = Math.floor(x / tileSize);
+    const mapY = Math.floor(y / tileSize);
+    const mapPosition = mapY * config.scenario.tilesX + mapX;
+
+    return tiles[mapPosition] !== 0;
+  };
 
   // Middlwares for setting props
   const setX = (x: number) => {
@@ -31,7 +45,10 @@ const Player = (minimap: MiniMapType, debugmap: MiniMapType, screen: ScreenType)
     if (newX > scenarioWidth) newX = scenarioWidth;
     if (newX < 0) newX = 0;
 
-    props.x = newX;
+    // Check collision before set
+    const isColliding = isPlayerCollidingWall(newX, props.y);
+
+    if (!isColliding) props.x = newX;
   };
   const setY = (y: number) => {
     let newY = y;
@@ -40,7 +57,10 @@ const Player = (minimap: MiniMapType, debugmap: MiniMapType, screen: ScreenType)
     if (newY > scenarioHeight) newY = scenarioHeight;
     if (newY < 0) newY = 0;
 
-    props.y = newY;
+    // Check collision before set
+    const isColliding = isPlayerCollidingWall(props.x, newY);
+
+    if (!isColliding) props.y = newY;
   };
   const setAngle = (angle: number) => {
     props.angle = angle;
@@ -114,18 +134,18 @@ const Player = (minimap: MiniMapType, debugmap: MiniMapType, screen: ScreenType)
 
     // player body
     //props.canvas.drawRectangle({ x, y, width, height, color });
-    props.minimap.canvas.drawElipse({ x, y, radius: width, color });
-    props.debugmap.canvas.drawElipse({ x, y, radius: width, color });
+    props.minimap.drawElipse({ x, y, radius: width, color });
+    props.debugmap.drawElipse({ x, y, radius: width, color });
 
     // player eye direction
-    props.minimap.canvas.drawLine({
+    props.minimap.drawLine({
       x,
       y,
       toX: x + deltaX * 5,
       toY: y + deltaY * 5,
       color: '#FF0000',
     });
-    props.debugmap.canvas.drawLine({
+    props.debugmap.drawLine({
       x,
       y,
       toX: x + deltaX * 5,

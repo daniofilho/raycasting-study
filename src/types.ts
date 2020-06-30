@@ -5,10 +5,13 @@ export interface GameType {
   depthfOfField: number;
   render: {
     light: number;
-    wall: {
-      width: number;
-    };
   };
+}
+
+export interface rgbType {
+  r: number;
+  g: number;
+  b: number;
 }
 
 export interface ScenarioType {
@@ -16,8 +19,14 @@ export interface ScenarioType {
   tilesX: number;
   tilesY: number;
   tiles: Array<number>;
-  wallColor: string;
-  floorColor: string;
+  minimap: {
+    wall: { color: string };
+    floor: { color: string };
+  };
+  screen: {
+    sky: { color: rgbType };
+    floor: { color: rgbType };
+  };
 }
 
 export interface CanvasPropType {

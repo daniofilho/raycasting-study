@@ -16,16 +16,26 @@ const Collision = () => {
   }
 
   const check = ({ object, target }: checkType) => {
+    const objectCenterX = object.x + object.width / 2;
+    const objectCenterY = object.y + object.height / 2;
+
+    const targetCenterX = target.x + target.width / 2;
+    const targetCenterY = target.y + target.height / 2;
+
     // stores the distance between the objects (must be rectangle)
-    var catX = object.x + object.width / 2 - target.x / 2;
-    var catY = object.y + object.height / 2 - target.y / 2;
+    var catX = objectCenterX - targetCenterX;
+    var catY = objectCenterY - targetCenterY;
 
     var sumHalfWidth = object.width / 2 + target.width / 2;
     var sumHalfHeight = object.height / 2 + target.height / 2;
 
+    console.log(Math.abs(catX), sumHalfWidth, Math.abs(catY), sumHalfHeight);
+
     if (Math.abs(catX) < sumHalfWidth && Math.abs(catY) < sumHalfHeight) {
+      console.log('colliding');
       return true;
     } else {
+      console.log('not');
       return false;
     }
   };

@@ -1,6 +1,6 @@
-import { MiniMapType } from '../../MiniMap/types';
-import { ScreenType } from '../../Screen/types';
-import { PlayerType } from '../../Player/types';
+import { MiniMapType } from '../../../components/MiniMap/types';
+import { ScreenType } from '../../../components/Screen/types';
+import { PlayerType } from '../../../components/Player/types';
 import { ScenarioType } from '../../../types';
 
 import {
@@ -65,7 +65,7 @@ const RayCasting = (
     const playerX = player.get('x');
     const playerY = player.get('y');
 
-    canvasMiniMapDebug.canvas.drawLine({
+    canvasMiniMapDebug.drawLine({
       x: playerX,
       y: playerY,
       toX: toX,
@@ -81,7 +81,7 @@ const RayCasting = (
     const playerX = player.get('x');
     const playerY = player.get('y');
 
-    canvasMinimap.canvas.drawLine({
+    canvasMinimap.drawLine({
       x: playerX,
       y: playerY,
       toX: rayX,
@@ -92,29 +92,58 @@ const RayCasting = (
 
   // # Render the fake 3D
   const render3D = ({ rayAngle, distance, index }: render3DType) => {
-    const wallWidth = config.game.render.wall.width;
+    // # Definitions
 
     const correctWallDistance = distance * Math.cos(rayAngle - player.get('angle'));
-
-    var distanceProjectionPlane =
-      canvasScreen.canvas.getConfig().width / 2 / Math.tan(fovAngle / 2);
+    const distanceProjectionPlane = canvasScreen.getConfig().width / 2 / Math.tan(fovAngle / 2);
 
     // Define the line height to draw
-    const lineHeight = (tileSize / correctWallDistance) * distanceProjectionPlane;
+    const wallHeight = (tileSize / correctWallDistance) * distanceProjectionPlane;
+    const wallWidth = Math.ceil(canvasScreen.getConfig().width / raysQuantity);
 
     // Find positions
-    const x = index * wallWidth;
-    const y = canvasScreen.canvas.getConfig().height / 2 - lineHeight / 2;
-
-    // Define sizes
-    const width = wallWidth;
-    const height = lineHeight;
+    const wallX = index * wallWidth;
+    const wallY = canvasScreen.getConfig().height / 2 - wallHeight / 2;
 
     // Set alpha color to simulate lighting
     const alpha = config.game.render.light / correctWallDistance;
 
-    // Draw the line
-    canvasScreen.canvas.drawRectangle({ x, y, width, height, color: `rgba(255,100,100,${alpha})` });
+    // Wall color
+    const wallColor = `rgba(100,255,100,${alpha})`;
+
+    // # Render
+
+    // Draw Sky
+    const { r: skyR, g: skyG, b: skyB } = scenario.screen.sky.color;
+    const skyColor = `rgb(${skyR}, ${skyG}, ${skyB})`;
+    canvasScreen.drawRectangle({
+      x: wallX,
+      y: 0,
+      width: wallWidth,
+      height: wallY,
+      color: skyColor,
+    });
+
+    // Draw wall
+    canvasScreen.drawRectangle({
+      x: wallX,
+      y: wallY,
+      width: wallWidth,
+      height: wallHeight,
+      color: wallColor,
+    });
+
+    // Draw Floor
+    const { r: floorR, g: floorG, b: floorB } = scenario.screen.floor.color;
+    const floorColor = `rgb(${floorR}, ${floorG}, ${floorB})`;
+    const floorY = wallY + wallHeight;
+    canvasScreen.drawRectangle({
+      x: wallX,
+      y: floorY,
+      width: wallWidth,
+      height: canvasScreen.getConfig().height - floorY,
+      color: floorColor,
+    });
   };
 
   // # Ray Casting on horizontal lines
@@ -166,7 +195,7 @@ const RayCasting = (
       if (
         mapPosition > 0 && // inside screen
         mapPosition < tilesX * tilesY && // not out screen
-        tiles[mapPosition] === 1 // hit wall
+        tiles[mapPosition] !== 0 // hit wall
       ) {
         // Save values to check lowest later
         horizontalX = rayX;

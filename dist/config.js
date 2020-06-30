@@ -6,27 +6,12 @@ exports.game = {
     depthfOfField: 10,
     render: {
         light: 40,
-        wall: {
-            width: 3,
-        },
     },
 };
 exports.scenario = {
     tileSize: 32,
     tilesX: 9,
     tilesY: 9,
-    // prettier-ignore
-    /*tiles: [
-      1, 1, 1, 1, 1, 1, 1, 1, 1,
-      1, 0, 0, 0, 0, 0, 0, 0, 1,
-      1, 0, 0, 0, 0, 0, 0, 0, 1,
-      1, 0, 0, 0, 0, 0, 0, 0, 1,
-      1, 0, 0, 0, 0, 0, 0, 0, 1,
-      1, 0, 0, 0, 0, 0, 0, 0, 1,
-      1, 0, 0, 0, 0, 0, 0, 0, 1,
-      1, 0, 0, 0, 0, 0, 0, 0, 1,
-      1, 1, 1, 1, 1, 1, 1, 1, 1,
-    ],*/
     // prettier-ignore
     tiles: [
         1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -39,8 +24,18 @@ exports.scenario = {
         1, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1,
     ],
-    wallColor: '#008800',
-    floorColor: 'rgba(0,0,0,0.5)',
+    minimap: {
+        wall: { color: '#008800' },
+        floor: { color: 'rgba(0,0,0,0.5)' },
+    },
+    screen: {
+        sky: {
+            color: { r: 80, g: 156, b: 200 },
+        },
+        floor: {
+            color: { r: 70, g: 70, b: 70 },
+        },
+    },
 };
 exports.screen = {
     canvasID: 'screen',

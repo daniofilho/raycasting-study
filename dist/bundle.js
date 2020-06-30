@@ -1,185 +1,23 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.player = exports.miniMapAllRays = exports.miniMapSingleRay = exports.screen = exports.scenario = exports.game = void 0;
-exports.game = {
-    fps: 60,
-    depthfOfField: 10,
-    render: {
-        light: 40,
-        wall: {
-            width: 3,
-        },
-    },
-};
-exports.scenario = {
-    tileSize: 32,
-    tilesX: 9,
-    tilesY: 9,
-    // prettier-ignore
-    /*tiles: [
-      1, 1, 1, 1, 1, 1, 1, 1, 1,
-      1, 0, 0, 0, 0, 0, 0, 0, 1,
-      1, 0, 0, 0, 0, 0, 0, 0, 1,
-      1, 0, 0, 0, 0, 0, 0, 0, 1,
-      1, 0, 0, 0, 0, 0, 0, 0, 1,
-      1, 0, 0, 0, 0, 0, 0, 0, 1,
-      1, 0, 0, 0, 0, 0, 0, 0, 1,
-      1, 0, 0, 0, 0, 0, 0, 0, 1,
-      1, 1, 1, 1, 1, 1, 1, 1, 1,
-    ],*/
-    // prettier-ignore
-    tiles: [
-        1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 0, 1, 0, 0, 0, 0, 0, 1,
-        1, 0, 1, 0, 0, 1, 1, 0, 1,
-        1, 0, 1, 0, 0, 0, 1, 0, 1,
-        1, 0, 0, 0, 0, 0, 1, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 1, 1, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1,
-    ],
-    wallColor: '#008800',
-    floorColor: 'rgba(0,0,0,0.5)',
-};
-exports.screen = {
-    canvasID: 'screen',
-    backgroundColor: '#333333',
-    width: 800,
-    height: 600,
-};
-exports.miniMapSingleRay = {
-    canvasID: 'minimap_singleRay',
-    backgroundColor: '#000',
-    opacity: 1,
-    width: exports.scenario.tilesX * exports.scenario.tileSize,
-    height: exports.scenario.tilesY * exports.scenario.tileSize,
-    relativeWidth: 250,
-    relativeHeight: 250,
-    x: exports.screen.width - 100,
-    y: exports.screen.height - 100,
-};
-exports.miniMapAllRays = {
-    canvasID: 'minimap_allRays',
-    backgroundColor: '#000',
-    opacity: 1,
-    width: exports.scenario.tilesX * exports.scenario.tileSize,
-    height: exports.scenario.tilesY * exports.scenario.tileSize,
-    relativeWidth: 250,
-    relativeHeight: 250,
-    x: exports.screen.width - 100,
-    y: exports.screen.height - 100,
-};
-exports.player = {
-    x: exports.miniMapAllRays.width / 2,
-    y: exports.miniMapAllRays.height / 2,
-    width: exports.scenario.tileSize / 2.5,
-    height: exports.scenario.tileSize / 2.5,
-    color: '#FFFF00',
-    speed: 0.3,
-    turnSpeed: 0.03,
-    fieldOfView: 60,
-};
-
-},{}],2:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Canvas = (config) => {
-    // Constructor
-    const canvas = document.getElementById(config.canvasID);
-    const context = canvas.getContext('2d');
-    // Canvas Size
-    const { width, height } = config;
-    canvas.width = width;
-    canvas.height = height;
-    // Get some prop
-    const get = (prop) => {
-        return canvas[prop];
-    };
-    const getConfig = () => {
-        return config;
-    };
-    const getContext = () => {
-        return context;
-    };
-    const getCanvasDOM = () => {
-        return canvas;
-    };
-    // Reset canvas
-    const reset = () => {
-        const { width, height, backgroundColor } = config;
-        // Background
-        drawRectangle({ x: 0, y: 0, width, height, color: backgroundColor });
-    };
-    // Draw a text
-    const drawText = ({ text, x, y, color = '#000', size = 20, align = 'left' }) => {
-        context.font = `${size}px Arial`;
-        context.fillStyle = color;
-        context.textAlign = align;
-        context.fillText(text, x, y);
-    };
-    // Draw a rectangle on canvas
-    const drawRectangle = ({ x, y, width, height, color }) => {
-        context.fillStyle = color;
-        context.fillRect(x, y, width, height);
-    };
-    // Draw a line on canvas
-    const drawLine = ({ x, y, toX, toY, color }) => {
-        context.strokeStyle = color;
-        context.beginPath();
-        context.moveTo(x, y);
-        context.lineTo(toX, toY);
-        context.stroke();
-    };
-    // Draw a circle on canvas
-    const drawElipse = ({ x, y, radius, color = '#FFF' }) => {
-        context.strokeStyle = color;
-        context.beginPath();
-        context.arc(x, y, radius, 0, 2 * Math.PI);
-        context.stroke();
-    };
-    // Return all public functions
-    return {
-        reset,
-        get,
-        getConfig,
-        getContext,
-        getCanvasDOM,
-        drawRectangle,
-        drawLine,
-        drawElipse,
-        drawText,
-    };
-};
-exports.default = Canvas;
-
-},{}],3:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const MiniMap = (canvas, config) => {
-    // Canvas relative size
-    canvas.getCanvasDOM().style.width = config.relativeWidth + 'px';
-    canvas.getCanvasDOM().style.height = config.relativeHeight + 'px';
-    canvas.getCanvasDOM().style.opacity = config.opacity.toString();
-    // Get some prop
-    const get = (prop) => {
-        return canvas.get(prop);
-    };
-    // Render
-    const render = () => {
-        canvas.reset();
-    };
-    // Return all public functions
-    return {
-        get,
-        render,
-        canvas,
-    };
-};
+const Canvas_1 = require("../../engine/Canvas");
+class MiniMap extends Canvas_1.default {
+    constructor(config) {
+        super(config);
+        // Render
+        this.render = () => {
+            this.reset();
+        };
+        // Canvas relative size
+        this.canvas.style.width = config.relativeWidth + 'px';
+        this.canvas.style.height = config.relativeHeight + 'px';
+        this.canvas.style.opacity = config.opacity.toString();
+    }
+}
 exports.default = MiniMap;
 
-},{}],4:[function(require,module,exports){
+},{"../../engine/Canvas":5}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config = require("../../config");
@@ -200,8 +38,18 @@ const Player = (minimap, debugmap, screen) => {
         speed: config.player.speed,
         fieldOfView: config.player.fieldOfView,
     };
-    const scenarioWidth = config.scenario.tilesX * config.scenario.tileSize;
-    const scenarioHeight = config.scenario.tilesY * config.scenario.tileSize;
+    const tiles = config.scenario.tiles;
+    const tileSize = config.scenario.tileSize;
+    const scenarioWidth = config.scenario.tilesX * tileSize;
+    const scenarioHeight = config.scenario.tilesY * tileSize;
+    const isPlayerCollidingWall = (x, y) => {
+        // # Simple Check, based on tile number
+        // Check Tile on position
+        const mapX = Math.floor(x / tileSize);
+        const mapY = Math.floor(y / tileSize);
+        const mapPosition = mapY * config.scenario.tilesX + mapX;
+        return tiles[mapPosition] !== 0;
+    };
     // Middlwares for setting props
     const setX = (x) => {
         let newX = x;
@@ -210,7 +58,10 @@ const Player = (minimap, debugmap, screen) => {
             newX = scenarioWidth;
         if (newX < 0)
             newX = 0;
-        props.x = newX;
+        // Check collision before set
+        const isColliding = isPlayerCollidingWall(newX, props.y);
+        if (!isColliding)
+            props.x = newX;
     };
     const setY = (y) => {
         let newY = y;
@@ -219,7 +70,10 @@ const Player = (minimap, debugmap, screen) => {
             newY = scenarioHeight;
         if (newY < 0)
             newY = 0;
-        props.y = newY;
+        // Check collision before set
+        const isColliding = isPlayerCollidingWall(props.x, newY);
+        if (!isColliding)
+            props.y = newY;
     };
     const setAngle = (angle) => {
         props.angle = angle;
@@ -285,17 +139,17 @@ const Player = (minimap, debugmap, screen) => {
         handleKeyUp(keyCodes);
         // player body
         //props.canvas.drawRectangle({ x, y, width, height, color });
-        props.minimap.canvas.drawElipse({ x, y, radius: width, color });
-        props.debugmap.canvas.drawElipse({ x, y, radius: width, color });
+        props.minimap.drawElipse({ x, y, radius: width, color });
+        props.debugmap.drawElipse({ x, y, radius: width, color });
         // player eye direction
-        props.minimap.canvas.drawLine({
+        props.minimap.drawLine({
             x,
             y,
             toX: x + deltaX * 5,
             toY: y + deltaY * 5,
             color: '#FF0000',
         });
-        props.debugmap.canvas.drawLine({
+        props.debugmap.drawLine({
             x,
             y,
             toX: x + deltaX * 5,
@@ -311,7 +165,164 @@ const Player = (minimap, debugmap, screen) => {
 };
 exports.default = Player;
 
-},{"../../config":1}],5:[function(require,module,exports){
+},{"../../config":4}],3:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const Canvas_1 = require("../../engine/Canvas");
+class Screen extends Canvas_1.default {
+    constructor(config) {
+        super(config);
+        // Render
+        this.render = () => {
+            this.reset();
+        };
+    }
+}
+exports.default = Screen;
+
+},{"../../engine/Canvas":5}],4:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.player = exports.miniMapAllRays = exports.miniMapSingleRay = exports.screen = exports.scenario = exports.game = void 0;
+exports.game = {
+    fps: 60,
+    depthfOfField: 10,
+    render: {
+        light: 40,
+    },
+};
+exports.scenario = {
+    tileSize: 32,
+    tilesX: 9,
+    tilesY: 9,
+    // prettier-ignore
+    tiles: [
+        1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 0, 1, 0, 0, 0, 0, 0, 1,
+        1, 0, 1, 0, 0, 1, 1, 0, 1,
+        1, 0, 1, 0, 0, 0, 1, 0, 1,
+        1, 0, 0, 0, 0, 0, 1, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 1, 1, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1,
+    ],
+    minimap: {
+        wall: { color: '#008800' },
+        floor: { color: 'rgba(0,0,0,0.5)' },
+    },
+    screen: {
+        sky: {
+            color: { r: 80, g: 156, b: 200 },
+        },
+        floor: {
+            color: { r: 70, g: 70, b: 70 },
+        },
+    },
+};
+exports.screen = {
+    canvasID: 'screen',
+    backgroundColor: '#333333',
+    width: 800,
+    height: 600,
+};
+exports.miniMapSingleRay = {
+    canvasID: 'minimap_singleRay',
+    backgroundColor: '#000',
+    opacity: 1,
+    width: exports.scenario.tilesX * exports.scenario.tileSize,
+    height: exports.scenario.tilesY * exports.scenario.tileSize,
+    relativeWidth: 250,
+    relativeHeight: 250,
+    x: exports.screen.width - 100,
+    y: exports.screen.height - 100,
+};
+exports.miniMapAllRays = {
+    canvasID: 'minimap_allRays',
+    backgroundColor: '#000',
+    opacity: 1,
+    width: exports.scenario.tilesX * exports.scenario.tileSize,
+    height: exports.scenario.tilesY * exports.scenario.tileSize,
+    relativeWidth: 250,
+    relativeHeight: 250,
+    x: exports.screen.width - 100,
+    y: exports.screen.height - 100,
+};
+exports.player = {
+    x: exports.miniMapAllRays.width / 2,
+    y: exports.miniMapAllRays.height / 2,
+    width: exports.scenario.tileSize / 2.5,
+    height: exports.scenario.tileSize / 2.5,
+    color: '#FFFF00',
+    speed: 0.3,
+    turnSpeed: 0.03,
+    fieldOfView: 60,
+};
+
+},{}],5:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class Canvas {
+    constructor(config) {
+        // Get some prop
+        this.get = (prop) => {
+            return this.canvas[prop];
+        };
+        this.getConfig = () => {
+            return this.config;
+        };
+        this.getContext = () => {
+            return this.context;
+        };
+        // Reset canvas
+        this.reset = () => {
+            const { width, height, backgroundColor } = this.config;
+            // Background
+            this.drawRectangle({ x: 0, y: 0, width, height, color: backgroundColor });
+        };
+        // Draw a text
+        this.drawText = ({ text, x, y, color = '#000', size = 20, align = 'left' }) => {
+            const { context } = this;
+            context.font = `${size}px Arial`;
+            context.fillStyle = color;
+            context.textAlign = align;
+            context.fillText(text, x, y);
+        };
+        // Draw a rectangle on canvas
+        this.drawRectangle = ({ x, y, width, height, color }) => {
+            const { context } = this;
+            context.fillStyle = color;
+            context.fillRect(x, y, width, height);
+        };
+        // Draw a line on canvas
+        this.drawLine = ({ x, y, toX, toY, color }) => {
+            const { context } = this;
+            context.strokeStyle = color;
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(toX, toY);
+            context.stroke();
+        };
+        // Draw a circle on canvas
+        this.drawElipse = ({ x, y, radius, color = '#FFF' }) => {
+            const { context } = this;
+            context.strokeStyle = color;
+            context.beginPath();
+            context.arc(x, y, radius, 0, 2 * Math.PI);
+            context.stroke();
+        };
+        this.canvas = document.getElementById(config.canvasID);
+        this.context = this.canvas.getContext('2d');
+        this.config = config;
+        // Canvas Size
+        const { width, height } = config;
+        this.canvas.width = width;
+        this.canvas.height = height;
+    }
+}
+exports.default = Canvas;
+
+},{}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config = require("../../../config");
@@ -348,7 +359,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
     const debugSingleRay = ({ toX, toY, color }) => {
         const playerX = player.get('x');
         const playerY = player.get('y');
-        canvasMiniMapDebug.canvas.drawLine({
+        canvasMiniMapDebug.drawLine({
             x: playerX,
             y: playerY,
             toX: toX,
@@ -362,7 +373,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
         // starting from where the player is to where it ends
         const playerX = player.get('x');
         const playerY = player.get('y');
-        canvasMinimap.canvas.drawLine({
+        canvasMinimap.drawLine({
             x: playerX,
             y: playerY,
             toX: rayX,
@@ -372,21 +383,49 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
     };
     // # Render the fake 3D
     const render3D = ({ rayAngle, distance, index }) => {
-        const wallWidth = config.game.render.wall.width;
+        // # Definitions
         const correctWallDistance = distance * Math.cos(rayAngle - player.get('angle'));
-        var distanceProjectionPlane = canvasScreen.canvas.getConfig().width / 2 / Math.tan(fovAngle / 2);
+        const distanceProjectionPlane = canvasScreen.getConfig().width / 2 / Math.tan(fovAngle / 2);
         // Define the line height to draw
-        const lineHeight = (tileSize / correctWallDistance) * distanceProjectionPlane;
+        const wallHeight = (tileSize / correctWallDistance) * distanceProjectionPlane;
+        const wallWidth = Math.ceil(canvasScreen.getConfig().width / raysQuantity);
         // Find positions
-        const x = index * wallWidth;
-        const y = canvasScreen.canvas.getConfig().height / 2 - lineHeight / 2;
-        // Define sizes
-        const width = wallWidth;
-        const height = lineHeight;
+        const wallX = index * wallWidth;
+        const wallY = canvasScreen.getConfig().height / 2 - wallHeight / 2;
         // Set alpha color to simulate lighting
         const alpha = config.game.render.light / correctWallDistance;
-        // Draw the line
-        canvasScreen.canvas.drawRectangle({ x, y, width, height, color: `rgba(255,100,100,${alpha})` });
+        // Wall color
+        const wallColor = `rgba(100,255,100,${alpha})`;
+        // # Render
+        // Draw Sky
+        const { r: skyR, g: skyG, b: skyB } = scenario.screen.sky.color;
+        const skyColor = `rgb(${skyR}, ${skyG}, ${skyB})`;
+        canvasScreen.drawRectangle({
+            x: wallX,
+            y: 0,
+            width: wallWidth,
+            height: wallY,
+            color: skyColor,
+        });
+        // Draw wall
+        canvasScreen.drawRectangle({
+            x: wallX,
+            y: wallY,
+            width: wallWidth,
+            height: wallHeight,
+            color: wallColor,
+        });
+        // Draw Floor
+        const { r: floorR, g: floorG, b: floorB } = scenario.screen.floor.color;
+        const floorColor = `rgb(${floorR}, ${floorG}, ${floorB})`;
+        const floorY = wallY + wallHeight;
+        canvasScreen.drawRectangle({
+            x: wallX,
+            y: floorY,
+            width: wallWidth,
+            height: canvasScreen.getConfig().height - floorY,
+            color: floorColor,
+        });
     };
     // # Ray Casting on horizontal lines
     const castHorizontalRays = ({ rayAngle }) => {
@@ -426,7 +465,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             // Check if ray hits a wall or scenario bounds
             if (mapPosition > 0 && // inside screen
                 mapPosition < tilesX * tilesY && // not out screen
-                tiles[mapPosition] === 1 // hit wall
+                tiles[mapPosition] !== 0 // hit wall
             ) {
                 // Save values to check lowest later
                 horizontalX = rayX;
@@ -565,12 +604,12 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
 };
 exports.default = RayCasting;
 
-},{"../../../config":1}],6:[function(require,module,exports){
+},{"../../../config":4}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const RayCasting_1 = require("./RayCasting");
 const Scenario = (player, canvasMiniMap, canvasMiniMapDebug, canvasScreen, config) => {
-    const { tileSize, tilesX, tilesY, tiles, wallColor, floorColor } = config;
+    const { tileSize, tilesX, tilesY, tiles, minimap: { wall: { color: wallColor }, floor: { color: floorColor }, }, } = config;
     const rayCasting = RayCasting_1.default(config, player, canvasMiniMap, canvasMiniMapDebug, canvasScreen);
     // Tiles
     const renderTiles = () => {
@@ -582,14 +621,14 @@ const Scenario = (player, canvasMiniMap, canvasMiniMapDebug, canvasScreen, confi
                 // Define tile color based on tile value (0,1)
                 const tileColor = tiles[y * tilesX + x] === 1 ? wallColor : floorColor;
                 // Minimap
-                canvasMiniMap.canvas.drawRectangle({
+                canvasMiniMap.drawRectangle({
                     x: x0,
                     y: y0,
                     width: tileSize - 1,
                     height: tileSize - 1,
                     color: tileColor,
                 });
-                canvasMiniMapDebug.canvas.drawRectangle({
+                canvasMiniMapDebug.drawRectangle({
                     x: x0,
                     y: y0,
                     width: tileSize - 1,
@@ -605,12 +644,11 @@ const Scenario = (player, canvasMiniMap, canvasMiniMapDebug, canvasScreen, confi
         rayCasting.render();
     };
     // Render
-    const render = (keysDown) => {
+    const render = () => {
         canvasMiniMap.render();
         canvasMiniMapDebug.render();
         renderTiles();
         renderRays();
-        player.render(keysDown);
     };
     // Return all public functions
     return {
@@ -619,44 +657,19 @@ const Scenario = (player, canvasMiniMap, canvasMiniMapDebug, canvasScreen, confi
 };
 exports.default = Scenario;
 
-},{"./RayCasting":5}],7:[function(require,module,exports){
+},{"./RayCasting":6}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Screen = (canvas) => {
-    // Get some prop
-    const get = (prop) => {
-        return canvas.get(prop);
-    };
-    // Render
-    const render = () => {
-        canvas.reset();
-    };
-    // Return all public functions
-    return {
-        get,
-        render,
-        canvas,
-    };
-};
-exports.default = Screen;
-
-},{}],8:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Canvas_1 = require("./Canvas");
-const Screen_1 = require("./Screen");
-const MiniMap_1 = require("./MiniMap");
-const Player_1 = require("./Player");
+const Screen_1 = require("../components/Screen");
+const MiniMap_1 = require("../components/MiniMap");
+const Player_1 = require("../components/Player");
 const Scenario_1 = require("./Scenario");
 const config = require("../config");
 const Game = () => {
     // constructor
-    const screenCanvas = Canvas_1.default(config.screen);
-    const screen = Screen_1.default(screenCanvas);
-    const minimap_singleRayCanvas = Canvas_1.default(config.miniMapSingleRay);
-    const minimap_singleRay = MiniMap_1.default(minimap_singleRayCanvas, config.miniMapSingleRay);
-    const minimapCanvas = Canvas_1.default(config.miniMapAllRays);
-    const minimap = MiniMap_1.default(minimapCanvas, config.miniMapAllRays);
+    const screen = new Screen_1.default(config.screen);
+    const minimap_singleRay = new MiniMap_1.default(config.miniMapSingleRay);
+    const minimap = new MiniMap_1.default(config.miniMapAllRays);
     const player = Player_1.default(minimap, minimap_singleRay, screen);
     const scenario = Scenario_1.default(player, minimap, minimap_singleRay, screen, config.scenario);
     // FPS Control
@@ -691,7 +704,8 @@ const Game = () => {
     // # The Game Loop
     const updateGame = () => {
         // # What to update every frame?
-        scenario.render(keysDown);
+        scenario.render();
+        player.render(keysDown);
     };
     // # "Thread" tha runs the game
     const runGame = (fps) => {
@@ -722,7 +736,7 @@ const Game = () => {
 };
 exports.default = Game;
 
-},{"../config":1,"./Canvas":2,"./MiniMap":3,"./Player":4,"./Scenario":6,"./Screen":7}],9:[function(require,module,exports){
+},{"../components/MiniMap":1,"../components/Player":2,"../components/Screen":3,"../config":4,"./Scenario":7}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const engine_1 = require("./engine");

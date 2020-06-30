@@ -1,7 +1,6 @@
-import Canvas from './Canvas';
-import Screen from './Screen';
-import MiniMap from './MiniMap';
-import Player from './Player';
+import Screen from '../components/Screen';
+import MiniMap from '../components/MiniMap';
+import Player from '../components/Player';
 
 import Scenario from './Scenario';
 
@@ -9,14 +8,11 @@ import * as config from '../config';
 
 const Game = () => {
   // constructor
-  const screenCanvas = Canvas(config.screen);
-  const screen = Screen(screenCanvas);
+  const screen = new Screen(config.screen);
 
-  const minimap_singleRayCanvas = Canvas(config.miniMapSingleRay);
-  const minimap_singleRay = MiniMap(minimap_singleRayCanvas, config.miniMapSingleRay);
+  const minimap_singleRay = new MiniMap(config.miniMapSingleRay);
 
-  const minimapCanvas = Canvas(config.miniMapAllRays);
-  const minimap = MiniMap(minimapCanvas, config.miniMapAllRays);
+  const minimap = new MiniMap(config.miniMapAllRays);
 
   const player = Player(minimap, minimap_singleRay, screen);
 
@@ -71,7 +67,9 @@ const Game = () => {
   // # The Game Loop
   const updateGame = () => {
     // # What to update every frame?
-    scenario.render(keysDown);
+    scenario.render();
+
+    player.render(keysDown);
   };
 
   // # "Thread" tha runs the game
