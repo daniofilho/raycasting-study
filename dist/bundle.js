@@ -186,26 +186,36 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.player = exports.miniMapAllRays = exports.miniMapSingleRay = exports.screen = exports.scenario = exports.game = void 0;
 exports.game = {
     fps: 60,
-    depthfOfField: 10,
+    depthfOfField: 50,
     render: {
         light: 40,
     },
 };
 exports.scenario = {
     tileSize: 32,
-    tilesX: 9,
-    tilesY: 9,
+    tilesX: 15,
+    tilesY: 19,
     // prettier-ignore
     tiles: [
-        1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 0, 1, 0, 0, 0, 0, 0, 1,
-        1, 0, 1, 0, 0, 1, 1, 0, 1,
-        1, 0, 1, 0, 0, 0, 1, 0, 1,
-        1, 0, 0, 0, 0, 0, 1, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 1, 1, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
+        1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
+        1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1,
+        1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1,
+        1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
+        1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+        1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1,
+        1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1,
+        1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1,
+        1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
+        1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     ],
     minimap: {
         wall: { color: '#008800' },
@@ -279,6 +289,18 @@ class Canvas {
             const { width, height, backgroundColor } = this.config;
             // Background
             this.drawRectangle({ x: 0, y: 0, width, height, color: backgroundColor });
+        };
+        // Create a Line Gradient
+        this.createLineGradient = (color1, color2) => {
+            const grd = this.context.createLinearGradient(0, 0, 0, 600);
+            grd.addColorStop(0, color1);
+            grd.addColorStop(1, color2);
+            return grd;
+        };
+        // Create a texture pattern
+        this.createPattern = (elementID) => {
+            const img = document.getElementById(elementID);
+            return this.context.createPattern(img, 'no-repeat');
         };
         // Draw a text
         this.drawText = ({ text, x, y, color = '#000', size = 20, align = 'left' }) => {
@@ -381,7 +403,35 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             color: '#00FFFF',
         });
     };
-    // # Render the fake 3D
+    // # Render Sky
+    const renderSky = (wallX, wallY, wallWidth) => {
+        const { r: skyR, g: skyG, b: skyB } = scenario.screen.sky.color;
+        const skyColor = `rgb(${skyR}, ${skyG}, ${skyB})`;
+        //const gradient = canvasScreen.createLineGradient('#248ADA', '#0E45A9');
+        const pattern = canvasScreen.createPattern('sky');
+        canvasScreen.drawRectangle({
+            x: wallX,
+            y: 0,
+            width: wallWidth,
+            height: wallY,
+            color: pattern,
+        });
+    };
+    // # Render Floor
+    const renderFloor = (wallX, wallY, wallWidth, wallHeight) => {
+        const { r: floorR, g: floorG, b: floorB } = scenario.screen.floor.color;
+        const floorColor = `rgb(${floorR}, ${floorG}, ${floorB})`;
+        const gradient = canvasScreen.createLineGradient('#303030', '#707070');
+        const floorY = wallY + wallHeight;
+        canvasScreen.drawRectangle({
+            x: wallX,
+            y: floorY,
+            width: wallWidth,
+            height: canvasScreen.getConfig().height - floorY,
+            color: gradient,
+        });
+    };
+    // # main Render 3D function
     const render3D = ({ rayAngle, distance, index }) => {
         // # Definitions
         const correctWallDistance = distance * Math.cos(rayAngle - player.get('angle'));
@@ -398,15 +448,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
         const wallColor = `rgba(100,255,100,${alpha})`;
         // # Render
         // Draw Sky
-        const { r: skyR, g: skyG, b: skyB } = scenario.screen.sky.color;
-        const skyColor = `rgb(${skyR}, ${skyG}, ${skyB})`;
-        canvasScreen.drawRectangle({
-            x: wallX,
-            y: 0,
-            width: wallWidth,
-            height: wallY,
-            color: skyColor,
-        });
+        renderSky(wallX, wallY, wallWidth);
         // Draw wall
         canvasScreen.drawRectangle({
             x: wallX,
@@ -416,16 +458,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             color: wallColor,
         });
         // Draw Floor
-        const { r: floorR, g: floorG, b: floorB } = scenario.screen.floor.color;
-        const floorColor = `rgb(${floorR}, ${floorG}, ${floorB})`;
-        const floorY = wallY + wallHeight;
-        canvasScreen.drawRectangle({
-            x: wallX,
-            y: floorY,
-            width: wallWidth,
-            height: canvasScreen.getConfig().height - floorY,
-            color: floorColor,
-        });
+        renderFloor(wallX, wallY, wallWidth, wallHeight);
     };
     // # Ray Casting on horizontal lines
     const castHorizontalRays = ({ rayAngle }) => {

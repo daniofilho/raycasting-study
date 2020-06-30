@@ -39,6 +39,21 @@ class Canvas {
     this.drawRectangle({ x: 0, y: 0, width, height, color: backgroundColor });
   };
 
+  // Create a Line Gradient
+  createLineGradient = (color1: string, color2: string) => {
+    const grd = this.context.createLinearGradient(0, 0, 0, 600);
+    grd.addColorStop(0, color1);
+    grd.addColorStop(1, color2);
+
+    return grd;
+  };
+
+  // Create a texture pattern
+  createPattern = (elementID: string) => {
+    const img = document.getElementById(elementID);
+    return this.context.createPattern(img, 'no-repeat');
+  };
+
   // Draw a text
   drawText = ({ text, x, y, color = '#000', size = 20, align = 'left' }: drawTextType) => {
     const { context } = this;

@@ -90,7 +90,41 @@ const RayCasting = (
     });
   };
 
-  // # Render the fake 3D
+  // # Render Sky
+  const renderSky = (wallX: number, wallY: number, wallWidth: number) => {
+    const { r: skyR, g: skyG, b: skyB } = scenario.screen.sky.color;
+    const skyColor = `rgb(${skyR}, ${skyG}, ${skyB})`;
+
+    //const gradient = canvasScreen.createLineGradient('#248ADA', '#0E45A9');
+    const pattern = canvasScreen.createPattern('sky');
+
+    canvasScreen.drawRectangle({
+      x: wallX,
+      y: 0,
+      width: wallWidth,
+      height: wallY,
+      color: pattern,
+    });
+  };
+
+  // # Render Floor
+  const renderFloor = (wallX: number, wallY: number, wallWidth: number, wallHeight: number) => {
+    const { r: floorR, g: floorG, b: floorB } = scenario.screen.floor.color;
+    const floorColor = `rgb(${floorR}, ${floorG}, ${floorB})`;
+
+    const gradient = canvasScreen.createLineGradient('#303030', '#707070');
+
+    const floorY = wallY + wallHeight;
+    canvasScreen.drawRectangle({
+      x: wallX,
+      y: floorY,
+      width: wallWidth,
+      height: canvasScreen.getConfig().height - floorY,
+      color: gradient,
+    });
+  };
+
+  // # main Render 3D function
   const render3D = ({ rayAngle, distance, index }: render3DType) => {
     // # Definitions
 
@@ -114,15 +148,7 @@ const RayCasting = (
     // # Render
 
     // Draw Sky
-    const { r: skyR, g: skyG, b: skyB } = scenario.screen.sky.color;
-    const skyColor = `rgb(${skyR}, ${skyG}, ${skyB})`;
-    canvasScreen.drawRectangle({
-      x: wallX,
-      y: 0,
-      width: wallWidth,
-      height: wallY,
-      color: skyColor,
-    });
+    renderSky(wallX, wallY, wallWidth);
 
     // Draw wall
     canvasScreen.drawRectangle({
@@ -134,16 +160,7 @@ const RayCasting = (
     });
 
     // Draw Floor
-    const { r: floorR, g: floorG, b: floorB } = scenario.screen.floor.color;
-    const floorColor = `rgb(${floorR}, ${floorG}, ${floorB})`;
-    const floorY = wallY + wallHeight;
-    canvasScreen.drawRectangle({
-      x: wallX,
-      y: floorY,
-      width: wallWidth,
-      height: canvasScreen.getConfig().height - floorY,
-      color: floorColor,
-    });
+    renderFloor(wallX, wallY, wallWidth, wallHeight);
   };
 
   // # Ray Casting on horizontal lines

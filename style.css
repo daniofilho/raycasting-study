@@ -18,6 +18,10 @@ body {
   overflow: hidden;
 }
 
+.preload {
+  display: none;
+}
+
 main {
   width: 100%;
   max-width: 1080px;

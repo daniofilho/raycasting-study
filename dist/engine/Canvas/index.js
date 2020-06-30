@@ -18,6 +18,18 @@ class Canvas {
             // Background
             this.drawRectangle({ x: 0, y: 0, width, height, color: backgroundColor });
         };
+        // Create a Line Gradient
+        this.createLineGradient = (color1, color2) => {
+            const grd = this.context.createLinearGradient(0, 0, 0, 600);
+            grd.addColorStop(0, color1);
+            grd.addColorStop(1, color2);
+            return grd;
+        };
+        // Create a texture pattern
+        this.createPattern = (elementID) => {
+            const img = document.getElementById(elementID);
+            return this.context.createPattern(img, 'no-repeat');
+        };
         // Draw a text
         this.drawText = ({ text, x, y, color = '#000', size = 20, align = 'left' }) => {
             const { context } = this;
