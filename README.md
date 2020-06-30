@@ -1,6 +1,6 @@
 # Raycasting Study
 
-The game consist of moving a block (player) on a 2D map and render in a fake 3D canvas everything that player is seeing.
+This technique consist of moving a block (player) on a 2D map and "cast" rays until rays hit a wall. For each pixel of wall hitted, render an equivalent rectangle in another canvas. All this rectangles (with ther correct color and size based on player distance) makes the impression of a fake 3D.
 
 [DEMO](https://daniofilho.com.br/estudo/raycasting-study/)
 
