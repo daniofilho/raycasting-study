@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.player = exports.miniMapAllRays = exports.miniMapSingleRay = exports.screen = exports.scenario = exports.game = void 0;
+const map_1 = require("./map");
 exports.game = {
     fps: 60,
     depthfOfField: 50,
@@ -9,41 +10,24 @@ exports.game = {
     },
 };
 exports.scenario = {
-    tileSize: 32,
+    tileSize: 64,
     tilesX: 15,
     tilesY: 19,
     // prettier-ignore
-    tiles: [
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
-        1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
-        1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1,
-        1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1,
-        1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
-        1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
-        1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1,
-        1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1,
-        1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
-        1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    ],
+    tiles: map_1.default,
     minimap: {
         wall: { color: '#008800' },
-        floor: { color: 'rgba(0,0,0,0.5)' },
+        floor: { color: '#707070' },
     },
     screen: {
         sky: {
-            color: { r: 80, g: 156, b: 200 },
+            image: 'sky',
         },
         floor: {
-            color: { r: 70, g: 70, b: 70 },
+            color: {
+                from: '#505050',
+                to: '#707070',
+            },
         },
     },
 };
@@ -59,8 +43,8 @@ exports.miniMapSingleRay = {
     opacity: 1,
     width: exports.scenario.tilesX * exports.scenario.tileSize,
     height: exports.scenario.tilesY * exports.scenario.tileSize,
-    relativeWidth: 250,
-    relativeHeight: 250,
+    relativeWidth: 290,
+    relativeHeight: 317,
     x: exports.screen.width - 100,
     y: exports.screen.height - 100,
 };
@@ -70,8 +54,8 @@ exports.miniMapAllRays = {
     opacity: 1,
     width: exports.scenario.tilesX * exports.scenario.tileSize,
     height: exports.scenario.tilesY * exports.scenario.tileSize,
-    relativeWidth: 250,
-    relativeHeight: 250,
+    relativeWidth: 290,
+    relativeHeight: 317,
     x: exports.screen.width - 100,
     y: exports.screen.height - 100,
 };
@@ -81,7 +65,7 @@ exports.player = {
     width: exports.scenario.tileSize / 2.5,
     height: exports.scenario.tileSize / 2.5,
     color: '#FFFF00',
-    speed: 0.3,
-    turnSpeed: 0.03,
+    speed: 2,
+    turnSpeed: 0.05,
     fieldOfView: 60,
 };

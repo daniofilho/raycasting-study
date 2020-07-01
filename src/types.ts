@@ -18,22 +18,22 @@ export interface ScenarioType {
   tileSize: number;
   tilesX: number;
   tilesY: number;
-  tiles: Array<number>;
+  tiles: Array<any>;
   minimap: {
     wall: { color: string };
     floor: { color: string };
   };
   screen: {
-    sky: { color: rgbType };
-    floor: { color: rgbType };
+    sky: {
+      image: string;
+    };
+    floor: {
+      color: {
+        from: string;
+        to: string;
+      };
+    };
   };
-}
-
-export interface CanvasPropType {
-  canvasID: string;
-  backgroundColor: string;
-  width: number;
-  height: number;
 }
 
 export interface ScreenPropType {

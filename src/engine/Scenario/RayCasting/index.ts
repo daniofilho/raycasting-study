@@ -2,16 +2,20 @@ import { MiniMapType } from '../../../components/MiniMap/types';
 import { ScreenType } from '../../../components/Screen/types';
 import { PlayerType } from '../../../components/Player/types';
 import { ScenarioType } from '../../../types';
+import { TexturesType, TextureType } from '../../../components/Textures/types';
 
 import {
-  calcDistanceType,
   castType,
   renderRayType,
   debugSingleRayType,
   render3DType,
+  renderObjectsType,
+  renderObject,
 } from './types';
 
 import * as config from '../../../config';
+
+import { normalizeAngle, calcDistance } from '../../calculations';
 
 // Math PI relative variables - pure matemagician here
 const PI2 = Math.PI / 2;
@@ -22,7 +26,8 @@ const RayCasting = (
   player: PlayerType,
   canvasMinimap: MiniMapType,
   canvasMiniMapDebug: MiniMapType,
-  canvasScreen: ScreenType
+  canvasScreen: ScreenType,
+  textures: TexturesType
 ) => {
   const { tiles, tilesX, tilesY, tileSize } = scenario;
 
@@ -42,23 +47,6 @@ const RayCasting = (
 
   // Position of ray on map
   let mapX: number, mapY: number, mapPosition: number;
-
-  const normalizeAngle = (angle: number) => {
-    //return angle;
-    angle = angle % (2 * Math.PI);
-    if (angle < 0) {
-      angle = 2 * Math.PI + angle;
-    }
-
-    return angle;
-  };
-
-  // # Determine the distance between player and "ray hit" point
-  const calcDistance = ({ object, target }: calcDistanceType) => {
-    return Math.sqrt(
-      (target.x - object.x) * (target.x - object.x) + (target.y - object.y) * (target.y - object.y)
-    );
-  };
 
   // # Draw a debug Ray
   const debugSingleRay = ({ toX, toY, color }: debugSingleRayType) => {
@@ -92,11 +80,11 @@ const RayCasting = (
 
   // # Render Sky
   const renderSky = (wallX: number, wallY: number, wallWidth: number) => {
-    const { r: skyR, g: skyG, b: skyB } = scenario.screen.sky.color;
-    const skyColor = `rgb(${skyR}, ${skyG}, ${skyB})`;
+    //const { r: skyR, g: skyG, b: skyB } = scenario.screen.sky.color;
+    //const skyColor = `rgb(${skyR}, ${skyG}, ${skyB})`;
 
     //const gradient = canvasScreen.createLineGradient('#248ADA', '#0E45A9');
-    const pattern = canvasScreen.createPattern('sky');
+    const pattern = canvasScreen.createPattern(scenario.screen.sky.image);
 
     canvasScreen.drawRectangle({
       x: wallX,
@@ -107,12 +95,54 @@ const RayCasting = (
     });
   };
 
+  const renderObject = ({
+    pixelOfTexture,
+    objectId,
+    wallHeight,
+    wallY,
+    wallX,
+    horizontalRay,
+  }: renderObject) => {
+    const objectTexture: TextureType = textures.get(objectId);
+
+    if (!objectTexture) return;
+
+    const clip = horizontalRay ? objectTexture.horizontal : objectTexture.vertical;
+
+    canvasScreen.drawImage({
+      image: objectTexture.image,
+      x: wallX,
+      y: wallY,
+      width: tileSize,
+      height: wallHeight,
+      clipX: clip.clipX + Math.floor(pixelOfTexture),
+      clipY: clip.clipY,
+      clipWidth: tileSize,
+      clipHeight: tileSize,
+    });
+    /*
+    canvasScreen.drawImage({
+      image: objectTexture.image,
+      x,
+      y: y1 + textureHeight,
+      width: wallWidth,
+      height: textureHeight,
+      clipX: pixelOfTexture,
+      clipY: (this.idTextura - 1) * alturaTextura,
+      clipWidth: pixelOfTexture,
+      clipHeight: textureHeight,
+    });*/
+  };
+
   // # Render Floor
   const renderFloor = (wallX: number, wallY: number, wallWidth: number, wallHeight: number) => {
-    const { r: floorR, g: floorG, b: floorB } = scenario.screen.floor.color;
-    const floorColor = `rgb(${floorR}, ${floorG}, ${floorB})`;
+    //const { r: floorR, g: floorG, b: floorB } = scenario.screen.floor.color;
+    //const floorColor = `rgb(${floorR}, ${floorG}, ${floorB})`;
 
-    const gradient = canvasScreen.createLineGradient('#303030', '#707070');
+    const gradient = canvasScreen.createLineGradient(
+      scenario.screen.floor.color.from,
+      scenario.screen.floor.color.to
+    );
 
     const floorY = wallY + wallHeight;
     canvasScreen.drawRectangle({
@@ -125,14 +155,21 @@ const RayCasting = (
   };
 
   // # main Render 3D function
-  const render3D = ({ rayAngle, distance, index }: render3DType) => {
+  const render3D = ({
+    rayAngle,
+    distance,
+    index,
+    objectId,
+    pixelOfTexture,
+    horizontalRay,
+  }: render3DType) => {
     // # Definitions
 
     const correctWallDistance = distance * Math.cos(rayAngle - player.get('angle'));
     const distanceProjectionPlane = canvasScreen.getConfig().width / 2 / Math.tan(fovAngle / 2);
 
     // Define the line height to draw
-    const wallHeight = (tileSize / correctWallDistance) * distanceProjectionPlane;
+    const wallHeight = Math.round((tileSize / correctWallDistance) * distanceProjectionPlane);
     const wallWidth = Math.ceil(canvasScreen.getConfig().width / raysQuantity);
 
     // Find positions
@@ -140,10 +177,10 @@ const RayCasting = (
     const wallY = canvasScreen.getConfig().height / 2 - wallHeight / 2;
 
     // Set alpha color to simulate lighting
-    const alpha = config.game.render.light / correctWallDistance;
+    //const alpha = config.game.render.light / correctWallDistance;
 
-    // Wall color
-    const wallColor = `rgba(100,255,100,${alpha})`;
+    // # Wall texture
+    //const wallColor = `rgba(100,255,100,${alpha})`;
 
     // # Render
 
@@ -151,12 +188,14 @@ const RayCasting = (
     renderSky(wallX, wallY, wallWidth);
 
     // Draw wall
-    canvasScreen.drawRectangle({
-      x: wallX,
-      y: wallY,
-      width: wallWidth,
-      height: wallHeight,
-      color: wallColor,
+    renderObject({
+      objectId,
+      pixelOfTexture,
+      horizontalRay,
+      wallWidth,
+      wallHeight,
+      wallX,
+      wallY,
     });
 
     // Draw Floor
@@ -236,6 +275,7 @@ const RayCasting = (
       horizontalX,
       horizontalY,
       horizontalDistance,
+      objectId: tiles[mapPosition],
     };
   };
 
@@ -287,7 +327,7 @@ const RayCasting = (
       if (
         mapPosition > 0 && // inside screen
         mapPosition < tilesX * tilesY && // not out screen
-        tiles[mapPosition] === 1 // hit wall
+        tiles[mapPosition] !== 0 // hit wall
       ) {
         // Save values to check lowest later
         verticalX = rayX;
@@ -311,6 +351,7 @@ const RayCasting = (
       verticalX,
       verticalY,
       verticalDistance,
+      objectId: tiles[mapPosition],
     };
   };
 
@@ -321,22 +362,53 @@ const RayCasting = (
     let distance: number;
 
     // Which function gave the lowest value (lowest distance)?
-    let rayX: number, rayY: number;
+    let rayX: number,
+      rayY: number,
+      objectId: number,
+      pixelOfTexture: number,
+      horizontalRay: boolean;
     if (VertRays.verticalDistance < HorRays.horizontalDistance) {
+      // # Rays props
       rayX = VertRays.verticalX;
       rayY = VertRays.verticalY;
+
+      // # Object props
       distance = VertRays.verticalDistance;
+      objectId = VertRays.objectId;
+
+      // Define the correct pixel to render of texture
+      let aux = Math.floor(rayY / tileSize);
+      aux = aux * tileSize;
+      pixelOfTexture = rayY - aux;
+
+      // came from which ray
+      horizontalRay = true;
     }
     if (HorRays.horizontalDistance < VertRays.verticalDistance) {
+      // # Ray props
       rayX = HorRays.horizontalX;
       rayY = HorRays.horizontalY;
+
+      // # Object props
       distance = HorRays.horizontalDistance;
+      objectId = HorRays.objectId;
+
+      // Define the correct pixel to render of texture
+      let aux = Math.floor(rayX / tileSize);
+      aux = aux * tileSize;
+      pixelOfTexture = rayX - aux;
+
+      // Facing direction
+      horizontalRay = false;
     }
 
     return {
       rayX,
       rayY,
       distance,
+      objectId,
+      pixelOfTexture,
+      horizontalRay,
     };
   };
 
@@ -346,8 +418,23 @@ const RayCasting = (
     debugSingleRay({ toX: rayX, toY: rayY, color: '#BBFF00' });
   };
 
+  // # Render all objects
+  const renderObjects = (renderObjects: Array<renderObjectsType>) => {
+    renderObjects.map(
+      ({ rayX, rayY, rayAngle, distance, rayNumber, pixelOfTexture, objectId, horizontalRay }) => {
+        // 2D ray
+        renderRay({ rayX, rayY });
+
+        // 3D wall - This is where we wanted to go
+        render3D({ index: rayNumber, objectId, distance, horizontalRay, pixelOfTexture, rayAngle });
+      }
+    );
+  };
+
   // Render everything
   const render = () => {
+    const objects = [];
+
     // Determine the ray angle of casting acording to player field of view
     let rayAngle = player.get('angle') - fovAngle / 2;
 
@@ -355,19 +442,29 @@ const RayCasting = (
     castDebugRay();
 
     // Cast the rays
-    for (let i = 0; i < raysQuantity; i++) {
+    new Array(raysQuantity).fill('').forEach((_, ray) => {
       // Cast rays
-      const { rayX, rayY, distance } = castRays({ rayAngle });
+      const { rayX, rayY, distance, objectId, pixelOfTexture, horizontalRay } = castRays({
+        rayAngle,
+      });
 
-      // 2D ray
-      renderRay({ rayX, rayY });
-
-      // 3D wall - This is where we wanted to go
-      render3D({ index: i, distance, rayAngle });
+      objects.push({
+        rayX,
+        rayY,
+        rayAngle,
+        distance,
+        objectId,
+        pixelOfTexture,
+        horizontalRay,
+        rayNumber: ray,
+      });
 
       // Increase angle for next ray
       rayAngle += fovAngle / raysQuantity;
-    }
+    });
+
+    // Finaly render everything found
+    return renderObjects(objects);
   };
 
   return {

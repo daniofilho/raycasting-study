@@ -26,5 +26,9 @@
     "reload": "^3.1.0",
     "typescript": "^3.9.5",
     "watchify": "^3.11.1"
+  },
+  "dependencies": {
+    "@types/lodash": "^4.14.157",
+    "lodash": "^4.17.15"
   }
 }

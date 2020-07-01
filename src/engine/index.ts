@@ -1,6 +1,7 @@
 import Screen from '../components/Screen';
 import MiniMap from '../components/MiniMap';
 import Player from '../components/Player';
+import Textures from '../components/Textures';
 
 import Scenario from './Scenario';
 
@@ -8,6 +9,9 @@ import * as config from '../config';
 
 const Game = () => {
   // constructor
+
+  const textures = Textures();
+
   const screen = new Screen(config.screen);
 
   const minimap_singleRay = new MiniMap(config.miniMapSingleRay);
@@ -16,7 +20,7 @@ const Game = () => {
 
   const player = Player(minimap, minimap_singleRay, screen);
 
-  const scenario = Scenario(player, minimap, minimap_singleRay, screen, config.scenario);
+  const scenario = Scenario(player, minimap, minimap_singleRay, screen, config.scenario, textures);
 
   // FPS Control
   let fpsInterval = 0;

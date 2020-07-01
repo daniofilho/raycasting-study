@@ -1,6 +1,11 @@
-import { CanvasPropType } from '../../types';
-
-import { drawElipseType, drawLineType, drawRectangleType, drawTextType } from './types';
+import {
+  CanvasPropType,
+  drawElipseType,
+  drawLineType,
+  drawRectangleType,
+  drawTextType,
+  drawImageType,
+} from './types';
 
 class Canvas {
   canvas: HTMLCanvasElement;
@@ -51,7 +56,7 @@ class Canvas {
   // Create a texture pattern
   createPattern = (elementID: string) => {
     const img = document.getElementById(elementID);
-    return this.context.createPattern(img, 'no-repeat');
+    return this.context.createPattern(img, 'repeat');
   };
 
   // Draw a text
@@ -91,6 +96,37 @@ class Canvas {
     context.beginPath();
     context.arc(x, y, radius, 0, 2 * Math.PI);
     context.stroke();
+  };
+
+  // Draw an image on Canvas
+  drawImage = ({
+    image,
+    x,
+    y,
+    width,
+    height,
+    clipX,
+    clipY,
+    clipWidth,
+    clipHeight,
+  }: drawImageType) => {
+    this.context.imageSmoothingEnabled = false; // Pixelate image
+
+    if (clipWidth && clipHeight) {
+      return this.context.drawImage(
+        image,
+        clipX,
+        clipY,
+        clipWidth,
+        clipHeight,
+        x,
+        y,
+        width,
+        height
+      );
+    }
+
+    this.context.drawImage(image, x, y, width, height);
   };
 }
 

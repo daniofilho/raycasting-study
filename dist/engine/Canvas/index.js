@@ -28,7 +28,7 @@ class Canvas {
         // Create a texture pattern
         this.createPattern = (elementID) => {
             const img = document.getElementById(elementID);
-            return this.context.createPattern(img, 'no-repeat');
+            return this.context.createPattern(img, 'repeat');
         };
         // Draw a text
         this.drawText = ({ text, x, y, color = '#000', size = 20, align = 'left' }) => {
@@ -60,6 +60,14 @@ class Canvas {
             context.beginPath();
             context.arc(x, y, radius, 0, 2 * Math.PI);
             context.stroke();
+        };
+        // Draw an image on Canvas
+        this.drawImage = ({ image, x, y, width, height, clipX, clipY, clipWidth, clipHeight, }) => {
+            this.context.imageSmoothingEnabled = false; // Pixelate image
+            if (clipWidth && clipHeight) {
+                return this.context.drawImage(image, clipX, clipY, clipWidth, clipHeight, x, y, width, height);
+            }
+            this.context.drawImage(image, x, y, width, height);
         };
         this.canvas = document.getElementById(config.canvasID);
         this.context = this.canvas.getContext('2d');

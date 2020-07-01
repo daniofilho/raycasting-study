@@ -30,12 +30,32 @@ export interface drawElipseType {
   color?: string;
 }
 
+export interface drawImageType {
+  image: HTMLImageElement;
+  clipX?: number;
+  clipY?: number;
+  clipWidth?: number;
+  clipHeight?: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface CanvasPropType {
+  canvasID: string;
+  backgroundColor: string;
+  width: number;
+  height: number;
+}
+
 export interface CanvasType {
   reset: Function;
   drawRectangle: Function;
   drawLine: Function;
   drawElipse: Function;
   drawText: Function;
+  drawImage: Function;
   get: Function;
   getConfig: Function;
   getContext: Function;

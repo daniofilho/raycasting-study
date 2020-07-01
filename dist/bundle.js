@@ -17,7 +17,7 @@ class MiniMap extends Canvas_1.default {
 }
 exports.default = MiniMap;
 
-},{"../../engine/Canvas":5}],2:[function(require,module,exports){
+},{"../../engine/Canvas":7}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config = require("../../config");
@@ -165,7 +165,7 @@ const Player = (minimap, debugmap, screen) => {
 };
 exports.default = Player;
 
-},{"../../config":4}],3:[function(require,module,exports){
+},{"../../config":6}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Canvas_1 = require("../../engine/Canvas");
@@ -180,10 +180,91 @@ class Screen extends Canvas_1.default {
 }
 exports.default = Screen;
 
-},{"../../engine/Canvas":5}],4:[function(require,module,exports){
+},{"../../engine/Canvas":7}],4:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const textures_1 = require("./textures");
+function Textures() {
+    let textures = [];
+    // Preload textures
+    const preload = () => {
+        Object.keys(textures_1.default).forEach((key, index) => {
+            const img = new Image();
+            img.src = textures_1.default[key].image;
+            textures.push({
+                id: key,
+                image: img,
+                vertical: textures_1.default[key].vertical,
+                horizontal: textures_1.default[key].horizontal,
+            });
+        });
+    };
+    preload();
+    const get = (id) => {
+        const r = textures.find((o) => o.id === id);
+        // can be string on number
+        return r;
+    };
+    return { get };
+}
+exports.default = Textures;
+
+},{"./textures":5}],5:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+// All texture sizes must be equal to Tile size!
+exports.default = {
+    wall: {
+        image: 'assets/walls.png',
+        horizontal: {
+            clipX: 0,
+            clipY: 0,
+        },
+        vertical: {
+            clipX: 64,
+            clipY: 0,
+        },
+    },
+    stone: {
+        image: 'assets/walls.png',
+        horizontal: {
+            clipX: 0,
+            clipY: 128,
+        },
+        vertical: {
+            clipX: 64,
+            clipY: 128,
+        },
+    },
+    jail: {
+        image: 'assets/walls.png',
+        horizontal: {
+            clipX: 0,
+            clipY: 64,
+        },
+        vertical: {
+            clipX: 64,
+            clipY: 64,
+        },
+    },
+    wood: {
+        image: 'assets/walls.png',
+        horizontal: {
+            clipX: 0,
+            clipY: 192,
+        },
+        vertical: {
+            clipX: 64,
+            clipY: 192,
+        },
+    },
+};
+
+},{}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.player = exports.miniMapAllRays = exports.miniMapSingleRay = exports.screen = exports.scenario = exports.game = void 0;
+const map_1 = require("./map");
 exports.game = {
     fps: 60,
     depthfOfField: 50,
@@ -192,41 +273,24 @@ exports.game = {
     },
 };
 exports.scenario = {
-    tileSize: 32,
+    tileSize: 64,
     tilesX: 15,
     tilesY: 19,
     // prettier-ignore
-    tiles: [
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
-        1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
-        1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1,
-        1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1,
-        1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
-        1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
-        1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1,
-        1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1,
-        1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
-        1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    ],
+    tiles: map_1.default,
     minimap: {
         wall: { color: '#008800' },
-        floor: { color: 'rgba(0,0,0,0.5)' },
+        floor: { color: '#707070' },
     },
     screen: {
         sky: {
-            color: { r: 80, g: 156, b: 200 },
+            image: 'sky',
         },
         floor: {
-            color: { r: 70, g: 70, b: 70 },
+            color: {
+                from: '#505050',
+                to: '#707070',
+            },
         },
     },
 };
@@ -242,8 +306,8 @@ exports.miniMapSingleRay = {
     opacity: 1,
     width: exports.scenario.tilesX * exports.scenario.tileSize,
     height: exports.scenario.tilesY * exports.scenario.tileSize,
-    relativeWidth: 250,
-    relativeHeight: 250,
+    relativeWidth: 290,
+    relativeHeight: 317,
     x: exports.screen.width - 100,
     y: exports.screen.height - 100,
 };
@@ -253,8 +317,8 @@ exports.miniMapAllRays = {
     opacity: 1,
     width: exports.scenario.tilesX * exports.scenario.tileSize,
     height: exports.scenario.tilesY * exports.scenario.tileSize,
-    relativeWidth: 250,
-    relativeHeight: 250,
+    relativeWidth: 290,
+    relativeHeight: 317,
     x: exports.screen.width - 100,
     y: exports.screen.height - 100,
 };
@@ -264,12 +328,12 @@ exports.player = {
     width: exports.scenario.tileSize / 2.5,
     height: exports.scenario.tileSize / 2.5,
     color: '#FFFF00',
-    speed: 0.3,
-    turnSpeed: 0.03,
+    speed: 2,
+    turnSpeed: 0.05,
     fieldOfView: 60,
 };
 
-},{}],5:[function(require,module,exports){
+},{"./map":13}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Canvas {
@@ -300,7 +364,7 @@ class Canvas {
         // Create a texture pattern
         this.createPattern = (elementID) => {
             const img = document.getElementById(elementID);
-            return this.context.createPattern(img, 'no-repeat');
+            return this.context.createPattern(img, 'repeat');
         };
         // Draw a text
         this.drawText = ({ text, x, y, color = '#000', size = 20, align = 'left' }) => {
@@ -333,6 +397,14 @@ class Canvas {
             context.arc(x, y, radius, 0, 2 * Math.PI);
             context.stroke();
         };
+        // Draw an image on Canvas
+        this.drawImage = ({ image, x, y, width, height, clipX, clipY, clipWidth, clipHeight, }) => {
+            this.context.imageSmoothingEnabled = false; // Pixelate image
+            if (clipWidth && clipHeight) {
+                return this.context.drawImage(image, clipX, clipY, clipWidth, clipHeight, x, y, width, height);
+            }
+            this.context.drawImage(image, x, y, width, height);
+        };
         this.canvas = document.getElementById(config.canvasID);
         this.context = this.canvas.getContext('2d');
         this.config = config;
@@ -344,14 +416,15 @@ class Canvas {
 }
 exports.default = Canvas;
 
-},{}],6:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config = require("../../../config");
+const calculations_1 = require("../../calculations");
 // Math PI relative variables - pure matemagician here
 const PI2 = Math.PI / 2;
 const PI3 = (3 * Math.PI) / 2;
-const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasScreen) => {
+const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasScreen, textures) => {
     const { tiles, tilesX, tilesY, tileSize } = scenario;
     const props = {
         rays: player.get('fieldOfView'),
@@ -365,18 +438,6 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
     let rayXoffset, rayYoffset;
     // Position of ray on map
     let mapX, mapY, mapPosition;
-    const normalizeAngle = (angle) => {
-        //return angle;
-        angle = angle % (2 * Math.PI);
-        if (angle < 0) {
-            angle = 2 * Math.PI + angle;
-        }
-        return angle;
-    };
-    // # Determine the distance between player and "ray hit" point
-    const calcDistance = ({ object, target }) => {
-        return Math.sqrt((target.x - object.x) * (target.x - object.x) + (target.y - object.y) * (target.y - object.y));
-    };
     // # Draw a debug Ray
     const debugSingleRay = ({ toX, toY, color }) => {
         const playerX = player.get('x');
@@ -405,10 +466,10 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
     };
     // # Render Sky
     const renderSky = (wallX, wallY, wallWidth) => {
-        const { r: skyR, g: skyG, b: skyB } = scenario.screen.sky.color;
-        const skyColor = `rgb(${skyR}, ${skyG}, ${skyB})`;
+        //const { r: skyR, g: skyG, b: skyB } = scenario.screen.sky.color;
+        //const skyColor = `rgb(${skyR}, ${skyG}, ${skyB})`;
         //const gradient = canvasScreen.createLineGradient('#248ADA', '#0E45A9');
-        const pattern = canvasScreen.createPattern('sky');
+        const pattern = canvasScreen.createPattern(scenario.screen.sky.image);
         canvasScreen.drawRectangle({
             x: wallX,
             y: 0,
@@ -417,11 +478,40 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             color: pattern,
         });
     };
+    const renderObject = ({ pixelOfTexture, objectId, wallHeight, wallY, wallX, horizontalRay, }) => {
+        const objectTexture = textures.get(objectId);
+        if (!objectTexture)
+            return;
+        const clip = horizontalRay ? objectTexture.horizontal : objectTexture.vertical;
+        canvasScreen.drawImage({
+            image: objectTexture.image,
+            x: wallX,
+            y: wallY,
+            width: tileSize,
+            height: wallHeight,
+            clipX: clip.clipX + Math.floor(pixelOfTexture),
+            clipY: clip.clipY,
+            clipWidth: tileSize,
+            clipHeight: tileSize,
+        });
+        /*
+        canvasScreen.drawImage({
+          image: objectTexture.image,
+          x,
+          y: y1 + textureHeight,
+          width: wallWidth,
+          height: textureHeight,
+          clipX: pixelOfTexture,
+          clipY: (this.idTextura - 1) * alturaTextura,
+          clipWidth: pixelOfTexture,
+          clipHeight: textureHeight,
+        });*/
+    };
     // # Render Floor
     const renderFloor = (wallX, wallY, wallWidth, wallHeight) => {
-        const { r: floorR, g: floorG, b: floorB } = scenario.screen.floor.color;
-        const floorColor = `rgb(${floorR}, ${floorG}, ${floorB})`;
-        const gradient = canvasScreen.createLineGradient('#303030', '#707070');
+        //const { r: floorR, g: floorG, b: floorB } = scenario.screen.floor.color;
+        //const floorColor = `rgb(${floorR}, ${floorG}, ${floorB})`;
+        const gradient = canvasScreen.createLineGradient(scenario.screen.floor.color.from, scenario.screen.floor.color.to);
         const floorY = wallY + wallHeight;
         canvasScreen.drawRectangle({
             x: wallX,
@@ -432,37 +522,39 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
         });
     };
     // # main Render 3D function
-    const render3D = ({ rayAngle, distance, index }) => {
+    const render3D = ({ rayAngle, distance, index, objectId, pixelOfTexture, horizontalRay, }) => {
         // # Definitions
         const correctWallDistance = distance * Math.cos(rayAngle - player.get('angle'));
         const distanceProjectionPlane = canvasScreen.getConfig().width / 2 / Math.tan(fovAngle / 2);
         // Define the line height to draw
-        const wallHeight = (tileSize / correctWallDistance) * distanceProjectionPlane;
+        const wallHeight = Math.round((tileSize / correctWallDistance) * distanceProjectionPlane);
         const wallWidth = Math.ceil(canvasScreen.getConfig().width / raysQuantity);
         // Find positions
         const wallX = index * wallWidth;
         const wallY = canvasScreen.getConfig().height / 2 - wallHeight / 2;
         // Set alpha color to simulate lighting
-        const alpha = config.game.render.light / correctWallDistance;
-        // Wall color
-        const wallColor = `rgba(100,255,100,${alpha})`;
+        //const alpha = config.game.render.light / correctWallDistance;
+        // # Wall texture
+        //const wallColor = `rgba(100,255,100,${alpha})`;
         // # Render
         // Draw Sky
         renderSky(wallX, wallY, wallWidth);
         // Draw wall
-        canvasScreen.drawRectangle({
-            x: wallX,
-            y: wallY,
-            width: wallWidth,
-            height: wallHeight,
-            color: wallColor,
+        renderObject({
+            objectId,
+            pixelOfTexture,
+            horizontalRay,
+            wallWidth,
+            wallHeight,
+            wallX,
+            wallY,
         });
         // Draw Floor
         renderFloor(wallX, wallY, wallWidth, wallHeight);
     };
     // # Ray Casting on horizontal lines
     const castHorizontalRays = ({ rayAngle }) => {
-        rayAngle = normalizeAngle(rayAngle);
+        rayAngle = calculations_1.normalizeAngle(rayAngle);
         const playerY = Math.floor(player.get('y'));
         const playerX = Math.floor(player.get('x'));
         const isRayFacingDown = rayAngle < Math.PI;
@@ -503,7 +595,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
                 // Save values to check lowest later
                 horizontalX = rayX;
                 horizontalY = rayY;
-                horizontalDistance = calcDistance({
+                horizontalDistance = calculations_1.calcDistance({
                     object: { x: playerX, y: playerY },
                     target: { x: horizontalX, y: horizontalY },
                 });
@@ -521,11 +613,12 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             horizontalX,
             horizontalY,
             horizontalDistance,
+            objectId: tiles[mapPosition],
         };
     };
     // # Ray Casting on vertical lines
     const castVerticalRays = ({ rayAngle }) => {
-        rayAngle = normalizeAngle(rayAngle);
+        rayAngle = calculations_1.normalizeAngle(rayAngle);
         const playerY = Math.floor(player.get('y'));
         const playerX = Math.floor(player.get('x'));
         const isRayFacingDown = rayAngle < Math.PI;
@@ -560,12 +653,12 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             // Check if ray hits a wall or scenario bounds
             if (mapPosition > 0 && // inside screen
                 mapPosition < tilesX * tilesY && // not out screen
-                tiles[mapPosition] === 1 // hit wall
+                tiles[mapPosition] !== 0 // hit wall
             ) {
                 // Save values to check lowest later
                 verticalX = rayX;
                 verticalY = rayY;
-                verticalDistance = calcDistance({
+                verticalDistance = calculations_1.calcDistance({
                     object: { x: playerX, y: playerY },
                     target: { x: verticalX, y: verticalY },
                 });
@@ -583,6 +676,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             verticalX,
             verticalY,
             verticalDistance,
+            objectId: tiles[mapPosition],
         };
     };
     // # Cast all Rays
@@ -591,21 +685,42 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
         const VertRays = castVerticalRays({ rayAngle });
         let distance;
         // Which function gave the lowest value (lowest distance)?
-        let rayX, rayY;
+        let rayX, rayY, objectId, pixelOfTexture, horizontalRay;
         if (VertRays.verticalDistance < HorRays.horizontalDistance) {
+            // # Rays props
             rayX = VertRays.verticalX;
             rayY = VertRays.verticalY;
+            // # Object props
             distance = VertRays.verticalDistance;
+            objectId = VertRays.objectId;
+            // Define the correct pixel to render of texture
+            let aux = Math.floor(rayY / tileSize);
+            aux = aux * tileSize;
+            pixelOfTexture = rayY - aux;
+            // came from which ray
+            horizontalRay = true;
         }
         if (HorRays.horizontalDistance < VertRays.verticalDistance) {
+            // # Ray props
             rayX = HorRays.horizontalX;
             rayY = HorRays.horizontalY;
+            // # Object props
             distance = HorRays.horizontalDistance;
+            objectId = HorRays.objectId;
+            // Define the correct pixel to render of texture
+            let aux = Math.floor(rayX / tileSize);
+            aux = aux * tileSize;
+            pixelOfTexture = rayX - aux;
+            // Facing direction
+            horizontalRay = false;
         }
         return {
             rayX,
             rayY,
             distance,
+            objectId,
+            pixelOfTexture,
+            horizontalRay,
         };
     };
     // # Debug the Ray on front of player
@@ -613,23 +728,43 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
         const { rayX, rayY } = castRays({ rayAngle: player.get('angle') });
         debugSingleRay({ toX: rayX, toY: rayY, color: '#BBFF00' });
     };
+    // # Render all objects
+    const renderObjects = (renderObjects) => {
+        renderObjects.map(({ rayX, rayY, rayAngle, distance, rayNumber, pixelOfTexture, objectId, horizontalRay }) => {
+            // 2D ray
+            renderRay({ rayX, rayY });
+            // 3D wall - This is where we wanted to go
+            render3D({ index: rayNumber, objectId, distance, horizontalRay, pixelOfTexture, rayAngle });
+        });
+    };
     // Render everything
     const render = () => {
+        const objects = [];
         // Determine the ray angle of casting acording to player field of view
         let rayAngle = player.get('angle') - fovAngle / 2;
         // Cast debug Ray
         castDebugRay();
         // Cast the rays
-        for (let i = 0; i < raysQuantity; i++) {
+        new Array(raysQuantity).fill('').forEach((_, ray) => {
             // Cast rays
-            const { rayX, rayY, distance } = castRays({ rayAngle });
-            // 2D ray
-            renderRay({ rayX, rayY });
-            // 3D wall - This is where we wanted to go
-            render3D({ index: i, distance, rayAngle });
+            const { rayX, rayY, distance, objectId, pixelOfTexture, horizontalRay } = castRays({
+                rayAngle,
+            });
+            objects.push({
+                rayX,
+                rayY,
+                rayAngle,
+                distance,
+                objectId,
+                pixelOfTexture,
+                horizontalRay,
+                rayNumber: ray,
+            });
             // Increase angle for next ray
             rayAngle += fovAngle / raysQuantity;
-        }
+        });
+        // Finaly render everything found
+        return renderObjects(objects);
     };
     return {
         render,
@@ -637,13 +772,13 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
 };
 exports.default = RayCasting;
 
-},{"../../../config":4}],7:[function(require,module,exports){
+},{"../../../config":6,"../../calculations":10}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const RayCasting_1 = require("./RayCasting");
-const Scenario = (player, canvasMiniMap, canvasMiniMapDebug, canvasScreen, config) => {
+const Scenario = (player, canvasMiniMap, canvasMiniMapDebug, canvasScreen, config, textures) => {
     const { tileSize, tilesX, tilesY, tiles, minimap: { wall: { color: wallColor }, floor: { color: floorColor }, }, } = config;
-    const rayCasting = RayCasting_1.default(config, player, canvasMiniMap, canvasMiniMapDebug, canvasScreen);
+    const rayCasting = RayCasting_1.default(config, player, canvasMiniMap, canvasMiniMapDebug, canvasScreen, textures);
     // Tiles
     const renderTiles = () => {
         // Loop tiles
@@ -652,20 +787,47 @@ const Scenario = (player, canvasMiniMap, canvasMiniMapDebug, canvasScreen, confi
                 const x0 = x * tileSize;
                 const y0 = y * tileSize;
                 // Define tile color based on tile value (0,1)
-                const tileColor = tiles[y * tilesX + x] === 1 ? wallColor : floorColor;
-                // Minimap
+                const tileColor = tiles[y * tilesX + x] !== 0 ? wallColor : floorColor;
+                const mapPosition = y * tilesX + x;
+                const objectTexture = textures.get(tiles[mapPosition]);
+                if (objectTexture) {
+                    // Minimap
+                    canvasMiniMap.drawImage({
+                        image: objectTexture.image,
+                        x: x0,
+                        y: y0,
+                        width: tileSize,
+                        height: tileSize,
+                        clipX: objectTexture.horizontal.clipX,
+                        clipY: objectTexture.horizontal.clipY,
+                        clipWidth: tileSize,
+                        clipHeight: tileSize,
+                    });
+                    canvasMiniMapDebug.drawImage({
+                        image: objectTexture.image,
+                        x: x0,
+                        y: y0,
+                        width: tileSize,
+                        height: tileSize,
+                        clipX: objectTexture.horizontal.clipX,
+                        clipY: objectTexture.horizontal.clipY,
+                        clipWidth: tileSize,
+                        clipHeight: tileSize,
+                    });
+                    return;
+                }
                 canvasMiniMap.drawRectangle({
                     x: x0,
                     y: y0,
-                    width: tileSize - 1,
-                    height: tileSize - 1,
+                    width: tileSize,
+                    height: tileSize,
                     color: tileColor,
                 });
                 canvasMiniMapDebug.drawRectangle({
                     x: x0,
                     y: y0,
-                    width: tileSize - 1,
-                    height: tileSize - 1,
+                    width: tileSize,
+                    height: tileSize,
                     color: tileColor,
                 });
             });
@@ -690,21 +852,57 @@ const Scenario = (player, canvasMiniMap, canvasMiniMapDebug, canvasScreen, confi
 };
 exports.default = Scenario;
 
-},{"./RayCasting":6}],8:[function(require,module,exports){
+},{"./RayCasting":8}],10:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.calcAngle = exports.convertAngleToRadians = exports.calcDistance = exports.normalizeAngle = void 0;
+exports.normalizeAngle = (angle) => {
+    angle = angle % (2 * Math.PI);
+    if (angle < 0) {
+        angle = 2 * Math.PI + angle;
+    }
+    return angle;
+};
+// Determine the distance between player and "ray hit" point
+exports.calcDistance = ({ object, target }) => {
+    return Math.sqrt((target.x - object.x) * (target.x - object.x) + (target.y - object.y) * (target.y - object.y));
+};
+// Convert angle to radians
+exports.convertAngleToRadians = (angle) => {
+    return angle * (Math.PI / 180);
+};
+// Calculate angle based on player position and angle
+exports.calcAngle = ({ cameraX, cameraY, cameraAngle, targetX, targetY }) => {
+    var vectX = targetX - cameraX;
+    var vectY = targetY - cameraY;
+    var anglePlayerObject = Math.atan2(vectY, vectX);
+    var angleDifference = cameraAngle - anglePlayerObject;
+    if (angleDifference < -Math.PI)
+        angleDifference += 2.0 * Math.PI;
+    if (angleDifference > Math.PI)
+        angleDifference -= 2.0 * Math.PI;
+    return {
+        angle: Math.abs(angleDifference),
+    };
+};
+
+},{}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Screen_1 = require("../components/Screen");
 const MiniMap_1 = require("../components/MiniMap");
 const Player_1 = require("../components/Player");
+const Textures_1 = require("../components/Textures");
 const Scenario_1 = require("./Scenario");
 const config = require("../config");
 const Game = () => {
     // constructor
+    const textures = Textures_1.default();
     const screen = new Screen_1.default(config.screen);
     const minimap_singleRay = new MiniMap_1.default(config.miniMapSingleRay);
     const minimap = new MiniMap_1.default(config.miniMapAllRays);
     const player = Player_1.default(minimap, minimap_singleRay, screen);
-    const scenario = Scenario_1.default(player, minimap, minimap_singleRay, screen, config.scenario);
+    const scenario = Scenario_1.default(player, minimap, minimap_singleRay, screen, config.scenario, textures);
     // FPS Control
     let fpsInterval = 0;
     let now = 0;
@@ -769,11 +967,37 @@ const Game = () => {
 };
 exports.default = Game;
 
-},{"../components/MiniMap":1,"../components/Player":2,"../components/Screen":3,"../config":4,"./Scenario":7}],9:[function(require,module,exports){
+},{"../components/MiniMap":1,"../components/Player":2,"../components/Screen":3,"../components/Textures":4,"../config":6,"./Scenario":9}],12:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const engine_1 = require("./engine");
 const engine = engine_1.default();
 engine.startGame();
 
-},{"./engine":8}]},{},[9]);
+},{"./engine":11}],13:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+// prettier-ignore
+exports.default = [
+    'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall',
+    'wall', 0, 0, 'jail', 0, 0, 0, 0, 0, 0, 'wall', 0, 0, 0, 'wood',
+    'wall', 0, 'wall', 'wall', 0, 0, 0, 0, 0, 0, 'wall', 0, 0, 0, 'wood',
+    'wall', 0, 0, 'jail', 0, 0, 'stone', 'stone', 'stone', 0, 'wall', 0, 0, 0, 'wood',
+    'wall', 0, 'wall', 'wall', 0, 0, 0, 0, 'stone', 0, 'wall', 'wall', 'wall', 0, 'wood',
+    'wall', 0, 0, 'jail', 0, 0, 0, 0, 'stone', 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 'wall', 'wall', 0, 'stone', 'stone', 'stone', 'stone', 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 'stone', 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 'stone', 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 'stone', 0, 0, 0, 0, 0, 'jail', 'wall', 'wall', 'wood',
+    'wall', 0, 0, 0, 0, 'stone', 'stone', 'stone', 'stone', 0, 0, 0, 'wall', 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wall', 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wall', 'wall', 'wall', 0, 'wood',
+    'wall', 0, 0, 0, 'wall', 'wall', 0, 0, 0, 0, 'wall', 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 'wall', 0, 0, 0, 0, 0, 'wall', 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 'wall', 0, 0, 'stone', 0, 0, 'wall', 0, 0, 0, 'wood',
+    'wall', 0, 0, 'wall', 'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood',
+];
+
+},{}]},{},[12]);

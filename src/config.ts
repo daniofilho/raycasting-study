@@ -1,5 +1,7 @@
 import * as Types from 'types';
 
+import map from './map';
+
 export const game: Types.GameType = {
   fps: 60,
   depthfOfField: 50,
@@ -9,41 +11,24 @@ export const game: Types.GameType = {
 };
 
 export const scenario: Types.ScenarioType = {
-  tileSize: 32,
+  tileSize: 64,
   tilesX: 15,
   tilesY: 19,
   // prettier-ignore
-  tiles: [
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
-    1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
-    1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1,
-    1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1,
-    1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
-    1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1,
-    1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
-    1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1,
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1,
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1,
-    1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1,
-    1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1,
-    1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
-    1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-  ],
+  tiles: map,
   minimap: {
     wall: { color: '#008800' },
-    floor: { color: 'rgba(0,0,0,0.5)' },
+    floor: { color: '#707070' },
   },
   screen: {
     sky: {
-      color: { r: 80, g: 156, b: 200 },
+      image: 'sky',
     },
     floor: {
-      color: { r: 70, g: 70, b: 70 },
+      color: {
+        from: '#505050',
+        to: '#707070',
+      },
     },
   },
 };
@@ -61,19 +46,20 @@ export const miniMapSingleRay: Types.MiniMapPropType = {
   opacity: 1,
   width: scenario.tilesX * scenario.tileSize,
   height: scenario.tilesY * scenario.tileSize,
-  relativeWidth: 250,
-  relativeHeight: 250,
+  relativeWidth: 290,
+  relativeHeight: 317,
   x: screen.width - 100,
   y: screen.height - 100,
 };
+
 export const miniMapAllRays: Types.MiniMapPropType = {
   canvasID: 'minimap_allRays',
   backgroundColor: '#000',
   opacity: 1,
   width: scenario.tilesX * scenario.tileSize,
   height: scenario.tilesY * scenario.tileSize,
-  relativeWidth: 250,
-  relativeHeight: 250,
+  relativeWidth: 290,
+  relativeHeight: 317,
   x: screen.width - 100,
   y: screen.height - 100,
 };
@@ -84,7 +70,7 @@ export const player: Types.PlayerPropsType = {
   width: scenario.tileSize / 2.5,
   height: scenario.tileSize / 2.5,
   color: '#FFFF00',
-  speed: 0.3,
-  turnSpeed: 0.03,
+  speed: 2,
+  turnSpeed: 0.05,
   fieldOfView: 60,
 };
