@@ -45,8 +45,8 @@ export interface drawImageType {
 export interface CanvasPropType {
   canvasID: string;
   backgroundColor: string;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
 }
 
 export interface CanvasType {

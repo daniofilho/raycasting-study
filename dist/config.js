@@ -37,8 +37,8 @@ exports.scenario = {
 exports.screen = {
     canvasID: 'screen',
     backgroundColor: '#333333',
-    width: 800,
-    height: 600,
+    width: 300,
+    height: 230,
 };
 exports.miniMapSingleRay = {
     canvasID: 'minimap_singleRay',
@@ -68,7 +68,7 @@ exports.player = {
     width: exports.scenario.tileSize / 2.5,
     height: exports.scenario.tileSize / 2.5,
     color: '#FFFF00',
-    speed: 2,
-    turnSpeed: 0.05,
+    speed: 1,
+    turnSpeed: 0.03,
     fieldOfView: 60,
 };

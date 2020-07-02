@@ -11,6 +11,8 @@ export default {
       clipY: 0,
     },
     isWall: true,
+    isObject: false,
+    isCollidable: true,
   },
   stone: {
     image: 'assets/walls.png',
@@ -23,6 +25,8 @@ export default {
       clipY: 128,
     },
     isWall: true,
+    isObject: false,
+    isCollidable: true,
   },
   jail: {
     image: 'assets/walls.png',
@@ -35,6 +39,8 @@ export default {
       clipY: 64,
     },
     isWall: true,
+    isObject: false,
+    isCollidable: true,
   },
   wood: {
     image: 'assets/walls.png',
@@ -47,5 +53,35 @@ export default {
       clipY: 192,
     },
     isWall: true,
+    isObject: false,
+    isCollidable: true,
+  },
+  table: {
+    image: 'assets/table.png',
+    horizontal: {
+      clipX: 0,
+      clipY: 0,
+    },
+    vertical: {
+      clipX: 0,
+      clipY: 0,
+    },
+    isWall: false,
+    isObject: true,
+    isCollidable: true,
+  },
+  lamp: {
+    image: 'assets/lamp.png',
+    horizontal: {
+      clipX: 0,
+      clipY: 0,
+    },
+    vertical: {
+      clipX: 0,
+      clipY: 0,
+    },
+    isWall: false,
+    isObject: true,
+    isCollidable: false,
   },
 };

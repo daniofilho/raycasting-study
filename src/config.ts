@@ -44,8 +44,8 @@ export const scenario: ScenarioPropType = {
 export const screen: ScreenPropType = {
   canvasID: 'screen',
   backgroundColor: '#333333',
-  width: 800,
-  height: 600,
+  width: 300,
+  height: 230,
 };
 
 export const miniMapSingleRay: MiniMapPropType = {
@@ -78,7 +78,7 @@ export const player: PlayerPropsType = {
   width: scenario.tileSize / 2.5,
   height: scenario.tileSize / 2.5,
   color: '#FFFF00',
-  speed: 2,
-  turnSpeed: 0.05,
-  fieldOfView: 60,
+  speed: 1,
+  turnSpeed: 0.03,
+  fieldOfView: 60, // DONT CHANGE, IF YOU DO, SPRITES WILL DISAPPEAR :/
 };

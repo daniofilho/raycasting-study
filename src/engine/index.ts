@@ -18,7 +18,7 @@ const Game = () => {
 
   const minimap = new MiniMap(config.miniMapAllRays);
 
-  const player = Player(minimap, minimap_singleRay, screen);
+  const player = Player(minimap, minimap_singleRay, screen, textures);
 
   const scenario = Scenario(player, minimap, minimap_singleRay, screen, config.scenario, textures);
 

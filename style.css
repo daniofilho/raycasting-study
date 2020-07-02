@@ -40,6 +40,11 @@ section div {
   position: relative;
 }
 
+#screen {
+  width: 800px;
+  height: 600px;
+}
+
 p {
   color: #fff;
 }
@@ -74,7 +79,7 @@ button {
   left: 0;
   top: 0;
 }
-.full-screen canvas {
+.full-screen #screen {
   width: 100%;
   height: 100%;
 }

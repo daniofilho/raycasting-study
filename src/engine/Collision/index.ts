@@ -16,28 +16,17 @@ const Collision = () => {
   }
 
   const check = ({ object, target }: checkType) => {
-    const objectCenterX = object.x + object.width / 2;
-    const objectCenterY = object.y + object.height / 2;
-
-    const targetCenterX = target.x + target.width / 2;
-    const targetCenterY = target.y + target.height / 2;
-
-    // stores the distance between the objects (must be rectangle)
-    var catX = objectCenterX - targetCenterX;
-    var catY = objectCenterY - targetCenterY;
-
-    var sumHalfWidth = object.width / 2 + target.width / 2;
-    var sumHalfHeight = object.height / 2 + target.height / 2;
-
-    console.log(Math.abs(catX), sumHalfWidth, Math.abs(catY), sumHalfHeight);
-
-    if (Math.abs(catX) < sumHalfWidth && Math.abs(catY) < sumHalfHeight) {
-      console.log('colliding');
+    //https://developer.mozilla.org/pt-BR/docs/Games/Techniques/2D_collision_detection
+    if (
+      object.x < target.x + target.width &&
+      object.x + object.width > target.x &&
+      object.y < target.y + target.height &&
+      object.y + object.height > target.y
+    ) {
+      // collision detected!
       return true;
-    } else {
-      console.log('not');
-      return false;
     }
+    return false;
   };
   return { check };
 };

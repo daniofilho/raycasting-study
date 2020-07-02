@@ -4,4 +4,6 @@ export interface SpriteParamsType {
   image: string;
 }
 
-export interface SpriteType {}
+export interface SpriteType {
+  render: Function;
+}

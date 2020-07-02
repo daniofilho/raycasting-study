@@ -31,3 +31,7 @@ If you have error running, try to create a folder `dist`. Sometimes browserify t
 [Wolfenstein 3D's map renderer - Mat Godbolt](https://www.youtube.com/watch?v=eOCQfxRQ2pY)
 
 [Ray casting HTML5 con JavaScript - Javier Muniz](https://github.com/javiermunizyt/raycasting-html5)
+
+[Wolfenstein 3D - Madureira](https://github.com/madureira/wolfenstein)
+
+[Lode's Computer Graphics Tutorial](https://lodev.org/cgtutor/index.html)

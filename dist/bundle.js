@@ -21,7 +21,8 @@ exports.default = MiniMap;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config = require("../../config");
-const Player = (minimap, debugmap, screen) => {
+const Collision_1 = require("../../engine/Collision");
+const Player = (minimap, debugmap, screen, textures) => {
     // Constructor
     const props = {
         minimap,
@@ -43,12 +44,59 @@ const Player = (minimap, debugmap, screen) => {
     const scenarioWidth = config.scenario.tilesX * tileSize;
     const scenarioHeight = config.scenario.tilesY * tileSize;
     const isPlayerCollidingWall = (x, y) => {
-        // # Simple Check, based on tile number
-        // Check Tile on position
-        const mapX = Math.floor(x / tileSize);
-        const mapY = Math.floor(y / tileSize);
-        const mapPosition = mapY * config.scenario.tilesX + mapX;
-        return tiles[mapPosition] !== 0;
+        const collision = Collision_1.default();
+        let isColliding = false;
+        // Check collision against all objects
+        new Array(config.scenario.tilesX).fill('').forEach((_, spriteX) => {
+            new Array(config.scenario.tilesY).fill('').forEach((_, spriteY) => {
+                const mapPosition = spriteY * config.scenario.tilesX + spriteX;
+                const objectId = tiles[mapPosition];
+                const objectTexture = textures.get(objectId);
+                if (!objectTexture)
+                    return;
+                if (!objectTexture.isCollidable)
+                    return;
+                // Check Tile on position
+                const mapX = spriteX * tileSize;
+                const mapY = spriteY * tileSize;
+                const collisionX = x - props.width / 2;
+                const collisionY = y - props.height / 2;
+                const collided = collision.check({
+                    object: {
+                        x: collisionX,
+                        y: collisionY,
+                        width: props.width,
+                        height: props.height,
+                    },
+                    target: {
+                        x: mapX,
+                        y: mapY,
+                        width: tileSize,
+                        height: tileSize,
+                    },
+                });
+                if (collided) {
+                    isColliding = collided;
+                    return true; // end loop
+                }
+                // Debug information
+                debugmap.drawRectangle({
+                    x: collisionX,
+                    y: collisionY,
+                    width: props.width,
+                    height: props.height,
+                    color: 'rgba(0,0,200, 0.5)',
+                });
+                debugmap.drawRectangle({
+                    x: mapX,
+                    y: mapY,
+                    width: tileSize,
+                    height: tileSize,
+                    color: 'rgba(255,100,100,0.5)',
+                });
+            });
+        });
+        return isColliding;
     };
     // Middlwares for setting props
     const setX = (x) => {
@@ -165,7 +213,7 @@ const Player = (minimap, debugmap, screen) => {
 };
 exports.default = Player;
 
-},{"../../config":6}],3:[function(require,module,exports){
+},{"../../config":6,"../../engine/Collision":8}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Canvas_1 = require("../../engine/Canvas");
@@ -184,6 +232,7 @@ exports.default = Screen;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const textures_1 = require("./textures");
+const Sprite_1 = require("../../engine/Sprite");
 function Textures() {
     let textures = [];
     // Preload textures
@@ -191,12 +240,19 @@ function Textures() {
         Object.keys(textures_1.default).forEach((key, index) => {
             const img = new Image();
             img.src = textures_1.default[key].image;
+            let sprite = null;
+            if (textures_1.default[key].isObject) {
+                sprite = Sprite_1.default(img);
+            }
             textures.push({
                 id: key,
                 image: img,
                 vertical: textures_1.default[key].vertical,
                 horizontal: textures_1.default[key].horizontal,
                 isWall: textures_1.default[key].isWall,
+                isObject: textures_1.default[key].isObject,
+                isCollidable: textures_1.default[key].isCollidable,
+                sprite,
             });
         });
     };
@@ -210,7 +266,7 @@ function Textures() {
 }
 exports.default = Textures;
 
-},{"./textures":5}],5:[function(require,module,exports){
+},{"../../engine/Sprite":11,"./textures":5}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 // All texture sizes must be equal to Tile size!
@@ -226,6 +282,8 @@ exports.default = {
             clipY: 0,
         },
         isWall: true,
+        isObject: false,
+        isCollidable: true,
     },
     stone: {
         image: 'assets/walls.png',
@@ -238,6 +296,8 @@ exports.default = {
             clipY: 128,
         },
         isWall: true,
+        isObject: false,
+        isCollidable: true,
     },
     jail: {
         image: 'assets/walls.png',
@@ -250,6 +310,8 @@ exports.default = {
             clipY: 64,
         },
         isWall: true,
+        isObject: false,
+        isCollidable: true,
     },
     wood: {
         image: 'assets/walls.png',
@@ -262,6 +324,36 @@ exports.default = {
             clipY: 192,
         },
         isWall: true,
+        isObject: false,
+        isCollidable: true,
+    },
+    table: {
+        image: 'assets/table.png',
+        horizontal: {
+            clipX: 0,
+            clipY: 0,
+        },
+        vertical: {
+            clipX: 0,
+            clipY: 0,
+        },
+        isWall: false,
+        isObject: true,
+        isCollidable: true,
+    },
+    lamp: {
+        image: 'assets/lamp.png',
+        horizontal: {
+            clipX: 0,
+            clipY: 0,
+        },
+        vertical: {
+            clipX: 0,
+            clipY: 0,
+        },
+        isWall: false,
+        isObject: true,
+        isCollidable: false,
     },
 };
 
@@ -305,8 +397,8 @@ exports.scenario = {
 exports.screen = {
     canvasID: 'screen',
     backgroundColor: '#333333',
-    width: 800,
-    height: 600,
+    width: 300,
+    height: 230,
 };
 exports.miniMapSingleRay = {
     canvasID: 'minimap_singleRay',
@@ -336,16 +428,19 @@ exports.player = {
     width: exports.scenario.tileSize / 2.5,
     height: exports.scenario.tileSize / 2.5,
     color: '#FFFF00',
-    speed: 2,
-    turnSpeed: 0.05,
+    speed: 1,
+    turnSpeed: 0.03,
     fieldOfView: 60,
 };
 
-},{"./map":13}],7:[function(require,module,exports){
+},{"./map":15}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Canvas {
     constructor(config) {
+        this.set = (prop, value) => {
+            this.canvas[prop] = value;
+        };
         // Get some prop
         this.get = (prop) => {
             return this.canvas[prop];
@@ -359,6 +454,8 @@ class Canvas {
         // Reset canvas
         this.reset = () => {
             const { width, height, backgroundColor } = this.config;
+            this.canvas.width = width;
+            this.canvas.height = height;
             // Background
             this.drawRectangle({ x: 0, y: 0, width, height, color: backgroundColor });
         };
@@ -415,15 +512,31 @@ class Canvas {
         this.canvas = document.getElementById(config.canvasID);
         this.context = this.canvas.getContext('2d');
         this.config = config;
-        // Canvas Size
-        const { width, height } = config;
-        this.canvas.width = width;
-        this.canvas.height = height;
     }
 }
 exports.default = Canvas;
 
 },{}],8:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+// Class that detects collision between player and other objects
+const Collision = () => {
+    const check = ({ object, target }) => {
+        //https://developer.mozilla.org/pt-BR/docs/Games/Techniques/2D_collision_detection
+        if (object.x < target.x + target.width &&
+            object.x + object.width > target.x &&
+            object.y < target.y + target.height &&
+            object.y + object.height > target.y) {
+            // collision detected!
+            return true;
+        }
+        return false;
+    };
+    return { check };
+};
+exports.default = Collision;
+
+},{}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const config = require("../../../config");
@@ -434,137 +547,20 @@ const PI3 = (3 * Math.PI) / 2;
 const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasScreen, textures) => {
     const { tiles, tilesX, tilesY, tileSize } = scenario;
     const props = {
-        rays: player.get('fieldOfView'),
         dof: config.game.depthfOfField,
         fov: player.get('fieldOfView'),
     };
-    const raysQuantity = tilesX * tileSize;
+    let raysQuantity = tilesX * tileSize;
+    // Don't cast more rays than canvas size, will be a waste of resources
+    if (raysQuantity > config.screen.width)
+        raysQuantity = config.screen.width;
     const fovAngle = props.fov * (Math.PI / 180);
     // Ray
     let rayX, rayY;
     let rayXoffset, rayYoffset;
     // Position of ray on map
     let mapX, mapY, mapPosition;
-    // # Draw a debug Ray
-    const debugSingleRay = ({ toX, toY, color }) => {
-        const playerX = player.get('x');
-        const playerY = player.get('y');
-        canvasMiniMapDebug.drawLine({
-            x: playerX,
-            y: playerY,
-            toX: toX,
-            toY: toY,
-            color,
-        });
-    };
-    // # Render Casted ray
-    const renderRay = ({ rayX, rayY }) => {
-        // ## Mini map 2D rendering
-        // starting from where the player is to where it ends
-        const playerX = player.get('x');
-        const playerY = player.get('y');
-        canvasMinimap.drawLine({
-            x: playerX,
-            y: playerY,
-            toX: rayX,
-            toY: rayY,
-            color: '#00FFFF',
-        });
-    };
-    // # Render Sky
-    const renderSky = (wallX, wallY, wallWidth) => {
-        if (window.global.renderTextures) {
-            const pattern = canvasScreen.createPattern(scenario.screen.sky.image);
-            return canvasScreen.drawRectangle({
-                x: wallX,
-                y: 0,
-                width: wallWidth,
-                height: wallY,
-                color: pattern,
-            });
-        }
-        const { r: skyR, g: skyG, b: skyB } = scenario.screen.sky.color;
-        const skyColor = `rgb(${skyR}, ${skyG}, ${skyB})`;
-        return canvasScreen.drawRectangle({
-            x: wallX,
-            y: 0,
-            width: wallWidth,
-            height: wallY,
-            color: skyColor,
-        });
-    };
-    const renderObject = ({ pixelOfTexture, objectId, wallHeight, wallWidth, wallY, wallX, horizontalRay, alpha, }) => {
-        if (window.global.renderTextures) {
-            const objectTexture = textures.get(objectId);
-            if (!objectTexture)
-                return;
-            const clip = horizontalRay ? objectTexture.horizontal : objectTexture.vertical;
-            return canvasScreen.drawImage({
-                image: objectTexture.image,
-                x: wallX,
-                y: wallY,
-                width: tileSize,
-                height: wallHeight,
-                clipX: clip.clipX + Math.floor(pixelOfTexture),
-                clipY: clip.clipY,
-                clipWidth: tileSize,
-                clipHeight: tileSize,
-            });
-        }
-        // # Wall texture
-        const wallColor = `rgba(100,255,100,${alpha})`;
-        return canvasScreen.drawRectangle({
-            x: wallX,
-            y: wallY,
-            width: wallWidth,
-            height: wallHeight,
-            color: wallColor,
-        });
-    };
-    // # Render Floor
-    const renderFloor = (wallX, wallY, wallWidth, wallHeight) => {
-        //const { r: floorR, g: floorG, b: floorB } = scenario.screen.floor.color;
-        //const floorColor = `rgb(${floorR}, ${floorG}, ${floorB})`;
-        const gradient = canvasScreen.createLineGradient(scenario.screen.floor.color.from, scenario.screen.floor.color.to);
-        const floorY = wallY + wallHeight;
-        canvasScreen.drawRectangle({
-            x: wallX,
-            y: floorY,
-            width: wallWidth,
-            height: canvasScreen.getConfig().height - floorY,
-            color: gradient,
-        });
-    };
-    // # main Render 3D function
-    const render3D = ({ rayAngle, distance, index, objectId, pixelOfTexture, horizontalRay, }) => {
-        // # Definitions
-        const correctWallDistance = distance * Math.cos(rayAngle - player.get('angle'));
-        const distanceProjectionPlane = canvasScreen.getConfig().width / 2 / Math.tan(fovAngle / 2);
-        // Define the line height to draw
-        const wallHeight = Math.round((tileSize / correctWallDistance) * distanceProjectionPlane);
-        const wallWidth = Math.ceil(canvasScreen.getConfig().width / raysQuantity);
-        // Find positions
-        const wallX = index * wallWidth;
-        const wallY = canvasScreen.getConfig().height / 2 - wallHeight / 2;
-        // Set alpha color to simulate lighting
-        const alpha = config.game.render.light / correctWallDistance;
-        // # Render
-        // Draw Sky
-        renderSky(wallX, wallY, wallWidth);
-        // Draw wall
-        renderObject({
-            objectId,
-            pixelOfTexture,
-            horizontalRay,
-            wallWidth,
-            wallHeight,
-            wallX,
-            wallY,
-            alpha,
-        });
-        // Draw Floor
-        renderFloor(wallX, wallY, wallWidth, wallHeight);
-    };
+    // ###################  Casts  ###################
     // # Ray Casting on horizontal lines
     const castHorizontalRays = ({ rayAngle }) => {
         rayAngle = calculations_1.normalizeAngle(rayAngle);
@@ -600,26 +596,33 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             mapX = Math.floor(rayX / tileSize);
             mapY = Math.floor(rayY / tileSize);
             mapPosition = mapY * tilesX + mapX; // tilesX = how many tiles have on x-coordinate
-            // Check if ray hits a wall or scenario bounds
-            if (mapPosition > 0 && // inside screen
-                mapPosition < tilesX * tilesY && // not out screen
-                tiles[mapPosition] !== 0 // hit wall
-            ) {
-                // Save values to check lowest later
-                horizontalX = rayX;
-                horizontalY = rayY;
-                horizontalDistance = calculations_1.calcDistance({
-                    object: { x: playerX, y: playerY },
-                    target: { x: horizontalX, y: horizontalY },
-                });
-                currentDOF = props.dof; // end loop
-            }
-            else {
-                // to check next line, just add the offset value
-                // # this is the key optimization of this algorithm
+            const objectTexture = textures.get(tiles[mapPosition]);
+            if (!objectTexture) {
                 rayX += rayXoffset;
                 rayY += rayYoffset;
                 currentDOF++;
+            }
+            else {
+                // Check if ray hits a wall or scenario bounds
+                if (mapPosition > 0 && // inside screen
+                    mapPosition < tilesX * tilesY && // not out screen
+                    objectTexture.isWall) {
+                    // Save values to check lowest later
+                    horizontalX = rayX;
+                    horizontalY = rayY;
+                    horizontalDistance = calculations_1.calcDistance({
+                        object: { x: playerX, y: playerY },
+                        target: { x: horizontalX, y: horizontalY },
+                    });
+                    currentDOF = props.dof; // end loop
+                }
+                else {
+                    // to check next line, just add the offset value
+                    // # this is the key optimization of this algorithm
+                    rayX += rayXoffset;
+                    rayY += rayYoffset;
+                    currentDOF++;
+                }
             }
         }
         return {
@@ -663,26 +666,33 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             mapX = Math.floor(rayX / tileSize);
             mapY = Math.floor(rayY / tileSize);
             mapPosition = mapY * tilesX + mapX; // tilesX = how many tiles have on x-coordinate
-            // Check if ray hits a wall or scenario bounds
-            if (mapPosition > 0 && // inside screen
-                mapPosition < tilesX * tilesY && // not out screen
-                tiles[mapPosition] !== 0 // hit wall
-            ) {
-                // Save values to check lowest later
-                verticalX = rayX;
-                verticalY = rayY;
-                verticalDistance = calculations_1.calcDistance({
-                    object: { x: playerX, y: playerY },
-                    target: { x: verticalX, y: verticalY },
-                });
-                currentDOF = props.dof; // end loop
-            }
-            else {
-                // to check next line, just add the offset value
-                // # this is the key optimization of this algorithm
+            const objectTexture = textures.get(tiles[mapPosition]);
+            if (!objectTexture) {
                 rayX += rayXoffset;
                 rayY += rayYoffset;
                 currentDOF++;
+            }
+            else {
+                // Check if ray hits a wall or scenario bounds
+                if (mapPosition > 0 && // inside screen
+                    mapPosition < tilesX * tilesY && // not out screen
+                    objectTexture.isWall) {
+                    // Save values to check lowest later
+                    verticalX = rayX;
+                    verticalY = rayY;
+                    verticalDistance = calculations_1.calcDistance({
+                        object: { x: playerX, y: playerY },
+                        target: { x: verticalX, y: verticalY },
+                    });
+                    currentDOF = props.dof; // end loop
+                }
+                else {
+                    // to check next line, just add the offset value
+                    // # this is the key optimization of this algorithm
+                    rayX += rayXoffset;
+                    rayY += rayYoffset;
+                    currentDOF++;
+                }
             }
         }
         return {
@@ -734,6 +744,8 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             objectId,
             pixelOfTexture,
             horizontalRay,
+            mapX,
+            mapY,
         };
     };
     // # Debug the Ray on front of player
@@ -741,18 +753,163 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
         const { rayX, rayY } = castRays({ rayAngle: player.get('angle') });
         debugSingleRay({ toX: rayX, toY: rayY, color: '#BBFF00' });
     };
+    // ################### Renders ###################
+    // # Render Casted ray
+    const renderRay = ({ rayX, rayY }) => {
+        // ## Mini map 2D rendering
+        // starting from where the player is to where it ends
+        const playerX = player.get('x');
+        const playerY = player.get('y');
+        canvasMinimap.drawLine({
+            x: playerX,
+            y: playerY,
+            toX: rayX,
+            toY: rayY,
+            color: '#00FFFF',
+        });
+    };
+    // # Render Sky
+    const renderSky = (wallX, wallY, wallWidth) => {
+        if (window.global.renderTextures) {
+            const pattern = canvasScreen.createPattern(scenario.screen.sky.image);
+            return canvasScreen.drawRectangle({
+                x: wallX,
+                y: 0,
+                width: wallWidth,
+                height: wallY,
+                color: pattern,
+            });
+        }
+        const { r: skyR, g: skyG, b: skyB } = scenario.screen.sky.color;
+        const skyColor = `rgb(${skyR}, ${skyG}, ${skyB})`;
+        return canvasScreen.drawRectangle({
+            x: wallX,
+            y: 0,
+            width: wallWidth,
+            height: wallY,
+            color: skyColor,
+        });
+    };
+    // # Render the walls found on cast
+    const renderWall = ({ pixelOfTexture, objectId, wallHeight, wallWidth, wallY, wallX, horizontalRay, alpha, }) => {
+        const objectTexture = textures.get(objectId);
+        if (!objectTexture)
+            return;
+        if (!objectTexture.isWall)
+            return; // only render walls here
+        if (window.global.renderTextures) {
+            const clip = horizontalRay ? objectTexture.horizontal : objectTexture.vertical;
+            return canvasScreen.drawImage({
+                image: objectTexture.image,
+                x: wallX,
+                y: wallY,
+                width: tileSize,
+                height: wallHeight,
+                clipX: clip.clipX + Math.floor(pixelOfTexture),
+                clipY: clip.clipY,
+                clipWidth: tileSize,
+                clipHeight: tileSize,
+            });
+        }
+        // # Wall texture
+        const wallColor = `rgba(100,255,100,${alpha})`;
+        return canvasScreen.drawRectangle({
+            x: wallX,
+            y: wallY,
+            width: wallWidth,
+            height: wallHeight,
+            color: wallColor,
+        });
+    };
+    // # Render Floor
+    const renderFloor = (wallX, wallY, wallWidth, wallHeight) => {
+        //const { r: floorR, g: floorG, b: floorB } = scenario.screen.floor.color;
+        //const floorColor = `rgb(${floorR}, ${floorG}, ${floorB})`;
+        const gradient = canvasScreen.createLineGradient(scenario.screen.floor.color.from, scenario.screen.floor.color.to);
+        const floorY = wallY + wallHeight;
+        canvasScreen.drawRectangle({
+            x: wallX,
+            y: floorY,
+            width: wallWidth,
+            height: canvasScreen.getConfig().height - floorY,
+            color: gradient,
+        });
+    };
+    // # Render Sprites
+    const renderObjects = (rayDistances) => {
+        // Loop all the map
+        new Array(tilesX).fill('').forEach((_, x) => {
+            new Array(tilesY).fill('').forEach((_, y) => {
+                const x0 = x * tileSize + tileSize / 2; // center asset tile square
+                const y0 = y * tileSize + tileSize / 2;
+                const mapPosition = y * tilesX + x;
+                const objectId = tiles[mapPosition];
+                const objectTexture = textures.get(objectId);
+                if (!objectTexture || !objectTexture.isObject)
+                    return; // only render objects here
+                objectTexture.sprite.render(player, canvasScreen, x0, y0, rayDistances);
+            });
+        });
+    };
+    // # Draw a debug Ray
+    const debugSingleRay = ({ toX, toY, color }) => {
+        const playerX = player.get('x');
+        const playerY = player.get('y');
+        canvasMiniMapDebug.drawLine({
+            x: playerX,
+            y: playerY,
+            toX: toX,
+            toY: toY,
+            color,
+        });
+    };
+    // # main Render 3D function
+    const render3D = ({ rayAngle, distance, index, objectId, pixelOfTexture, horizontalRay, }) => {
+        // # Definitions
+        const correctWallDistance = distance * Math.cos(rayAngle - player.get('angle'));
+        const distanceProjectionPlane = canvasScreen.getConfig().width / 2 / Math.tan(fovAngle / 2);
+        // Define the line height to draw
+        const wallHeight = Math.round((tileSize / correctWallDistance) * distanceProjectionPlane);
+        const wallWidth = Math.ceil(canvasScreen.getConfig().width / raysQuantity);
+        // Find positions
+        const wallX = index * wallWidth;
+        const wallY = canvasScreen.getConfig().height / 2 - wallHeight / 2;
+        // Set alpha color to simulate lighting
+        const alpha = config.game.render.light / correctWallDistance;
+        // # Render
+        // Draw Sky
+        renderSky(wallX, wallY, wallWidth);
+        // Draw wall
+        renderWall({
+            objectId,
+            pixelOfTexture,
+            horizontalRay,
+            wallWidth,
+            wallHeight,
+            wallX,
+            wallY,
+            alpha,
+        });
+        // Draw Floor
+        renderFloor(wallX, wallY, wallWidth, wallHeight);
+    };
+    // ###################   Main  ###################
     // # Render all objects
-    const renderObjects = (renderObjects) => {
-        renderObjects.map(({ rayX, rayY, rayAngle, distance, rayNumber, pixelOfTexture, objectId, horizontalRay }) => {
+    const renderEverything = (renderList, rayDistances) => {
+        // Render whatever ray cast hitted
+        renderList.map(({ rayX, rayY, rayAngle, distance, rayNumber, pixelOfTexture, objectId, horizontalRay }) => {
             // 2D ray
             renderRay({ rayX, rayY });
             // 3D wall - This is where we wanted to go
             render3D({ index: rayNumber, objectId, distance, horizontalRay, pixelOfTexture, rayAngle });
         });
+        // Render other stuff outside Ray Casting
+        renderObjects(rayDistances);
     };
     // Render everything
     const render = () => {
-        const objects = [];
+        const list = [];
+        const rayDistances = {}; // store distance of each Ray casted
         // Determine the ray angle of casting acording to player field of view
         let rayAngle = player.get('angle') - fovAngle / 2;
         // Cast debug Ray
@@ -760,10 +917,10 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
         // Cast the rays
         new Array(raysQuantity).fill('').forEach((_, ray) => {
             // Cast rays
-            const { rayX, rayY, distance, objectId, pixelOfTexture, horizontalRay } = castRays({
+            const { rayX, rayY, distance, objectId, pixelOfTexture, horizontalRay, mapX, mapY, } = castRays({
                 rayAngle,
             });
-            objects.push({
+            list.push({
                 rayX,
                 rayY,
                 rayAngle,
@@ -771,13 +928,17 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
                 objectId,
                 pixelOfTexture,
                 horizontalRay,
+                mapX,
+                mapY,
                 rayNumber: ray,
             });
+            // Store casted ray distance on X position
+            rayDistances[ray] = distance;
             // Increase angle for next ray
             rayAngle += fovAngle / raysQuantity;
         });
         // Finaly render everything found
-        return renderObjects(objects);
+        return renderEverything(list, rayDistances);
     };
     return {
         render,
@@ -785,7 +946,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
 };
 exports.default = RayCasting;
 
-},{"../../../config":6,"../../calculations":10}],9:[function(require,module,exports){
+},{"../../../config":6,"../../calculations":12}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const RayCasting_1 = require("./RayCasting");
@@ -865,10 +1026,93 @@ const Scenario = (player, canvasMiniMap, canvasMiniMapDebug, canvasScreen, confi
 };
 exports.default = Scenario;
 
-},{"./RayCasting":8}],10:[function(require,module,exports){
+},{"./RayCasting":9}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.calcAngle = exports.convertAngleToRadians = exports.calcDistance = exports.normalizeAngle = void 0;
+const calculations_1 = require("../calculations");
+const config_1 = require("../../config");
+function Sprite(image) {
+    const props = {
+        image,
+        x: 0,
+        y: 0,
+        visible: false,
+        distance: 0,
+        angle: 0,
+    };
+    const updateProps = (camera, x, y) => {
+        props.x = x;
+        props.y = y;
+        const cameraFOV = camera.get('fieldOfView');
+        const halfFOV = calculations_1.convertAngleToRadians(cameraFOV / 2);
+        // Angle
+        props.angle = calculations_1.calcAngle({
+            cameraX: camera.get('x'),
+            cameraY: camera.get('y'),
+            cameraAngle: camera.get('angle'),
+            targetX: props.x,
+            targetY: props.y,
+        });
+        props.visible = props.angle < halfFOV * 1.5 ? true : false;
+        // Distance
+        props.distance = calculations_1.calcDistanceBetweenPoints(camera.get('x'), camera.get('y'), props.x, props.y);
+    };
+    const render = (camera, canvas, x, y, rayDistances) => {
+        updateProps(camera, x, y);
+        if (!props.visible)
+            return;
+        const canvasWidth = canvas.getConfig().width;
+        const canvasHeight = canvas.getConfig().height;
+        const FOV = camera.get('fieldOfView');
+        const distanceProjectionPlane = (canvasWidth * 1.5) / Math.tan(FOV / 2); // 1.5 adjust texture max height
+        const spriteHeight = (canvasHeight / props.distance) * distanceProjectionPlane;
+        // Calculate where line starts and ends, centering on screen vertically
+        const y0 = Math.floor(canvasHeight / 2) - Math.floor(spriteHeight / 2);
+        const y1 = y0 + spriteHeight;
+        const maxTextureHeight = config_1.scenario.tileSize;
+        const maxTextureWidth = config_1.scenario.tileSize;
+        const textureHeight = y0 - y1;
+        //const wallHeight = Math.round((scenario.tileSize / props.distance) * distanceProjectionPlane);
+        const textureWidth = textureHeight; // Square sprites
+        // Calculate Sprite coordinates
+        const spriteX = props.x - camera.get('x');
+        const spriteY = props.y - camera.get('y');
+        const spriteAngle = Math.atan2(spriteY, spriteX) - camera.get('angle');
+        const viewDist = canvas.getConfig().height;
+        const x0 = Math.tan(spriteAngle) * viewDist;
+        const xFinal = canvasWidth / 2 + x0 - textureWidth / 2;
+        // X Height proportion
+        const columnHeight = textureHeight / maxTextureHeight;
+        // Render column by column so we can check if it's behind a wall
+        for (let i = 0; i < maxTextureWidth; i++) {
+            for (let j = 0; j < columnHeight; j++) {
+                const x1 = Math.floor(xFinal + (i - 1) * columnHeight + j);
+                // Check distance before render column
+                if (rayDistances[x1] > props.distance) {
+                    canvas.drawImage({
+                        image: props.image,
+                        clipX: i,
+                        clipY: 0,
+                        clipWidth: 1,
+                        clipHeight: maxTextureHeight - 1,
+                        x: x1,
+                        y: y1,
+                        width: 1,
+                        height: textureHeight,
+                    });
+                }
+                //canvas.drawElipse({ x: x1, y: y1, radius: 10, color: '#FF0000' });
+            }
+        }
+    };
+    return { render };
+}
+exports.default = Sprite;
+
+},{"../../config":6,"../calculations":12}],12:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.calcDistanceBetweenPoints = exports.calcAngle = exports.convertAngleToRadians = exports.calcDistance = exports.normalizeAngle = void 0;
 exports.normalizeAngle = (angle) => {
     angle = angle % (2 * Math.PI);
     if (angle < 0) {
@@ -894,12 +1138,14 @@ exports.calcAngle = ({ cameraX, cameraY, cameraAngle, targetX, targetY }) => {
         angleDifference += 2.0 * Math.PI;
     if (angleDifference > Math.PI)
         angleDifference -= 2.0 * Math.PI;
-    return {
-        angle: Math.abs(angleDifference),
-    };
+    return Math.abs(angleDifference);
+};
+// Calculate distance between two points
+exports.calcDistanceBetweenPoints = (x1, y1, x2, y2) => {
+    return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 };
 
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Screen_1 = require("../components/Screen");
@@ -914,7 +1160,7 @@ const Game = () => {
     const screen = new Screen_1.default(config.screen);
     const minimap_singleRay = new MiniMap_1.default(config.miniMapSingleRay);
     const minimap = new MiniMap_1.default(config.miniMapAllRays);
-    const player = Player_1.default(minimap, minimap_singleRay, screen);
+    const player = Player_1.default(minimap, minimap_singleRay, screen, textures);
     const scenario = Scenario_1.default(player, minimap, minimap_singleRay, screen, config.scenario, textures);
     // FPS Control
     let fpsInterval = 0;
@@ -980,7 +1226,7 @@ const Game = () => {
 };
 exports.default = Game;
 
-},{"../components/MiniMap":1,"../components/Player":2,"../components/Screen":3,"../components/Textures":4,"../config":6,"./Scenario":9}],12:[function(require,module,exports){
+},{"../components/MiniMap":1,"../components/Player":2,"../components/Screen":3,"../components/Textures":4,"../config":6,"./Scenario":10}],14:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const engine_1 = require("./engine");
@@ -991,9 +1237,10 @@ window.global = {
 const engine = engine_1.default();
 engine.startGame();
 
-},{"./engine":11}],13:[function(require,module,exports){
+},{"./engine":13}],15:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+//https://onlinetexttools.com/convert-text-to-nice-columns <= beautify this array - Right-align columns
 // prettier-ignore
 exports.default = [
     'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall',
@@ -1003,18 +1250,18 @@ exports.default = [
     'wall', 0, 'wall', 'wall', 0, 0, 0, 0, 'stone', 0, 'wall', 'wall', 'wall', 0, 'wood',
     'wall', 0, 0, 'jail', 0, 0, 0, 0, 'stone', 0, 0, 0, 0, 0, 'wood',
     'wall', 0, 'wall', 'wall', 0, 'stone', 'stone', 'stone', 'stone', 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 'stone', 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 'stone', 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 'stone', 0, 0, 0, 0, 0, 'jail', 'wall', 'wall', 'wood',
-    'wall', 0, 0, 0, 0, 'stone', 'stone', 'stone', 'stone', 0, 0, 0, 'wall', 0, 'wood',
+    'wall', 0, 0, 0, 0, 'lamp', 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 'lamp', 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 'stone', 0, 0, 0, 0, 'table', 'jail', 'wall', 'wall', 'wood',
+    'wall', 0, 'table', 0, 0, 'stone', 'stone', 'stone', 'stone', 0, 0, 0, 'wall', 0, 'wood',
     'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wall', 0, 'wood',
     'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wall', 'wall', 'wall', 0, 'wood',
     'wall', 0, 0, 0, 'wall', 'wall', 0, 0, 0, 0, 'wall', 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 'wall', 0, 0, 0, 0, 0, 'wall', 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 'wall', 0, 'table', 0, 0, 0, 'wall', 0, 0, 0, 'wood',
     'wall', 0, 0, 0, 'wall', 0, 0, 'stone', 0, 0, 'wall', 0, 0, 0, 'wood',
-    'wall', 0, 0, 'wall', 'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 'lamp', 'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
     'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
     'wall', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood',
 ];
 
-},{}]},{},[12]);
+},{}]},{},[14]);

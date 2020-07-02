@@ -2,6 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 class Canvas {
     constructor(config) {
+        this.set = (prop, value) => {
+            this.canvas[prop] = value;
+        };
         // Get some prop
         this.get = (prop) => {
             return this.canvas[prop];
@@ -15,6 +18,8 @@ class Canvas {
         // Reset canvas
         this.reset = () => {
             const { width, height, backgroundColor } = this.config;
+            this.canvas.width = width;
+            this.canvas.height = height;
             // Background
             this.drawRectangle({ x: 0, y: 0, width, height, color: backgroundColor });
         };
@@ -71,10 +76,6 @@ class Canvas {
         this.canvas = document.getElementById(config.canvasID);
         this.context = this.canvas.getContext('2d');
         this.config = config;
-        // Canvas Size
-        const { width, height } = config;
-        this.canvas.width = width;
-        this.canvas.height = height;
     }
 }
 exports.default = Canvas;

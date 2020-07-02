@@ -17,8 +17,10 @@ export interface render3DType {
   objectId: number;
   pixelOfTexture: number;
   horizontalRay: boolean;
+  mapX?: number;
+  mapY?: number;
 }
-export interface renderObjectsType {
+export interface renderListType {
   rayX: number;
   rayY: number;
   rayAngle: number;
@@ -27,8 +29,9 @@ export interface renderObjectsType {
   pixelOfTexture: number;
   objectId: number;
   horizontalRay: boolean;
+  mapPosition: number;
 }
-export interface renderObject {
+export interface renderWallType {
   objectId: number;
   pixelOfTexture: number;
   wallWidth: number;

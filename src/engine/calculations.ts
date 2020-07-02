@@ -33,7 +33,10 @@ export const calcAngle = ({ cameraX, cameraY, cameraAngle, targetX, targetY }: c
 
   if (angleDifference > Math.PI) angleDifference -= 2.0 * Math.PI;
 
-  return {
-    angle: Math.abs(angleDifference),
-  };
+  return Math.abs(angleDifference);
+};
+
+// Calculate distance between two points
+export const calcDistanceBetweenPoints = (x1: number, y1: number, x2: number, y2: number) => {
+  return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 };

@@ -17,12 +17,11 @@ class Canvas {
     this.context = this.canvas.getContext('2d');
 
     this.config = config;
-
-    // Canvas Size
-    const { width, height } = config;
-    this.canvas.width = width;
-    this.canvas.height = height;
   }
+
+  set = (prop: any, value: any) => {
+    this.canvas[prop] = value;
+  };
 
   // Get some prop
   get = (prop: string) => {
@@ -40,6 +39,10 @@ class Canvas {
   // Reset canvas
   reset = () => {
     const { width, height, backgroundColor } = this.config;
+
+    this.canvas.width = width;
+    this.canvas.height = height;
+
     // Background
     this.drawRectangle({ x: 0, y: 0, width, height, color: backgroundColor });
   };

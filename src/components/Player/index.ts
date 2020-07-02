@@ -1,8 +1,16 @@
 import * as config from '../../config';
 import { MiniMapType } from '../MiniMap/types';
 import { ScreenType } from '../Screen/types';
+import { TextureType, TexturesType } from '../Textures/types';
 
-const Player = (minimap: MiniMapType, debugmap: MiniMapType, screen: ScreenType) => {
+import Collision from '../../engine/Collision';
+
+const Player = (
+  minimap: MiniMapType,
+  debugmap: MiniMapType,
+  screen: ScreenType,
+  textures: TexturesType
+) => {
   // Constructor
   const props = {
     minimap,
@@ -27,14 +35,64 @@ const Player = (minimap: MiniMapType, debugmap: MiniMapType, screen: ScreenType)
   const scenarioHeight = config.scenario.tilesY * tileSize;
 
   const isPlayerCollidingWall = (x: number, y: number) => {
-    // # Simple Check, based on tile number
+    const collision = Collision();
+    let isColliding = false;
 
-    // Check Tile on position
-    const mapX = Math.floor(x / tileSize);
-    const mapY = Math.floor(y / tileSize);
-    const mapPosition = mapY * config.scenario.tilesX + mapX;
+    // Check collision against all objects
+    new Array(config.scenario.tilesX).fill('').forEach((_, spriteX) => {
+      new Array(config.scenario.tilesY).fill('').forEach((_, spriteY) => {
+        const mapPosition = spriteY * config.scenario.tilesX + spriteX;
+        const objectId = tiles[mapPosition];
+        const objectTexture: TextureType = textures.get(objectId);
 
-    return tiles[mapPosition] !== 0;
+        if (!objectTexture) return;
+        if (!objectTexture.isCollidable) return;
+
+        // Check Tile on position
+        const mapX = spriteX * tileSize;
+        const mapY = spriteY * tileSize;
+
+        const collisionX = x - props.width / 2;
+        const collisionY = y - props.height / 2;
+
+        const collided = collision.check({
+          object: {
+            x: collisionX,
+            y: collisionY,
+            width: props.width,
+            height: props.height,
+          },
+          target: {
+            x: mapX,
+            y: mapY,
+            width: tileSize,
+            height: tileSize,
+          },
+        });
+
+        if (collided) {
+          isColliding = collided;
+          return true; // end loop
+        }
+
+        // Debug information
+        debugmap.drawRectangle({
+          x: collisionX,
+          y: collisionY,
+          width: props.width,
+          height: props.height,
+          color: 'rgba(0,0,200, 0.5)',
+        });
+        debugmap.drawRectangle({
+          x: mapX,
+          y: mapY,
+          width: tileSize,
+          height: tileSize,
+          color: 'rgba(255,100,100,0.5)',
+        });
+      });
+    });
+    return isColliding;
   };
 
   // Middlwares for setting props
