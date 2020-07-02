@@ -28,23 +28,6 @@
     "typescript": "^3.9.5",
     "watchify": "^3.11.1"
   },
-  "dependencies": {},
-  "copyFiles": [
-    {
-      "from": "index.html",
-      "to": "build/index.html"
-    },
-    {
-      "from": "styles.css",
-      "to": "build/styles.css"
-    },
-    {
-      "from": "assets/**/*.*",
-      "to": "build/assets/"
-    },
-    {
-      "from": "dist/bundle.js",
-      "to": "build/dist/bunle.js"
-    }
-  ]
+  "dependencies": {}
 }
+  

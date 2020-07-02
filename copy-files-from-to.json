@@ -1,0 +1,23 @@
+{
+ "copyFiles": [
+    {
+      "from": "index.html",
+      "to": "build/index.html"
+    },
+    {
+      "from": "style.css",
+      "to": "build/style.css"
+    },
+    {
+      "from": "assets/**/*.*",
+      "to": "build/assets/"
+    },
+    {
+      "from": "dist/bundle.js",
+      "to": "build/dist/bundle.js"
+    }
+  ],
+  "copyFilesSettings": {
+    "whenFileExists": "overwrite"
+  }
+}
