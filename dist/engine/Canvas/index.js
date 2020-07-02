@@ -26,8 +26,7 @@ class Canvas {
             return grd;
         };
         // Create a texture pattern
-        this.createPattern = (elementID) => {
-            const img = document.getElementById(elementID);
+        this.createPattern = (img) => {
             return this.context.createPattern(img, 'repeat');
         };
         // Draw a text

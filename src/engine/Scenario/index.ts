@@ -1,7 +1,7 @@
 import { MiniMapType } from '../../components/MiniMap/types';
 import { ScreenType } from '../../components/Screen/types';
 import { PlayerType } from '../../components/Player/types';
-import { ScenarioType } from '../../types';
+import { ScenarioPropType } from './types';
 import { TexturesType, TextureType } from '../../components/Textures/types';
 
 import RayCasting from './RayCasting';
@@ -11,7 +11,7 @@ const Scenario = (
   canvasMiniMap: MiniMapType,
   canvasMiniMapDebug: MiniMapType,
   canvasScreen: ScreenType,
-  config: ScenarioType,
+  config: ScenarioPropType,
   textures: TexturesType
 ) => {
   const {

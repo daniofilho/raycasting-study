@@ -54,8 +54,7 @@ class Canvas {
   };
 
   // Create a texture pattern
-  createPattern = (elementID: string) => {
-    const img = document.getElementById(elementID);
+  createPattern = (img: HTMLImageElement) => {
     return this.context.createPattern(img, 'repeat');
   };
 

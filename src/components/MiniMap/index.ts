@@ -1,4 +1,4 @@
-import { MiniMapPropType } from '../../types';
+import { MiniMapPropType } from './types';
 
 import Canvas from '../../engine/Canvas';
 

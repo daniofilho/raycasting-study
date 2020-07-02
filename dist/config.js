@@ -9,6 +9,8 @@ exports.game = {
         light: 40,
     },
 };
+const skyImg = new Image();
+skyImg.src = 'assets/sky.png';
 exports.scenario = {
     tileSize: 64,
     tilesX: 15,
@@ -21,7 +23,8 @@ exports.scenario = {
     },
     screen: {
         sky: {
-            image: 'sky',
+            color: { r: 44, g: 44, b: 44 },
+            image: skyImg,
         },
         floor: {
             color: {

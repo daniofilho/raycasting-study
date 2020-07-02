@@ -10,6 +10,7 @@ export default {
       clipX: 64,
       clipY: 0,
     },
+    isWall: true,
   },
   stone: {
     image: 'assets/walls.png',
@@ -21,6 +22,7 @@ export default {
       clipX: 64,
       clipY: 128,
     },
+    isWall: true,
   },
   jail: {
     image: 'assets/walls.png',
@@ -32,6 +34,7 @@ export default {
       clipX: 64,
       clipY: 64,
     },
+    isWall: true,
   },
   wood: {
     image: 'assets/walls.png',
@@ -43,5 +46,6 @@ export default {
       clipX: 64,
       clipY: 192,
     },
+    isWall: true,
   },
 };

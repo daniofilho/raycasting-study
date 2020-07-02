@@ -9,6 +9,7 @@ export interface TextureType {
     clipX: number;
     clipY: number;
   };
+  isWall: boolean;
 }
 
 export interface TexturesType {

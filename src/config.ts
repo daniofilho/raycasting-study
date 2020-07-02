@@ -1,5 +1,10 @@
 import * as Types from 'types';
 
+import { ScenarioPropType } from './engine/Scenario/types';
+import { ScreenPropType } from './components/Screen/types';
+import { MiniMapPropType } from './components/MiniMap/types';
+import { PlayerPropsType } from './components/Player/types';
+
 import map from './map';
 
 export const game: Types.GameType = {
@@ -10,7 +15,9 @@ export const game: Types.GameType = {
   },
 };
 
-export const scenario: Types.ScenarioType = {
+const skyImg = new Image();
+skyImg.src = 'assets/sky.png';
+export const scenario: ScenarioPropType = {
   tileSize: 64,
   tilesX: 15,
   tilesY: 19,
@@ -22,7 +29,8 @@ export const scenario: Types.ScenarioType = {
   },
   screen: {
     sky: {
-      image: 'sky',
+      color: { r: 44, g: 44, b: 44 },
+      image: skyImg,
     },
     floor: {
       color: {
@@ -33,14 +41,14 @@ export const scenario: Types.ScenarioType = {
   },
 };
 
-export const screen: Types.ScreenPropType = {
+export const screen: ScreenPropType = {
   canvasID: 'screen',
   backgroundColor: '#333333',
   width: 800,
   height: 600,
 };
 
-export const miniMapSingleRay: Types.MiniMapPropType = {
+export const miniMapSingleRay: MiniMapPropType = {
   canvasID: 'minimap_singleRay',
   backgroundColor: '#000',
   opacity: 1,
@@ -52,7 +60,7 @@ export const miniMapSingleRay: Types.MiniMapPropType = {
   y: screen.height - 100,
 };
 
-export const miniMapAllRays: Types.MiniMapPropType = {
+export const miniMapAllRays: MiniMapPropType = {
   canvasID: 'minimap_allRays',
   backgroundColor: '#000',
   opacity: 1,
@@ -64,7 +72,7 @@ export const miniMapAllRays: Types.MiniMapPropType = {
   y: screen.height - 100,
 };
 
-export const player: Types.PlayerPropsType = {
+export const player: PlayerPropsType = {
   x: miniMapAllRays.width / 2,
   y: miniMapAllRays.height / 2,
   width: scenario.tileSize / 2.5,

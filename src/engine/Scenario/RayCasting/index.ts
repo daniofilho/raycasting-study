@@ -1,7 +1,7 @@
 import { MiniMapType } from '../../../components/MiniMap/types';
 import { ScreenType } from '../../../components/Screen/types';
 import { PlayerType } from '../../../components/Player/types';
-import { ScenarioType } from '../../../types';
+import { ScenarioPropType } from '../../Scenario/types';
 import { TexturesType, TextureType } from '../../../components/Textures/types';
 
 import {
@@ -22,7 +22,7 @@ const PI2 = Math.PI / 2;
 const PI3 = (3 * Math.PI) / 2;
 
 const RayCasting = (
-  scenario: ScenarioType,
+  scenario: ScenarioPropType,
   player: PlayerType,
   canvasMinimap: MiniMapType,
   canvasMiniMapDebug: MiniMapType,
@@ -80,18 +80,27 @@ const RayCasting = (
 
   // # Render Sky
   const renderSky = (wallX: number, wallY: number, wallWidth: number) => {
-    //const { r: skyR, g: skyG, b: skyB } = scenario.screen.sky.color;
-    //const skyColor = `rgb(${skyR}, ${skyG}, ${skyB})`;
+    if (window.global.renderTextures) {
+      const pattern = canvasScreen.createPattern(scenario.screen.sky.image);
 
-    //const gradient = canvasScreen.createLineGradient('#248ADA', '#0E45A9');
-    const pattern = canvasScreen.createPattern(scenario.screen.sky.image);
+      return canvasScreen.drawRectangle({
+        x: wallX,
+        y: 0,
+        width: wallWidth,
+        height: wallY,
+        color: pattern,
+      });
+    }
 
-    canvasScreen.drawRectangle({
+    const { r: skyR, g: skyG, b: skyB } = scenario.screen.sky.color;
+    const skyColor = `rgb(${skyR}, ${skyG}, ${skyB})`;
+
+    return canvasScreen.drawRectangle({
       x: wallX,
       y: 0,
       width: wallWidth,
       height: wallY,
-      color: pattern,
+      color: skyColor,
     });
   };
 
@@ -99,39 +108,42 @@ const RayCasting = (
     pixelOfTexture,
     objectId,
     wallHeight,
+    wallWidth,
     wallY,
     wallX,
     horizontalRay,
+    alpha,
   }: renderObject) => {
-    const objectTexture: TextureType = textures.get(objectId);
+    if (window.global.renderTextures) {
+      const objectTexture: TextureType = textures.get(objectId);
 
-    if (!objectTexture) return;
+      if (!objectTexture) return;
 
-    const clip = horizontalRay ? objectTexture.horizontal : objectTexture.vertical;
+      const clip = horizontalRay ? objectTexture.horizontal : objectTexture.vertical;
 
-    canvasScreen.drawImage({
-      image: objectTexture.image,
+      return canvasScreen.drawImage({
+        image: objectTexture.image,
+        x: wallX,
+        y: wallY,
+        width: tileSize,
+        height: wallHeight,
+        clipX: clip.clipX + Math.floor(pixelOfTexture),
+        clipY: clip.clipY,
+        clipWidth: tileSize,
+        clipHeight: tileSize,
+      });
+    }
+
+    // # Wall texture
+    const wallColor = `rgba(100,255,100,${alpha})`;
+
+    return canvasScreen.drawRectangle({
       x: wallX,
       y: wallY,
-      width: tileSize,
-      height: wallHeight,
-      clipX: clip.clipX + Math.floor(pixelOfTexture),
-      clipY: clip.clipY,
-      clipWidth: tileSize,
-      clipHeight: tileSize,
-    });
-    /*
-    canvasScreen.drawImage({
-      image: objectTexture.image,
-      x,
-      y: y1 + textureHeight,
       width: wallWidth,
-      height: textureHeight,
-      clipX: pixelOfTexture,
-      clipY: (this.idTextura - 1) * alturaTextura,
-      clipWidth: pixelOfTexture,
-      clipHeight: textureHeight,
-    });*/
+      height: wallHeight,
+      color: wallColor,
+    });
   };
 
   // # Render Floor
@@ -177,10 +189,7 @@ const RayCasting = (
     const wallY = canvasScreen.getConfig().height / 2 - wallHeight / 2;
 
     // Set alpha color to simulate lighting
-    //const alpha = config.game.render.light / correctWallDistance;
-
-    // # Wall texture
-    //const wallColor = `rgba(100,255,100,${alpha})`;
+    const alpha = config.game.render.light / correctWallDistance;
 
     // # Render
 
@@ -196,6 +205,7 @@ const RayCasting = (
       wallHeight,
       wallX,
       wallY,
+      alpha,
     });
 
     // Draw Floor

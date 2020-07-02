@@ -1,9 +1,9 @@
-import { MiniMapPropType } from '../../types';
+import { ScreenPropType } from './types';
 
 import Canvas from '../../engine/Canvas';
 
 class Screen extends Canvas {
-  constructor(config: CanvasType) {
+  constructor(config: ScreenPropType) {
     super(config);
   }
 

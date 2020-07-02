@@ -1,5 +1,3 @@
-import { findKey } from 'lodash';
-
 import rawTextures from './textures';
 import { TextureType } from './types';
 
@@ -17,6 +15,7 @@ function Textures() {
         image: img,
         vertical: rawTextures[key].vertical,
         horizontal: rawTextures[key].horizontal,
+        isWall: rawTextures[key].isWall,
       });
     });
   };

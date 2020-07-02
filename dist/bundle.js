@@ -196,6 +196,7 @@ function Textures() {
                 image: img,
                 vertical: textures_1.default[key].vertical,
                 horizontal: textures_1.default[key].horizontal,
+                isWall: textures_1.default[key].isWall,
             });
         });
     };
@@ -224,6 +225,7 @@ exports.default = {
             clipX: 64,
             clipY: 0,
         },
+        isWall: true,
     },
     stone: {
         image: 'assets/walls.png',
@@ -235,6 +237,7 @@ exports.default = {
             clipX: 64,
             clipY: 128,
         },
+        isWall: true,
     },
     jail: {
         image: 'assets/walls.png',
@@ -246,6 +249,7 @@ exports.default = {
             clipX: 64,
             clipY: 64,
         },
+        isWall: true,
     },
     wood: {
         image: 'assets/walls.png',
@@ -257,6 +261,7 @@ exports.default = {
             clipX: 64,
             clipY: 192,
         },
+        isWall: true,
     },
 };
 
@@ -272,6 +277,8 @@ exports.game = {
         light: 40,
     },
 };
+const skyImg = new Image();
+skyImg.src = 'assets/sky.png';
 exports.scenario = {
     tileSize: 64,
     tilesX: 15,
@@ -284,7 +291,8 @@ exports.scenario = {
     },
     screen: {
         sky: {
-            image: 'sky',
+            color: { r: 44, g: 44, b: 44 },
+            image: skyImg,
         },
         floor: {
             color: {
@@ -362,8 +370,7 @@ class Canvas {
             return grd;
         };
         // Create a texture pattern
-        this.createPattern = (elementID) => {
-            const img = document.getElementById(elementID);
+        this.createPattern = (img) => {
             return this.context.createPattern(img, 'repeat');
         };
         // Draw a text
@@ -466,46 +473,53 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
     };
     // # Render Sky
     const renderSky = (wallX, wallY, wallWidth) => {
-        //const { r: skyR, g: skyG, b: skyB } = scenario.screen.sky.color;
-        //const skyColor = `rgb(${skyR}, ${skyG}, ${skyB})`;
-        //const gradient = canvasScreen.createLineGradient('#248ADA', '#0E45A9');
-        const pattern = canvasScreen.createPattern(scenario.screen.sky.image);
-        canvasScreen.drawRectangle({
+        if (window.global.renderTextures) {
+            const pattern = canvasScreen.createPattern(scenario.screen.sky.image);
+            return canvasScreen.drawRectangle({
+                x: wallX,
+                y: 0,
+                width: wallWidth,
+                height: wallY,
+                color: pattern,
+            });
+        }
+        const { r: skyR, g: skyG, b: skyB } = scenario.screen.sky.color;
+        const skyColor = `rgb(${skyR}, ${skyG}, ${skyB})`;
+        return canvasScreen.drawRectangle({
             x: wallX,
             y: 0,
             width: wallWidth,
             height: wallY,
-            color: pattern,
+            color: skyColor,
         });
     };
-    const renderObject = ({ pixelOfTexture, objectId, wallHeight, wallY, wallX, horizontalRay, }) => {
-        const objectTexture = textures.get(objectId);
-        if (!objectTexture)
-            return;
-        const clip = horizontalRay ? objectTexture.horizontal : objectTexture.vertical;
-        canvasScreen.drawImage({
-            image: objectTexture.image,
+    const renderObject = ({ pixelOfTexture, objectId, wallHeight, wallWidth, wallY, wallX, horizontalRay, alpha, }) => {
+        if (window.global.renderTextures) {
+            const objectTexture = textures.get(objectId);
+            if (!objectTexture)
+                return;
+            const clip = horizontalRay ? objectTexture.horizontal : objectTexture.vertical;
+            return canvasScreen.drawImage({
+                image: objectTexture.image,
+                x: wallX,
+                y: wallY,
+                width: tileSize,
+                height: wallHeight,
+                clipX: clip.clipX + Math.floor(pixelOfTexture),
+                clipY: clip.clipY,
+                clipWidth: tileSize,
+                clipHeight: tileSize,
+            });
+        }
+        // # Wall texture
+        const wallColor = `rgba(100,255,100,${alpha})`;
+        return canvasScreen.drawRectangle({
             x: wallX,
             y: wallY,
-            width: tileSize,
+            width: wallWidth,
             height: wallHeight,
-            clipX: clip.clipX + Math.floor(pixelOfTexture),
-            clipY: clip.clipY,
-            clipWidth: tileSize,
-            clipHeight: tileSize,
+            color: wallColor,
         });
-        /*
-        canvasScreen.drawImage({
-          image: objectTexture.image,
-          x,
-          y: y1 + textureHeight,
-          width: wallWidth,
-          height: textureHeight,
-          clipX: pixelOfTexture,
-          clipY: (this.idTextura - 1) * alturaTextura,
-          clipWidth: pixelOfTexture,
-          clipHeight: textureHeight,
-        });*/
     };
     // # Render Floor
     const renderFloor = (wallX, wallY, wallWidth, wallHeight) => {
@@ -533,9 +547,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
         const wallX = index * wallWidth;
         const wallY = canvasScreen.getConfig().height / 2 - wallHeight / 2;
         // Set alpha color to simulate lighting
-        //const alpha = config.game.render.light / correctWallDistance;
-        // # Wall texture
-        //const wallColor = `rgba(100,255,100,${alpha})`;
+        const alpha = config.game.render.light / correctWallDistance;
         // # Render
         // Draw Sky
         renderSky(wallX, wallY, wallWidth);
@@ -548,6 +560,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             wallHeight,
             wallX,
             wallY,
+            alpha,
         });
         // Draw Floor
         renderFloor(wallX, wallY, wallWidth, wallHeight);
@@ -971,6 +984,10 @@ exports.default = Game;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const engine_1 = require("./engine");
+window.global = {
+    renderTextures: true,
+};
+// Start the engine
 const engine = engine_1.default();
 engine.startGame();
 

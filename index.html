@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Raycasting Study</title>
+    <title>Ray Casting Study</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -13,6 +13,7 @@
           <p>Single Ray</p>
           <canvas id="minimap_singleRay"></canvas>
         </div>
+
         <div>
           <p>All rays</p>
           <canvas id="minimap_allRays"></canvas>
@@ -20,17 +21,35 @@
       </section>
 
       <section>
-        <div>
-          <p>"3D" Render Result - <strong>Use arrow keys to move</strong></p>
+        <div id="screenContainer">
+          <div class="controls">
+            <p>"3D" Render Result - <strong>Use arrow keys to move</strong></p>
+            <button type="button" onClick="javascript=toggleTextures()">
+              Textures ON / OFF
+            </button>
+            <button type="button" onClick="javascript=toggleFullScreen()">
+              Full SCreen ON / OFF
+            </button>
+          </div>
+
           <canvas id="screen"></canvas>
         </div>
       </section>
     </main>
 
-    <div class="preload">
-      <img src="assets/sky.png" id="sky" />
-    </div>
+    <a href="https://github.com/daniofilho/raycasting-study/" target="_blank" class="github">
+      <img src="assets/github.png" />
+    </a>
 
     <script src="dist/bundle.js"></script>
+    <script>
+      function toggleTextures() {
+        window.global.renderTextures = !window.global.renderTextures;
+      }
+      function toggleFullScreen() {
+        var element = document.getElementById('screenContainer');
+        element.classList.toggle('full-screen');
+      }
+    </script>
   </body>
 </html>

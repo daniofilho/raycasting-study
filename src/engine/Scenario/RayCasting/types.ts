@@ -36,4 +36,5 @@ export interface renderObject {
   wallX: number;
   wallY: number;
   horizontalRay: boolean;
+  alpha: number;
 }
