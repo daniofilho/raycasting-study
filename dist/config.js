@@ -37,8 +37,8 @@ exports.scenario = {
 exports.screen = {
     canvasID: 'screen',
     backgroundColor: '#333333',
-    width: 300,
-    height: 230,
+    width: 500,
+    height: 500,
 };
 exports.miniMapSingleRay = {
     canvasID: 'minimap_singleRay',

@@ -3,7 +3,7 @@ import { CanvasType } from '../../engine/Canvas/types';
 
 import { calcAngle, convertAngleToRadians, calcDistanceBetweenPoints } from '../calculations';
 
-import { scenario } from '../../config';
+import { scenario, player } from '../../config';
 
 function Sprite(image: HTMLImageElement) {
   const props = {
@@ -52,8 +52,10 @@ function Sprite(image: HTMLImageElement) {
     const canvasHeight = canvas.getConfig().height;
     const FOV = camera.get('fieldOfView');
 
-    const distanceProjectionPlane = (canvasWidth * 1.5) / Math.tan(FOV / 2); // 1.5 adjust texture max height
-    const spriteHeight = (canvasHeight / props.distance) * distanceProjectionPlane;
+    //const distanceProjectionPlane = canvasWidth   / Math.tan(FOV / 2); // before
+    const distanceProjectionPlane = canvasWidth / 2 / Math.tan(FOV / 2);
+    const spriteHeight =
+      (canvasHeight / props.distance) * distanceProjectionPlane - scenario.tileSize / 2; // -16 adjust sprite height
 
     // Calculate where line starts and ends, centering on screen vertically
     const y0 = Math.floor(canvasHeight / 2) - Math.floor(spriteHeight / 2);
@@ -63,8 +65,6 @@ function Sprite(image: HTMLImageElement) {
     const maxTextureWidth = scenario.tileSize;
 
     const textureHeight = y0 - y1;
-    //const wallHeight = Math.round((scenario.tileSize / props.distance) * distanceProjectionPlane);
-
     const textureWidth = textureHeight; // Square sprites
 
     // Calculate Sprite coordinates

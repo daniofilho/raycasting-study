@@ -328,7 +328,7 @@ exports.default = {
         isCollidable: true,
     },
     table: {
-        image: 'assets/table.png',
+        image: 'assets/test-sprite.jpg',
         horizontal: {
             clipX: 0,
             clipY: 0,
@@ -342,7 +342,7 @@ exports.default = {
         isCollidable: true,
     },
     lamp: {
-        image: 'assets/lamp.png',
+        image: 'assets/test-sprite.jpg',
         horizontal: {
             clipX: 0,
             clipY: 0,
@@ -397,8 +397,8 @@ exports.scenario = {
 exports.screen = {
     canvasID: 'screen',
     backgroundColor: '#333333',
-    width: 300,
-    height: 230,
+    width: 500,
+    height: 500,
 };
 exports.miniMapSingleRay = {
     canvasID: 'minimap_singleRay',
@@ -1064,15 +1064,15 @@ function Sprite(image) {
         const canvasWidth = canvas.getConfig().width;
         const canvasHeight = canvas.getConfig().height;
         const FOV = camera.get('fieldOfView');
-        const distanceProjectionPlane = (canvasWidth * 1.5) / Math.tan(FOV / 2); // 1.5 adjust texture max height
-        const spriteHeight = (canvasHeight / props.distance) * distanceProjectionPlane;
+        //const distanceProjectionPlane = canvasWidth   / Math.tan(FOV / 2); // before
+        const distanceProjectionPlane = canvasWidth / 2 / Math.tan(FOV / 2);
+        const spriteHeight = (canvasHeight / props.distance) * distanceProjectionPlane - config_1.scenario.tileSize / 2; // -16 adjust sprite height
         // Calculate where line starts and ends, centering on screen vertically
         const y0 = Math.floor(canvasHeight / 2) - Math.floor(spriteHeight / 2);
         const y1 = y0 + spriteHeight;
         const maxTextureHeight = config_1.scenario.tileSize;
         const maxTextureWidth = config_1.scenario.tileSize;
         const textureHeight = y0 - y1;
-        //const wallHeight = Math.round((scenario.tileSize / props.distance) * distanceProjectionPlane);
         const textureWidth = textureHeight; // Square sprites
         // Calculate Sprite coordinates
         const spriteX = props.x - camera.get('x');

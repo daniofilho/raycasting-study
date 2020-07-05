@@ -44,8 +44,8 @@ export const scenario: ScenarioPropType = {
 export const screen: ScreenPropType = {
   canvasID: 'screen',
   backgroundColor: '#333333',
-  width: 300,
-  height: 230,
+  width: 500, //300
+  height: 500, //230
 };
 
 export const miniMapSingleRay: MiniMapPropType = {
