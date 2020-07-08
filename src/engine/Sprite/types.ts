@@ -6,4 +6,6 @@ export interface SpriteParamsType {
 
 export interface SpriteType {
   render: Function;
+  get: Function;
+  calcDistance: Function;
 }

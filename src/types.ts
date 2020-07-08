@@ -5,6 +5,7 @@ export interface GameType {
   depthfOfField: number;
   render: {
     light: number;
+    fogImage: HTMLImageElement;
   };
 }
 

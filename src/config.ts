@@ -7,11 +7,14 @@ import { PlayerPropsType } from './components/Player/types';
 
 import map from './map';
 
+const fogImage = new Image();
+fogImage.src = 'assets/sky.png';
 export const game: Types.GameType = {
   fps: 60,
-  depthfOfField: 50,
+  depthfOfField: 450,
   render: {
     light: 40,
+    fogImage,
   },
 };
 
@@ -34,7 +37,7 @@ export const scenario: ScenarioPropType = {
     },
     floor: {
       color: {
-        from: '#505050',
+        from: '#000',
         to: '#707070',
       },
     },

@@ -37,7 +37,9 @@ export interface renderWallType {
   wallWidth: number;
   wallHeight: number;
   wallX: number;
-  wallY: number;
+  wallY0: number;
+  wallY1: number;
   horizontalRay: boolean;
   alpha: number;
+  fog: boolean;
 }

@@ -3,7 +3,7 @@ import { CanvasType } from '../../engine/Canvas/types';
 
 import { calcAngle, convertAngleToRadians, calcDistanceBetweenPoints } from '../calculations';
 
-import { scenario, player } from '../../config';
+import { scenario, game } from '../../config';
 
 function Sprite(image: HTMLImageElement) {
   const props = {
@@ -13,6 +13,15 @@ function Sprite(image: HTMLImageElement) {
     visible: false,
     distance: 0,
     angle: 0,
+  };
+
+  const get = (prop) => {
+    return props[prop];
+  };
+
+  const calcDistance = (camera: PlayerType, x: number, y: number) => {
+    // Distance
+    props.distance = calcDistanceBetweenPoints(camera.get('x'), camera.get('y'), x, y);
   };
 
   const updateProps = (camera: PlayerType, x: number, y: number) => {
@@ -33,8 +42,7 @@ function Sprite(image: HTMLImageElement) {
 
     props.visible = props.angle < halfFOV * 1.5 ? true : false;
 
-    // Distance
-    props.distance = calcDistanceBetweenPoints(camera.get('x'), camera.get('y'), props.x, props.y);
+    calcDistance(camera, props.x, props.y);
   };
 
   const render = (
@@ -52,10 +60,10 @@ function Sprite(image: HTMLImageElement) {
     const canvasHeight = canvas.getConfig().height;
     const FOV = camera.get('fieldOfView');
 
-    //const distanceProjectionPlane = canvasWidth   / Math.tan(FOV / 2); // before
+    //const distanceProjectionPlane = canvasWidth / Math.tan(FOV / 2); // before
     const distanceProjectionPlane = canvasWidth / 2 / Math.tan(FOV / 2);
     const spriteHeight =
-      (canvasHeight / props.distance) * distanceProjectionPlane - scenario.tileSize / 2; // -16 adjust sprite height
+      (canvasHeight / props.distance) * distanceProjectionPlane - scenario.tileSize / 2 - 16; // -16 adjust sprite height
 
     // Calculate where line starts and ends, centering on screen vertically
     const y0 = Math.floor(canvasHeight / 2) - Math.floor(spriteHeight / 2);
@@ -68,10 +76,12 @@ function Sprite(image: HTMLImageElement) {
     const textureWidth = textureHeight; // Square sprites
 
     // Calculate Sprite coordinates
-    const spriteX = props.x - camera.get('x');
-    const spriteY = props.y - camera.get('y');
+    const spriteX = props.x + 0.5 - camera.get('x');
+    const spriteY = props.y + 0.5 - camera.get('y');
 
     const spriteAngle = Math.atan2(spriteY, spriteX) - camera.get('angle');
+
+    //canvas.drawText({ x: 30, y: 50, color: '#FFF', text: `${props.x} / ${props.y}` });
 
     const viewDist = canvas.getConfig().height;
 
@@ -87,7 +97,7 @@ function Sprite(image: HTMLImageElement) {
         const x1 = Math.floor(xFinal + (i - 1) * columnHeight + j);
 
         // Check distance before render column
-        if (rayDistances[x1] > props.distance) {
+        if (rayDistances[x1] > props.distance && props.distance < game.depthfOfField) {
           canvas.drawImage({
             image: props.image,
             clipX: i,
@@ -99,14 +109,14 @@ function Sprite(image: HTMLImageElement) {
             width: 1,
             height: textureHeight,
           });
-        }
 
-        //canvas.drawElipse({ x: x1, y: y1, radius: 10, color: '#FF0000' });
+          //canvas.drawElipse({ x: x1, y: y1, radius: 10, color: '#FF0000' });
+        }
       }
     }
   };
 
-  return { render };
+  return { render, get, calcDistance };
 }
 
 export default Sprite;

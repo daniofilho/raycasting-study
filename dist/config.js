@@ -2,11 +2,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.player = exports.miniMapAllRays = exports.miniMapSingleRay = exports.screen = exports.scenario = exports.game = void 0;
 const map_1 = require("./map");
+const fogImage = new Image();
+fogImage.src = 'assets/sky.png';
 exports.game = {
     fps: 60,
-    depthfOfField: 50,
+    depthfOfField: 450,
     render: {
         light: 40,
+        fogImage,
     },
 };
 const skyImg = new Image();
@@ -28,7 +31,7 @@ exports.scenario = {
         },
         floor: {
             color: {
-                from: '#505050',
+                from: '#000',
                 to: '#707070',
             },
         },
