@@ -15,7 +15,7 @@ import {
 
 import * as config from '../../../config';
 
-import { normalizeAngle, calcDistance, numIsMultipleOf } from '../../calculations';
+import { normalizeAngle, calcDistance } from '../../calculations';
 
 const RayCasting = (
   scenario: ScenarioPropType,
@@ -574,7 +574,7 @@ const RayCasting = (
     });
 
     // Draw Floor
-    //renderFloor(wallX, wallY0, wallWidth, wallHeight);
+    renderFloor(wallX, wallY0, wallWidth, wallHeight);
   };
 
   // ###################   Main  ###################

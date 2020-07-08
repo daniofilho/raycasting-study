@@ -5,6 +5,8 @@ import { TextureType, TexturesType } from '../Textures/types';
 
 import Collision from '../../engine/Collision';
 
+import { convertAngleToRadians } from '../../engine/calculations';
+
 const Player = (
   minimap: MiniMapType,
   debugmap: MiniMapType,
@@ -173,21 +175,45 @@ const Player = (
     setDeltaX(Math.cos(newAngle) * 5);
     setDeltaY(Math.sin(newAngle) * 5);
   };
+  const strafeLeft = () => {
+    const { x, y, speed, angle } = props;
+
+    const leftAngle = 90 * (Math.PI / 180);
+    const newAngle = angle - leftAngle;
+
+    const deltaX = Math.cos(newAngle) * 5;
+    const deltaY = Math.sin(newAngle) * 5;
+
+    setX(x + (speed / 2) * deltaX);
+    setY(y + (speed / 2) * deltaY);
+  };
+  const strafeRight = () => {
+    const { x, y, speed, angle } = props;
+
+    const leftAngle = 90 * (Math.PI / 180);
+    const newAngle = angle + leftAngle;
+
+    const deltaX = Math.cos(newAngle) * 5;
+    const deltaY = Math.sin(newAngle) * 5;
+
+    setX(x + (speed / 2) * deltaX);
+    setY(y + (speed / 2) * deltaY);
+  };
 
   // Actions on key press
   const handleKeyUp = (keyCodes: Array<number>) => {
-    if (keyCodes[39]) turnRight();
-    if (keyCodes[37]) turnLeft();
-    if (keyCodes[40]) goBack();
-    if (keyCodes[38]) goFront();
-
-    // @TODO strafe left and right
+    if (keyCodes[39]) turnRight(); // arrow right
+    if (keyCodes[37]) turnLeft(); // arrow left
+    if (keyCodes[83]) goBack(); // S
+    if (keyCodes[87]) goFront(); // W
+    if (keyCodes[65]) strafeLeft(); // A
+    if (keyCodes[68]) strafeRight(); // D
   };
 
   // Render the player
   const render = (keyCodes: any) => {
     const { x, y, deltaX, deltaY } = props;
-    const { width, height, color } = config.player;
+    const { width, color } = config.player;
     handleKeyUp(keyCodes);
 
     // player body

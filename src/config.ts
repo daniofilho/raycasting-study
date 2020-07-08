@@ -21,7 +21,7 @@ export const game: Types.GameType = {
 const skyImg = new Image();
 skyImg.src = 'assets/sky.png';
 export const scenario: ScenarioPropType = {
-  tileSize: 64,
+  tileSize: 63,
   tilesX: 15,
   tilesY: 19,
   // prettier-ignore
@@ -37,7 +37,7 @@ export const scenario: ScenarioPropType = {
     },
     floor: {
       color: {
-        from: '#000',
+        from: '#505050',
         to: '#707070',
       },
     },

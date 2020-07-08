@@ -15,7 +15,7 @@ exports.game = {
 const skyImg = new Image();
 skyImg.src = 'assets/sky.png';
 exports.scenario = {
-    tileSize: 64,
+    tileSize: 63,
     tilesX: 15,
     tilesY: 19,
     // prettier-ignore
@@ -31,7 +31,7 @@ exports.scenario = {
         },
         floor: {
             color: {
-                from: '#000',
+                from: '#505050',
                 to: '#707070',
             },
         },
