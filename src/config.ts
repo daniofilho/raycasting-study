@@ -48,7 +48,7 @@ export const screen: ScreenPropType = {
   canvasID: 'screen',
   backgroundColor: '#333333',
   width: 300,
-  height: 230,
+  height: 300,
 };
 
 export const miniMapSingleRay: MiniMapPropType = {

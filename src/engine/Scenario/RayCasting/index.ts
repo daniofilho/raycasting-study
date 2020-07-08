@@ -51,7 +51,7 @@ const RayCasting = (
 
   // Calculate the wall Height
   const calculateWallHeight = (distance: number, rayAngle: number) => {
-    const correctWallDistance = distance * Math.cos(rayAngle - player.get('angle'));
+    const correctWallDistance = distance * Math.cos(rayAngle - player.get('angle')); // This prevents fish eye effect
     const distanceProjectionPlane = canvasScreen.getConfig().width / 2 / Math.tan(fovAngle / 2);
     return Math.round((tileSize / correctWallDistance) * distanceProjectionPlane);
   };
@@ -135,7 +135,7 @@ const RayCasting = (
         // Check if ray hits a wall or scenario bounds
         if (
           mapPosition > 0 && // inside screen
-          mapPosition < tilesX * tilesY && // not out screen
+          mapPosition < tilesX * tilesY && // not out screendistsage3dance
           objectTexture.isWall &&
           rayX > 0 &&
           rayX < tilesX * tileSize &&
@@ -532,8 +532,6 @@ const RayCasting = (
     // # Definitions
     let fog = false;
 
-    const correctWallDistance = distance * Math.cos(rayAngle - player.get('angle'));
-
     // Define the line height to draw
     let wallHeight = calculateWallHeight(distance, rayAngle);
     const wallWidth = Math.ceil(canvasScreen.getConfig().width / raysQuantity);
@@ -546,13 +544,13 @@ const RayCasting = (
     }
 
     // Find positions
-    const wallX = index; // * wallWidth;
-    const wallY0 = Math.floor(canvasScreen.getConfig().height / 2) - Math.floor(wallHeight / 2);
-    //const wallY0 = canvasScreen.getConfig().height / 2 - wallHeight / 2;
+    const wallX = index * wallWidth;
+    //const wallY0 = Math.floor(canvasScreen.getConfig().height / 2) - Math.floor(wallHeight / 2);
+    const wallY0 = canvasScreen.getConfig().height / 2 - wallHeight / 2;
     const wallY1 = wallY0 + wallHeight;
 
     // Set alpha color to simulate lighting
-    const alpha = config.game.render.light / correctWallDistance;
+    const alpha = config.game.render.light / distance;
 
     // # Render
 

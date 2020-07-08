@@ -5,8 +5,6 @@ import { TextureType, TexturesType } from '../Textures/types';
 
 import Collision from '../../engine/Collision';
 
-import { convertAngleToRadians } from '../../engine/calculations';
-
 const Player = (
   minimap: MiniMapType,
   debugmap: MiniMapType,

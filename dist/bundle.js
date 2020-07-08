@@ -422,7 +422,7 @@ exports.screen = {
     canvasID: 'screen',
     backgroundColor: '#333333',
     width: 300,
-    height: 230,
+    height: 300,
 };
 exports.miniMapSingleRay = {
     canvasID: 'minimap_singleRay',
@@ -585,7 +585,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
     // ###################  Misc  ###################
     // Calculate the wall Height
     const calculateWallHeight = (distance, rayAngle) => {
-        const correctWallDistance = distance * Math.cos(rayAngle - player.get('angle'));
+        const correctWallDistance = distance * Math.cos(rayAngle - player.get('angle')); // This prevents fish eye effect
         const distanceProjectionPlane = canvasScreen.getConfig().width / 2 / Math.tan(fovAngle / 2);
         return Math.round((tileSize / correctWallDistance) * distanceProjectionPlane);
     };
@@ -653,7 +653,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             else {
                 // Check if ray hits a wall or scenario bounds
                 if (mapPosition > 0 && // inside screen
-                    mapPosition < tilesX * tilesY && // not out screen
+                    mapPosition < tilesX * tilesY && // not out screendistsage3dance
                     objectTexture.isWall &&
                     rayX > 0 &&
                     rayX < tilesX * tileSize &&
@@ -967,7 +967,6 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
     const render3D = ({ rayAngle, distance, index, objectId, pixelOfTexture, horizontalRay, }) => {
         // # Definitions
         let fog = false;
-        const correctWallDistance = distance * Math.cos(rayAngle - player.get('angle'));
         // Define the line height to draw
         let wallHeight = calculateWallHeight(distance, rayAngle);
         const wallWidth = Math.ceil(canvasScreen.getConfig().width / raysQuantity);
@@ -978,12 +977,12 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             fog = true;
         }
         // Find positions
-        const wallX = index; // * wallWidth;
-        const wallY0 = Math.floor(canvasScreen.getConfig().height / 2) - Math.floor(wallHeight / 2);
-        //const wallY0 = canvasScreen.getConfig().height / 2 - wallHeight / 2;
+        const wallX = index * wallWidth;
+        //const wallY0 = Math.floor(canvasScreen.getConfig().height / 2) - Math.floor(wallHeight / 2);
+        const wallY0 = canvasScreen.getConfig().height / 2 - wallHeight / 2;
         const wallY1 = wallY0 + wallHeight;
         // Set alpha color to simulate lighting
-        const alpha = config.game.render.light / correctWallDistance;
+        const alpha = config.game.render.light / distance;
         // # Render
         // Draw Sky
         renderSky(wallX, wallY0, wallWidth);
@@ -1172,7 +1171,7 @@ function Sprite(image) {
             targetX: props.x,
             targetY: props.y,
         });
-        props.visible = props.angle < halfFOV * 1.5 ? true : false;
+        props.visible = props.angle < halfFOV ? true : false;
         calcDistance(camera, props.x, props.y);
     };
     const render = (camera, canvas, x, y, rayDistances) => {
@@ -1184,7 +1183,9 @@ function Sprite(image) {
         const FOV = camera.get('fieldOfView');
         //const distanceProjectionPlane = canvasWidth / Math.tan(FOV / 2); // before
         const distanceProjectionPlane = canvasWidth / 2 / Math.tan(FOV / 2);
-        const spriteHeight = (canvasHeight / props.distance) * distanceProjectionPlane - config_1.scenario.tileSize / 2 - 16; // -16 adjust sprite height
+        //const spriteHeight =
+        //  (canvasHeight / props.distance) * distanceProjectionPlane - scenario.tileSize / 2; // -16 adjust sprite height
+        const spriteHeight = (canvasHeight / props.distance) * distanceProjectionPlane * 2;
         // Calculate where line starts and ends, centering on screen vertically
         const y0 = Math.floor(canvasHeight / 2) - Math.floor(spriteHeight / 2);
         const y1 = y0 + spriteHeight;
@@ -1193,19 +1194,18 @@ function Sprite(image) {
         const textureHeight = y0 - y1;
         const textureWidth = textureHeight; // Square sprites
         // Calculate Sprite coordinates
-        const spriteX = props.x + 0.5 - camera.get('x');
-        const spriteY = props.y + 0.5 - camera.get('y');
+        const spriteX = props.x - camera.get('x');
+        const spriteY = props.y - camera.get('y');
         const spriteAngle = Math.atan2(spriteY, spriteX) - camera.get('angle');
-        //canvas.drawText({ x: 30, y: 50, color: '#FFF', text: `${props.x} / ${props.y}` });
         const viewDist = canvas.getConfig().height;
-        const x0 = Math.tan(spriteAngle) * viewDist;
+        const x0 = Math.tan(spriteAngle) * viewDist; // The glitch on sprite probably here
         const xFinal = canvasWidth / 2 + x0 - textureWidth / 2;
         // X Height proportion
         const columnHeight = textureHeight / maxTextureHeight;
         // Render column by column so we can check if it's behind a wall
         for (let i = 0; i < maxTextureWidth; i++) {
             for (let j = 0; j < columnHeight; j++) {
-                const x1 = Math.floor(xFinal + (i - 1) * columnHeight + j);
+                const x1 = Math.floor(xFinal + (i - 1) * columnHeight + j); // The glitch on sprite probably here
                 // Check distance before render column
                 if (rayDistances[x1] > props.distance && props.distance < config_1.game.depthfOfField) {
                     canvas.drawImage({
@@ -1219,6 +1219,13 @@ function Sprite(image) {
                         width: 1,
                         height: textureHeight,
                     });
+                    /*canvas.drawRectangle({
+                      x: x1,
+                      y: y1,
+                      width: 1,
+                      height: textureHeight,
+                      color: 'red',
+                    });*/
                     //canvas.drawElipse({ x: x1, y: y1, radius: 10, color: '#FF0000' });
                 }
             }

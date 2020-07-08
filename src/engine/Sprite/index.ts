@@ -40,7 +40,7 @@ function Sprite(image: HTMLImageElement) {
       targetY: props.y,
     });
 
-    props.visible = props.angle < halfFOV * 1.5 ? true : false;
+    props.visible = props.angle < halfFOV ? true : false;
 
     calcDistance(camera, props.x, props.y);
   };
@@ -62,8 +62,9 @@ function Sprite(image: HTMLImageElement) {
 
     //const distanceProjectionPlane = canvasWidth / Math.tan(FOV / 2); // before
     const distanceProjectionPlane = canvasWidth / 2 / Math.tan(FOV / 2);
-    const spriteHeight =
-      (canvasHeight / props.distance) * distanceProjectionPlane - scenario.tileSize / 2 - 16; // -16 adjust sprite height
+    //const spriteHeight =
+    //  (canvasHeight / props.distance) * distanceProjectionPlane - scenario.tileSize / 2; // -16 adjust sprite height
+    const spriteHeight = (canvasHeight / props.distance) * distanceProjectionPlane * 2;
 
     // Calculate where line starts and ends, centering on screen vertically
     const y0 = Math.floor(canvasHeight / 2) - Math.floor(spriteHeight / 2);
@@ -76,16 +77,14 @@ function Sprite(image: HTMLImageElement) {
     const textureWidth = textureHeight; // Square sprites
 
     // Calculate Sprite coordinates
-    const spriteX = props.x + 0.5 - camera.get('x');
-    const spriteY = props.y + 0.5 - camera.get('y');
+    const spriteX = props.x - camera.get('x');
+    const spriteY = props.y - camera.get('y');
 
     const spriteAngle = Math.atan2(spriteY, spriteX) - camera.get('angle');
 
-    //canvas.drawText({ x: 30, y: 50, color: '#FFF', text: `${props.x} / ${props.y}` });
-
     const viewDist = canvas.getConfig().height;
 
-    const x0 = Math.tan(spriteAngle) * viewDist;
+    const x0 = Math.tan(spriteAngle) * viewDist; // The glitch on sprite probably here
     const xFinal = canvasWidth / 2 + x0 - textureWidth / 2;
 
     // X Height proportion
@@ -94,7 +93,7 @@ function Sprite(image: HTMLImageElement) {
     // Render column by column so we can check if it's behind a wall
     for (let i = 0; i < maxTextureWidth; i++) {
       for (let j = 0; j < columnHeight; j++) {
-        const x1 = Math.floor(xFinal + (i - 1) * columnHeight + j);
+        const x1 = Math.floor(xFinal + (i - 1) * columnHeight + j); // The glitch on sprite probably here
 
         // Check distance before render column
         if (rayDistances[x1] > props.distance && props.distance < game.depthfOfField) {
@@ -109,7 +108,13 @@ function Sprite(image: HTMLImageElement) {
             width: 1,
             height: textureHeight,
           });
-
+          /*canvas.drawRectangle({
+            x: x1,
+            y: y1,
+            width: 1,
+            height: textureHeight,
+            color: 'red',
+          });*/
           //canvas.drawElipse({ x: x1, y: y1, radius: 10, color: '#FF0000' });
         }
       }

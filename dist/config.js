@@ -41,7 +41,7 @@ exports.screen = {
     canvasID: 'screen',
     backgroundColor: '#333333',
     width: 300,
-    height: 230,
+    height: 300,
 };
 exports.miniMapSingleRay = {
     canvasID: 'minimap_singleRay',
