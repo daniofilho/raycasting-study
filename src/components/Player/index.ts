@@ -22,7 +22,7 @@ const Player = (
     y: config.player.y,
     deltaX: Math.cos(2 * Math.PI) * 5,
     deltaY: Math.sin(2 * Math.PI) * 5,
-    angle: 0,
+    angle: 5.98,
     turnSpeed: config.player.turnSpeed,
     speed: config.player.speed,
     fieldOfView: config.player.fieldOfView,

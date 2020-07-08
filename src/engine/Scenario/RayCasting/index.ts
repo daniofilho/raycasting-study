@@ -15,7 +15,7 @@ import {
 
 import * as config from '../../../config';
 
-import { normalizeAngle, calcDistance } from '../../calculations';
+import { normalizeAngle, calcDistance, numIsMultipleOf } from '../../calculations';
 
 const RayCasting = (
   scenario: ScenarioPropType,
@@ -421,15 +421,18 @@ const RayCasting = (
     if (window.global.renderTextures) {
       const clip = horizontalRay ? objectTexture.horizontal : objectTexture.vertical;
 
+      let pixelToDraw = Math.floor(pixelOfTexture);
+      pixelToDraw += clip.clipX;
+
       return canvasScreen.drawImage({
         image: objectTexture.image,
         x: wallX,
         y: wallY1,
-        width: wallWidth, //tileSize, // correct is wallWidth, tileSize fix but lower performance
-        height: wallY0 - wallY1, //wallHeight,
-        clipX: clip.clipX + Math.floor(pixelOfTexture),
+        width: wallWidth,
+        height: wallY0 - wallY1,
+        clipX: pixelToDraw,
         clipY: clip.clipY,
-        clipWidth: tileSize,
+        clipWidth: 1,
         clipHeight: tileSize,
       });
     }
@@ -571,7 +574,7 @@ const RayCasting = (
     });
 
     // Draw Floor
-    renderFloor(wallX, wallY0, wallWidth, wallHeight);
+    //renderFloor(wallX, wallY0, wallWidth, wallHeight);
   };
 
   // ###################   Main  ###################

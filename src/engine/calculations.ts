@@ -40,3 +40,11 @@ export const calcAngle = ({ cameraX, cameraY, cameraAngle, targetX, targetY }: c
 export const calcDistanceBetweenPoints = (x1: number, y1: number, x2: number, y2: number) => {
   return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 };
+
+// Check if a number is multiple of anotar
+export const numIsMultipleOf = (M: number, N: number) => {
+  // Formula => M = N * K
+  // Se K for um número inteiro, então é múltiplo
+  const K = M / N;
+  return Number.isInteger(K);
+};

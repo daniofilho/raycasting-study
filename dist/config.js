@@ -6,7 +6,7 @@ const fogImage = new Image();
 fogImage.src = 'assets/sky.png';
 exports.game = {
     fps: 60,
-    depthfOfField: 450,
+    depthfOfField: 1450,
     render: {
         light: 40,
         fogImage,
@@ -40,8 +40,8 @@ exports.scenario = {
 exports.screen = {
     canvasID: 'screen',
     backgroundColor: '#333333',
-    width: 500,
-    height: 500,
+    width: 300,
+    height: 230,
 };
 exports.miniMapSingleRay = {
     canvasID: 'minimap_singleRay',
@@ -66,7 +66,7 @@ exports.miniMapAllRays = {
     y: exports.screen.height - 100,
 };
 exports.player = {
-    x: exports.miniMapAllRays.width / 2,
+    x: exports.miniMapAllRays.width / 2 + 50,
     y: exports.miniMapAllRays.height / 2,
     width: exports.scenario.tileSize / 2.5,
     height: exports.scenario.tileSize / 2.5,

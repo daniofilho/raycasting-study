@@ -11,7 +11,7 @@ const fogImage = new Image();
 fogImage.src = 'assets/sky.png';
 export const game: Types.GameType = {
   fps: 60,
-  depthfOfField: 450,
+  depthfOfField: 1450,
   render: {
     light: 40,
     fogImage,
@@ -47,8 +47,8 @@ export const scenario: ScenarioPropType = {
 export const screen: ScreenPropType = {
   canvasID: 'screen',
   backgroundColor: '#333333',
-  width: 500, //300
-  height: 500, //230
+  width: 300,
+  height: 230,
 };
 
 export const miniMapSingleRay: MiniMapPropType = {
@@ -76,7 +76,7 @@ export const miniMapAllRays: MiniMapPropType = {
 };
 
 export const player: PlayerPropsType = {
-  x: miniMapAllRays.width / 2,
+  x: miniMapAllRays.width / 2 + 50,
   y: miniMapAllRays.height / 2,
   width: scenario.tileSize / 2.5,
   height: scenario.tileSize / 2.5,

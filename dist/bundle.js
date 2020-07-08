@@ -34,7 +34,7 @@ const Player = (minimap, debugmap, screen, textures) => {
         y: config.player.y,
         deltaX: Math.cos(2 * Math.PI) * 5,
         deltaY: Math.sin(2 * Math.PI) * 5,
-        angle: 0,
+        angle: 5.98,
         turnSpeed: config.player.turnSpeed,
         speed: config.player.speed,
         fieldOfView: config.player.fieldOfView,
@@ -366,7 +366,7 @@ const fogImage = new Image();
 fogImage.src = 'assets/sky.png';
 exports.game = {
     fps: 60,
-    depthfOfField: 450,
+    depthfOfField: 1450,
     render: {
         light: 40,
         fogImage,
@@ -400,8 +400,8 @@ exports.scenario = {
 exports.screen = {
     canvasID: 'screen',
     backgroundColor: '#333333',
-    width: 500,
-    height: 500,
+    width: 300,
+    height: 230,
 };
 exports.miniMapSingleRay = {
     canvasID: 'minimap_singleRay',
@@ -426,7 +426,7 @@ exports.miniMapAllRays = {
     y: exports.screen.height - 100,
 };
 exports.player = {
-    x: exports.miniMapAllRays.width / 2,
+    x: exports.miniMapAllRays.width / 2 + 50,
     y: exports.miniMapAllRays.height / 2,
     width: exports.scenario.tileSize / 2.5,
     height: exports.scenario.tileSize / 2.5,
@@ -862,15 +862,17 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             return; // only render walls here
         if (window.global.renderTextures) {
             const clip = horizontalRay ? objectTexture.horizontal : objectTexture.vertical;
+            let pixelToDraw = Math.floor(pixelOfTexture);
+            pixelToDraw += clip.clipX;
             return canvasScreen.drawImage({
                 image: objectTexture.image,
                 x: wallX,
                 y: wallY1,
                 width: wallWidth,
                 height: wallY0 - wallY1,
-                clipX: clip.clipX + Math.floor(pixelOfTexture),
+                clipX: pixelToDraw,
                 clipY: clip.clipY,
-                clipWidth: tileSize,
+                clipWidth: 1,
                 clipHeight: tileSize,
             });
         }
@@ -978,7 +980,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             fog,
         });
         // Draw Floor
-        renderFloor(wallX, wallY0, wallWidth, wallHeight);
+        //renderFloor(wallX, wallY0, wallWidth, wallHeight);
     };
     // ###################   Main  ###################
     // # Render all objects
@@ -1208,7 +1210,7 @@ exports.default = Sprite;
 },{"../../config":6,"../calculations":12}],12:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.calcDistanceBetweenPoints = exports.calcAngle = exports.convertAngleToRadians = exports.calcDistance = exports.normalizeAngle = void 0;
+exports.numIsMultipleOf = exports.calcDistanceBetweenPoints = exports.calcAngle = exports.convertAngleToRadians = exports.calcDistance = exports.normalizeAngle = void 0;
 exports.normalizeAngle = (angle) => {
     angle = angle % (2 * Math.PI);
     if (angle < 0) {
@@ -1239,6 +1241,13 @@ exports.calcAngle = ({ cameraX, cameraY, cameraAngle, targetX, targetY }) => {
 // Calculate distance between two points
 exports.calcDistanceBetweenPoints = (x1, y1, x2, y2) => {
     return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+};
+// Check if a number is multiple of anotar
+exports.numIsMultipleOf = (M, N) => {
+    // Formula => M = N * K
+    // Se K for um número inteiro, então é múltiplo
+    const K = M / N;
+    return Number.isInteger(K);
 };
 
 },{}],13:[function(require,module,exports){
