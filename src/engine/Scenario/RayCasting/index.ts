@@ -32,9 +32,9 @@ const RayCasting = (
     fov: player.get('fieldOfView'), // field of view
   };
 
-  let raysQuantity = tilesX * tileSize;
-  // Don't cast more rays than canvas size, will be a waste of resources
-  if (raysQuantity > config.screen.width) raysQuantity = config.screen.width;
+  const raysQuantity = Math.ceil(
+    canvasScreen.getConfig().width / config.game.render.wallPixelWidth
+  );
 
   const fovAngle = props.fov * (Math.PI / 180);
 
@@ -450,21 +450,44 @@ const RayCasting = (
   };
 
   // # Render Floor
-  const renderFloor = (wallX: number, wallY: number, wallWidth: number, wallHeight: number) => {
-    //const { r: floorR, g: floorG, b: floorB } = scenario.screen.floor.color;
-    //const floorColor = `rgb(${floorR}, ${floorG}, ${floorB})`;
+  const renderFloor = (
+    wallX: number,
+    wallY: number,
+    wallWidth: number,
+    wallHeight: number,
+    pixelOfTexture: number
+  ) => {
+    const floorY = wallY + wallHeight;
+    const floorHeight = canvasScreen.getConfig().height - floorY;
+
+    /* if (window.global.renderTextures) {
+      const dist = wallHeight / (2 * wallY - wallHeight);
+
+      const floorTexX = (wallX * tileSize) % tileSize;
+      const floorTexY = (floorY * tileSize) % tileSize;
+
+      return canvasScreen.drawImage({
+        image: config.scenario.screen.floor.image,
+        x: wallX,
+        y: floorY,
+        width: wallWidth,
+        height: floorHeight,
+        clipX: floorTexX + pixelOfTexture,
+        clipY: floorTexY,
+        clipWidth: 1,
+        clipHeight: tileSize,
+      });
+    }*/
 
     const gradient = canvasScreen.createLineGradient(
       scenario.screen.floor.color.from,
       scenario.screen.floor.color.to
     );
-
-    const floorY = wallY + wallHeight;
     canvasScreen.drawRectangle({
       x: wallX,
       y: floorY,
       width: wallWidth,
-      height: canvasScreen.getConfig().height - floorY,
+      height: floorHeight,
       color: gradient,
     });
   };
@@ -545,7 +568,6 @@ const RayCasting = (
 
     // Find positions
     const wallX = index * wallWidth;
-    //const wallY0 = Math.floor(canvasScreen.getConfig().height / 2) - Math.floor(wallHeight / 2);
     const wallY0 = canvasScreen.getConfig().height / 2 - wallHeight / 2;
     const wallY1 = wallY0 + wallHeight;
 
@@ -572,7 +594,7 @@ const RayCasting = (
     });
 
     // Draw Floor
-    renderFloor(wallX, wallY0, wallWidth, wallHeight);
+    renderFloor(wallX, wallY0, wallWidth, wallHeight, pixelOfTexture);
   };
 
   // ###################   Main  ###################

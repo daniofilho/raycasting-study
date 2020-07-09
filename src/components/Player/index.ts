@@ -236,9 +236,39 @@ const Player = (
     });
   };
 
+  // Render everything that needs to render after everything finished render
+  const postRender = () => {
+    const canvasWidth = config.screen.width;
+    const canvasHeight = config.screen.height;
+
+    const centerX = canvasWidth / 2;
+    const centerY = canvasHeight / 2;
+
+    // Player sprite
+    const { gun } = config.player;
+    props.screen.drawImage({
+      x: centerX - gun.width / 2,
+      y: canvasHeight - gun.height,
+      image: gun.image,
+      width: gun.width,
+      height: gun.height,
+    });
+
+    // Player crosshair
+    const { crosshair } = config.player;
+    props.screen.drawImage({
+      x: centerX - crosshair.width / 2,
+      y: centerY - crosshair.height / 2,
+      image: crosshair.image,
+      width: crosshair.width,
+      height: crosshair.height,
+    });
+  };
+
   // Return all public functions
   return {
     render,
+    postRender,
     get,
   };
 };

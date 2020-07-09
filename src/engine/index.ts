@@ -1,3 +1,6 @@
+// tslint:disable-next-line
+const Stats = require('stats.js'); // This method is required for Stats JS to work with Typescript
+
 import Screen from '../components/Screen';
 import MiniMap from '../components/MiniMap';
 import Player from '../components/Player';
@@ -8,7 +11,10 @@ import Scenario from './Scenario';
 import * as config from '../config';
 
 const Game = () => {
-  // constructor
+  // FPS Status
+  const FPSstats = new Stats();
+  FPSstats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+  document.body.appendChild(FPSstats.dom);
 
   const textures = Textures();
 
@@ -74,6 +80,8 @@ const Game = () => {
     scenario.render();
 
     player.render(keysDown);
+
+    player.postRender();
   };
 
   // # "Thread" tha runs the game
@@ -84,6 +92,8 @@ const Game = () => {
   };
 
   const gameLoop = () => {
+    FPSstats.begin();
+
     // calc elapsed time since last loop
     now = Date.now();
     elapsed = now - deltaTime;
@@ -96,6 +106,7 @@ const Game = () => {
 
       updateGame();
     }
+    FPSstats.end();
 
     // Runs only when the browser is in focus
     // Request another frame

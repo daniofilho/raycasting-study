@@ -28,6 +28,7 @@
     "typescript": "^3.9.5",
     "watchify": "^3.11.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "stats.js": "^0.17.0"
+  }
 }
-  

@@ -4,6 +4,7 @@ export interface GameType {
   fps: number;
   depthfOfField: number;
   render: {
+    wallPixelWidth: number;
     light: number;
     fogImage: HTMLImageElement;
   };

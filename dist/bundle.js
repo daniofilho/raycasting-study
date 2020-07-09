@@ -226,9 +226,35 @@ const Player = (minimap, debugmap, screen, textures) => {
             color: '#FF0000',
         });
     };
+    // Render everything that needs to render after everything finished render
+    const postRender = () => {
+        const canvasWidth = config.screen.width;
+        const canvasHeight = config.screen.height;
+        const centerX = canvasWidth / 2;
+        const centerY = canvasHeight / 2;
+        // Player sprite
+        const { gun } = config.player;
+        props.screen.drawImage({
+            x: centerX - gun.width / 2,
+            y: canvasHeight - gun.height,
+            image: gun.image,
+            width: gun.width,
+            height: gun.height,
+        });
+        // Player crosshair
+        const { crosshair } = config.player;
+        props.screen.drawImage({
+            x: centerX - crosshair.width / 2,
+            y: centerY - crosshair.height / 2,
+            image: crosshair.image,
+            width: crosshair.width,
+            height: crosshair.height,
+        });
+    };
     // Return all public functions
     return {
         render,
+        postRender,
         get,
     };
 };
@@ -385,16 +411,23 @@ exports.player = exports.miniMapAllRays = exports.miniMapSingleRay = exports.scr
 const map_1 = require("./map");
 const fogImage = new Image();
 fogImage.src = 'assets/sky.png';
+const skyImg = new Image();
+skyImg.src = 'assets/sky.png';
+const floorImg = new Image();
+floorImg.src = 'assets/floor.png';
+const crosshairImg = new Image();
+crosshairImg.src = 'assets/crosshair.png';
+const gunImg = new Image();
+gunImg.src = 'assets/gun.gif';
 exports.game = {
     fps: 60,
     depthfOfField: 1450,
     render: {
+        wallPixelWidth: 1,
         light: 40,
         fogImage,
     },
 };
-const skyImg = new Image();
-skyImg.src = 'assets/sky.png';
 exports.scenario = {
     tileSize: 63,
     tilesX: 15,
@@ -415,14 +448,15 @@ exports.scenario = {
                 from: '#505050',
                 to: '#707070',
             },
+            image: floorImg,
         },
     },
 };
 exports.screen = {
     canvasID: 'screen',
     backgroundColor: '#333333',
-    width: 300,
-    height: 300,
+    width: 400,
+    height: 350,
 };
 exports.miniMapSingleRay = {
     canvasID: 'minimap_singleRay',
@@ -455,6 +489,16 @@ exports.player = {
     speed: 1,
     turnSpeed: 0.03,
     fieldOfView: 60,
+    crosshair: {
+        image: crosshairImg,
+        width: 10,
+        height: 10,
+    },
+    gun: {
+        image: gunImg,
+        width: 200,
+        height: 255,
+    },
 };
 
 },{"./map":15}],7:[function(require,module,exports){
@@ -571,10 +615,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
         dof: config.game.depthfOfField,
         fov: player.get('fieldOfView'),
     };
-    let raysQuantity = tilesX * tileSize;
-    // Don't cast more rays than canvas size, will be a waste of resources
-    if (raysQuantity > config.screen.width)
-        raysQuantity = config.screen.width;
+    const raysQuantity = Math.ceil(canvasScreen.getConfig().width / config.game.render.wallPixelWidth);
     const fovAngle = props.fov * (Math.PI / 180);
     let minWallHeight = 0;
     // Ray
@@ -908,16 +949,33 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
         });
     };
     // # Render Floor
-    const renderFloor = (wallX, wallY, wallWidth, wallHeight) => {
-        //const { r: floorR, g: floorG, b: floorB } = scenario.screen.floor.color;
-        //const floorColor = `rgb(${floorR}, ${floorG}, ${floorB})`;
-        const gradient = canvasScreen.createLineGradient(scenario.screen.floor.color.from, scenario.screen.floor.color.to);
+    const renderFloor = (wallX, wallY, wallWidth, wallHeight, pixelOfTexture) => {
         const floorY = wallY + wallHeight;
+        const floorHeight = canvasScreen.getConfig().height - floorY;
+        /* if (window.global.renderTextures) {
+          const dist = wallHeight / (2 * wallY - wallHeight);
+    
+          const floorTexX = (wallX * tileSize) % tileSize;
+          const floorTexY = (floorY * tileSize) % tileSize;
+    
+          return canvasScreen.drawImage({
+            image: config.scenario.screen.floor.image,
+            x: wallX,
+            y: floorY,
+            width: wallWidth,
+            height: floorHeight,
+            clipX: floorTexX + pixelOfTexture,
+            clipY: floorTexY,
+            clipWidth: 1,
+            clipHeight: tileSize,
+          });
+        }*/
+        const gradient = canvasScreen.createLineGradient(scenario.screen.floor.color.from, scenario.screen.floor.color.to);
         canvasScreen.drawRectangle({
             x: wallX,
             y: floorY,
             width: wallWidth,
-            height: canvasScreen.getConfig().height - floorY,
+            height: floorHeight,
             color: gradient,
         });
     };
@@ -978,7 +1036,6 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
         }
         // Find positions
         const wallX = index * wallWidth;
-        //const wallY0 = Math.floor(canvasScreen.getConfig().height / 2) - Math.floor(wallHeight / 2);
         const wallY0 = canvasScreen.getConfig().height / 2 - wallHeight / 2;
         const wallY1 = wallY0 + wallHeight;
         // Set alpha color to simulate lighting
@@ -1000,7 +1057,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             fog,
         });
         // Draw Floor
-        renderFloor(wallX, wallY0, wallWidth, wallHeight);
+        renderFloor(wallX, wallY0, wallWidth, wallHeight, pixelOfTexture);
     };
     // ###################   Main  ###################
     // # Render all objects
@@ -1171,7 +1228,7 @@ function Sprite(image) {
             targetX: props.x,
             targetY: props.y,
         });
-        props.visible = props.angle < halfFOV ? true : false;
+        props.visible = props.angle < halfFOV * 1.5 ? true : false;
         calcDistance(camera, props.x, props.y);
     };
     const render = (camera, canvas, x, y, rayDistances) => {
@@ -1181,10 +1238,7 @@ function Sprite(image) {
         const canvasWidth = canvas.getConfig().width;
         const canvasHeight = canvas.getConfig().height;
         const FOV = camera.get('fieldOfView');
-        //const distanceProjectionPlane = canvasWidth / Math.tan(FOV / 2); // before
         const distanceProjectionPlane = canvasWidth / 2 / Math.tan(FOV / 2);
-        //const spriteHeight =
-        //  (canvasHeight / props.distance) * distanceProjectionPlane - scenario.tileSize / 2; // -16 adjust sprite height
         const spriteHeight = (canvasHeight / props.distance) * distanceProjectionPlane * 2;
         // Calculate where line starts and ends, centering on screen vertically
         const y0 = Math.floor(canvasHeight / 2) - Math.floor(spriteHeight / 2);
@@ -1219,14 +1273,6 @@ function Sprite(image) {
                         width: 1,
                         height: textureHeight,
                     });
-                    /*canvas.drawRectangle({
-                      x: x1,
-                      y: y1,
-                      width: 1,
-                      height: textureHeight,
-                      color: 'red',
-                    });*/
-                    //canvas.drawElipse({ x: x1, y: y1, radius: 10, color: '#FF0000' });
                 }
             }
         }
@@ -1281,6 +1327,8 @@ exports.numIsMultipleOf = (M, N) => {
 },{}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+// tslint:disable-next-line
+const Stats = require('stats.js'); // This method is required for Stats JS to work with Typescript
 const Screen_1 = require("../components/Screen");
 const MiniMap_1 = require("../components/MiniMap");
 const Player_1 = require("../components/Player");
@@ -1288,7 +1336,10 @@ const Textures_1 = require("../components/Textures");
 const Scenario_1 = require("./Scenario");
 const config = require("../config");
 const Game = () => {
-    // constructor
+    // FPS Status
+    const FPSstats = new Stats();
+    FPSstats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+    document.body.appendChild(FPSstats.dom);
     const textures = Textures_1.default();
     const screen = new Screen_1.default(config.screen);
     const minimap_singleRay = new MiniMap_1.default(config.miniMapSingleRay);
@@ -1329,6 +1380,7 @@ const Game = () => {
         // # What to update every frame?
         scenario.render();
         player.render(keysDown);
+        player.postRender();
     };
     // # "Thread" tha runs the game
     const runGame = (fps) => {
@@ -1337,6 +1389,7 @@ const Game = () => {
         gameLoop();
     };
     const gameLoop = () => {
+        FPSstats.begin();
         // calc elapsed time since last loop
         now = Date.now();
         elapsed = now - deltaTime;
@@ -1347,6 +1400,7 @@ const Game = () => {
             deltaTime = now - (elapsed % fpsInterval);
             updateGame();
         }
+        FPSstats.end();
         // Runs only when the browser is in focus
         // Request another frame
         requestAnimationFrame(gameLoop.bind(this));
@@ -1359,7 +1413,7 @@ const Game = () => {
 };
 exports.default = Game;
 
-},{"../components/MiniMap":1,"../components/Player":2,"../components/Screen":3,"../components/Textures":4,"../config":6,"./Scenario":10}],14:[function(require,module,exports){
+},{"../components/MiniMap":1,"../components/Player":2,"../components/Screen":3,"../components/Textures":4,"../config":6,"./Scenario":10,"stats.js":16}],14:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const engine_1 = require("./engine");
@@ -1418,5 +1472,12 @@ exports.default = [
   0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       0,      0,      0,      0,   0,
   0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       0,      0,      0,      0,   0,
 ];*/
+
+},{}],16:[function(require,module,exports){
+// stats.js - http://github.com/mrdoob/stats.js
+(function(f,e){"object"===typeof exports&&"undefined"!==typeof module?module.exports=e():"function"===typeof define&&define.amd?define(e):f.Stats=e()})(this,function(){var f=function(){function e(a){c.appendChild(a.dom);return a}function u(a){for(var d=0;d<c.children.length;d++)c.children[d].style.display=d===a?"block":"none";l=a}var l=0,c=document.createElement("div");c.style.cssText="position:fixed;top:0;left:0;cursor:pointer;opacity:0.9;z-index:10000";c.addEventListener("click",function(a){a.preventDefault();
+u(++l%c.children.length)},!1);var k=(performance||Date).now(),g=k,a=0,r=e(new f.Panel("FPS","#0ff","#002")),h=e(new f.Panel("MS","#0f0","#020"));if(self.performance&&self.performance.memory)var t=e(new f.Panel("MB","#f08","#201"));u(0);return{REVISION:16,dom:c,addPanel:e,showPanel:u,begin:function(){k=(performance||Date).now()},end:function(){a++;var c=(performance||Date).now();h.update(c-k,200);if(c>g+1E3&&(r.update(1E3*a/(c-g),100),g=c,a=0,t)){var d=performance.memory;t.update(d.usedJSHeapSize/
+1048576,d.jsHeapSizeLimit/1048576)}return c},update:function(){k=this.end()},domElement:c,setMode:u}};f.Panel=function(e,f,l){var c=Infinity,k=0,g=Math.round,a=g(window.devicePixelRatio||1),r=80*a,h=48*a,t=3*a,v=2*a,d=3*a,m=15*a,n=74*a,p=30*a,q=document.createElement("canvas");q.width=r;q.height=h;q.style.cssText="width:80px;height:48px";var b=q.getContext("2d");b.font="bold "+9*a+"px Helvetica,Arial,sans-serif";b.textBaseline="top";b.fillStyle=l;b.fillRect(0,0,r,h);b.fillStyle=f;b.fillText(e,t,v);
+b.fillRect(d,m,n,p);b.fillStyle=l;b.globalAlpha=.9;b.fillRect(d,m,n,p);return{dom:q,update:function(h,w){c=Math.min(c,h);k=Math.max(k,h);b.fillStyle=l;b.globalAlpha=1;b.fillRect(0,0,r,m);b.fillStyle=f;b.fillText(g(h)+" "+e+" ("+g(c)+"-"+g(k)+")",t,v);b.drawImage(q,d+a,m,n-a,p,d,m,n-a,p);b.fillRect(d+n-a,m,a,p);b.fillStyle=l;b.globalAlpha=.9;b.fillRect(d+n-a,m,a,g((1-h/w)*p))}}};return f});
 
 },{}]},{},[14]);

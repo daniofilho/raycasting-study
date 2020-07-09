@@ -23,6 +23,7 @@ export interface ScenarioPropType {
         from: string;
         to: string;
       };
+      image: HTMLImageElement;
     };
   };
 }

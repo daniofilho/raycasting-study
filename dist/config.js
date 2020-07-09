@@ -4,16 +4,23 @@ exports.player = exports.miniMapAllRays = exports.miniMapSingleRay = exports.scr
 const map_1 = require("./map");
 const fogImage = new Image();
 fogImage.src = 'assets/sky.png';
+const skyImg = new Image();
+skyImg.src = 'assets/sky.png';
+const floorImg = new Image();
+floorImg.src = 'assets/floor.png';
+const crosshairImg = new Image();
+crosshairImg.src = 'assets/crosshair.png';
+const gunImg = new Image();
+gunImg.src = 'assets/gun.gif';
 exports.game = {
     fps: 60,
     depthfOfField: 1450,
     render: {
+        wallPixelWidth: 1,
         light: 40,
         fogImage,
     },
 };
-const skyImg = new Image();
-skyImg.src = 'assets/sky.png';
 exports.scenario = {
     tileSize: 63,
     tilesX: 15,
@@ -34,14 +41,15 @@ exports.scenario = {
                 from: '#505050',
                 to: '#707070',
             },
+            image: floorImg,
         },
     },
 };
 exports.screen = {
     canvasID: 'screen',
     backgroundColor: '#333333',
-    width: 300,
-    height: 300,
+    width: 400,
+    height: 350,
 };
 exports.miniMapSingleRay = {
     canvasID: 'minimap_singleRay',
@@ -74,4 +82,14 @@ exports.player = {
     speed: 1,
     turnSpeed: 0.03,
     fieldOfView: 60,
+    crosshair: {
+        image: crosshairImg,
+        width: 10,
+        height: 10,
+    },
+    gun: {
+        image: gunImg,
+        width: 200,
+        height: 255,
+    },
 };

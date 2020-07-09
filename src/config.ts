@@ -9,17 +9,29 @@ import map from './map';
 
 const fogImage = new Image();
 fogImage.src = 'assets/sky.png';
+
+const skyImg = new Image();
+skyImg.src = 'assets/sky.png';
+
+const floorImg = new Image();
+floorImg.src = 'assets/floor.png';
+
+const crosshairImg = new Image();
+crosshairImg.src = 'assets/crosshair.png';
+
+const gunImg = new Image();
+gunImg.src = 'assets/gun.gif';
+
 export const game: Types.GameType = {
   fps: 60,
   depthfOfField: 1450,
   render: {
+    wallPixelWidth: 1, // the higher value, the more pixelated the walls will be
     light: 40,
     fogImage,
   },
 };
 
-const skyImg = new Image();
-skyImg.src = 'assets/sky.png';
 export const scenario: ScenarioPropType = {
   tileSize: 63,
   tilesX: 15,
@@ -40,6 +52,7 @@ export const scenario: ScenarioPropType = {
         from: '#505050',
         to: '#707070',
       },
+      image: floorImg,
     },
   },
 };
@@ -47,8 +60,8 @@ export const scenario: ScenarioPropType = {
 export const screen: ScreenPropType = {
   canvasID: 'screen',
   backgroundColor: '#333333',
-  width: 300,
-  height: 300,
+  width: 400,
+  height: 350,
 };
 
 export const miniMapSingleRay: MiniMapPropType = {
@@ -83,5 +96,15 @@ export const player: PlayerPropsType = {
   color: '#FFFF00',
   speed: 1,
   turnSpeed: 0.03,
-  fieldOfView: 60, // DONT CHANGE, IF YOU DO, SPRITES WILL DISAPPEAR :/
+  fieldOfView: 60,
+  crosshair: {
+    image: crosshairImg,
+    width: 10,
+    height: 10,
+  },
+  gun: {
+    image: gunImg,
+    width: 200,
+    height: 255,
+  },
 };

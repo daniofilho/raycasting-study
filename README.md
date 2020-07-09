@@ -36,4 +36,10 @@ If you have error running, try to create a folder `dist`. Sometimes browserify t
 
 [Lode's Computer Graphics Tutorial](https://lodev.org/cgtutor/index.html)
 
-https://github.com/permadi-com/ray-cast/tree/master/
+https://github.com/okkindel/Labyrinth
+
+https://github.com/mir3z/raycaster.js
+
+https://github.com/Nichtgian/sandbox
+
+https://github.com/Nichtgian/sandbox/blob/master/script/model/player.js

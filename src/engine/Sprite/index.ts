@@ -40,7 +40,7 @@ function Sprite(image: HTMLImageElement) {
       targetY: props.y,
     });
 
-    props.visible = props.angle < halfFOV ? true : false;
+    props.visible = props.angle < halfFOV * 1.5 ? true : false;
 
     calcDistance(camera, props.x, props.y);
   };
@@ -60,10 +60,7 @@ function Sprite(image: HTMLImageElement) {
     const canvasHeight = canvas.getConfig().height;
     const FOV = camera.get('fieldOfView');
 
-    //const distanceProjectionPlane = canvasWidth / Math.tan(FOV / 2); // before
     const distanceProjectionPlane = canvasWidth / 2 / Math.tan(FOV / 2);
-    //const spriteHeight =
-    //  (canvasHeight / props.distance) * distanceProjectionPlane - scenario.tileSize / 2; // -16 adjust sprite height
     const spriteHeight = (canvasHeight / props.distance) * distanceProjectionPlane * 2;
 
     // Calculate where line starts and ends, centering on screen vertically
@@ -108,14 +105,6 @@ function Sprite(image: HTMLImageElement) {
             width: 1,
             height: textureHeight,
           });
-          /*canvas.drawRectangle({
-            x: x1,
-            y: y1,
-            width: 1,
-            height: textureHeight,
-            color: 'red',
-          });*/
-          //canvas.drawElipse({ x: x1, y: y1, radius: 10, color: '#FF0000' });
         }
       }
     }
