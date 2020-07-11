@@ -36,7 +36,6 @@ export const scenario: ScenarioPropType = {
   tileSize: 63,
   tilesX: 15,
   tilesY: 19,
-  // prettier-ignore
   tiles: map,
   minimap: {
     wall: { color: '#008800' },

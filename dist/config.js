@@ -25,7 +25,6 @@ exports.scenario = {
     tileSize: 63,
     tilesX: 15,
     tilesY: 19,
-    // prettier-ignore
     tiles: map_1.default,
     minimap: {
         wall: { color: '#008800' },

@@ -432,7 +432,6 @@ exports.scenario = {
     tileSize: 63,
     tilesX: 15,
     tilesY: 19,
-    // prettier-ignore
     tiles: map_1.default,
     minimap: {
         wall: { color: '#008800' },
@@ -1238,6 +1237,8 @@ function Sprite(image) {
         const canvasWidth = canvas.getConfig().width;
         const canvasHeight = canvas.getConfig().height;
         const FOV = camera.get('fieldOfView');
+        const spriteX = props.x - camera.get('x');
+        const spriteY = props.y - camera.get('y');
         const distanceProjectionPlane = canvasWidth / 2 / Math.tan(FOV / 2);
         const spriteHeight = (canvasHeight / props.distance) * distanceProjectionPlane * 2;
         // Calculate where line starts and ends, centering on screen vertically
@@ -1248,18 +1249,20 @@ function Sprite(image) {
         const textureHeight = y0 - y1;
         const textureWidth = textureHeight; // Square sprites
         // Calculate Sprite coordinates
-        const spriteX = props.x - camera.get('x');
-        const spriteY = props.y - camera.get('y');
         const spriteAngle = Math.atan2(spriteY, spriteX) - camera.get('angle');
-        const viewDist = canvas.getConfig().height;
+        const viewDist = canvas.getConfig().height; // OK
         const x0 = Math.tan(spriteAngle) * viewDist; // The glitch on sprite probably here
         const xFinal = canvasWidth / 2 + x0 - textureWidth / 2;
         // X Height proportion
         const columnHeight = textureHeight / maxTextureHeight;
+        // debug
+        canvas.drawLine({ x: 0, y: 10, toX: xFinal, toY: 100, color: '#FF0' });
         // Render column by column so we can check if it's behind a wall
         for (let i = 0; i < maxTextureWidth; i++) {
             for (let j = 0; j < columnHeight; j++) {
-                const x1 = Math.floor(xFinal + (i - 1) * columnHeight + j); // The glitch on sprite probably here
+                // need to correct fish eye efect here!
+                //const x1 = Math.floor(xFinal + (i - 1) * columnHeight + j); // The glitch on sprite probably here
+                const x1 = Math.floor(xFinal + i * columnHeight - j); // The glitch on sprite probably here
                 // Check distance before render column
                 if (rayDistances[x1] > props.distance && props.distance < config_1.game.depthfOfField) {
                     canvas.drawImage({
