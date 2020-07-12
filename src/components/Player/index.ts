@@ -13,20 +13,18 @@ const Player = (
 ) => {
   // Constructor
   const props = {
-    minimap,
-    debugmap,
-    screen,
-    width: config.player.width,
-    height: config.player.height,
-    x: config.player.x,
-    y: config.player.y,
-    deltaX: Math.cos(2 * Math.PI) * 5,
-    deltaY: Math.sin(2 * Math.PI) * 5,
-    angle: 5.98,
-    turnSpeed: config.player.turnSpeed,
-    speed: config.player.speed,
-    fieldOfView: config.player.fieldOfView,
+    ...config.player,
+    ...{
+      minimap,
+      debugmap,
+      screen,
+      deltaX: 0, //Math.cos(2 * Math.PI) * fix,
+      deltaY: 0, //Math.sin(2 * Math.PI) * fix,
+      angle: 5.98,
+    },
   };
+
+  const fix = 5;
 
   const tiles = config.scenario.tiles;
   const tileSize = config.scenario.tileSize;
@@ -157,8 +155,8 @@ const Player = (
     setAngle(newAngle);
 
     // Deltas
-    setDeltaX(Math.cos(newAngle) * 5);
-    setDeltaY(Math.sin(newAngle) * 5);
+    setDeltaX(Math.cos(newAngle) * fix);
+    setDeltaY(Math.sin(newAngle) * fix);
   };
   const turnRight = () => {
     const { angle, turnSpeed } = props;
@@ -170,8 +168,8 @@ const Player = (
     setAngle(newAngle);
 
     // Deltas
-    setDeltaX(Math.cos(newAngle) * 5);
-    setDeltaY(Math.sin(newAngle) * 5);
+    setDeltaX(Math.cos(newAngle) * fix);
+    setDeltaY(Math.sin(newAngle) * fix);
   };
   const strafeLeft = () => {
     const { x, y, speed, angle } = props;
@@ -179,8 +177,8 @@ const Player = (
     const leftAngle = 90 * (Math.PI / 180);
     const newAngle = angle - leftAngle;
 
-    const deltaX = Math.cos(newAngle) * 5;
-    const deltaY = Math.sin(newAngle) * 5;
+    const deltaX = Math.cos(newAngle) * fix;
+    const deltaY = Math.sin(newAngle) * fix;
 
     setX(x + (speed / 2) * deltaX);
     setY(y + (speed / 2) * deltaY);
@@ -191,8 +189,8 @@ const Player = (
     const leftAngle = 90 * (Math.PI / 180);
     const newAngle = angle + leftAngle;
 
-    const deltaX = Math.cos(newAngle) * 5;
-    const deltaY = Math.sin(newAngle) * 5;
+    const deltaX = Math.cos(newAngle) * fix;
+    const deltaY = Math.sin(newAngle) * fix;
 
     setX(x + (speed / 2) * deltaX);
     setY(y + (speed / 2) * deltaY);
@@ -223,15 +221,15 @@ const Player = (
     props.minimap.drawLine({
       x,
       y,
-      toX: x + deltaX * 5,
-      toY: y + deltaY * 5,
+      toX: x + deltaX * fix,
+      toY: y + deltaY * fix,
       color: '#FF0000',
     });
     props.debugmap.drawLine({
       x,
       y,
-      toX: x + deltaX * 5,
-      toY: y + deltaY * 5,
+      toX: x + deltaX * fix,
+      toY: y + deltaY * fix,
       color: '#FF0000',
     });
   };

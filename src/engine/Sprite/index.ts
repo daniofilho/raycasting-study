@@ -40,7 +40,7 @@ function Sprite(image: HTMLImageElement) {
       targetY: props.y,
     });
 
-    props.visible = props.angle < halfFOV * 1.5 ? true : false;
+    props.visible = props.angle < halfFOV * 1.5 ? true : false; // 1.5 margin error adjust
 
     calcDistance(camera, props.x, props.y);
   };
@@ -63,6 +63,8 @@ function Sprite(image: HTMLImageElement) {
     const spriteX = props.x - camera.get('x');
     const spriteY = props.y - camera.get('y');
 
+    const spriteAngle = Math.atan2(spriteY, spriteX) - camera.get('angle'); // check this angle
+
     const distanceProjectionPlane = canvasWidth / 2 / Math.tan(FOV / 2);
     const spriteHeight = (canvasHeight / props.distance) * distanceProjectionPlane * 2;
 
@@ -78,8 +80,6 @@ function Sprite(image: HTMLImageElement) {
 
     // Calculate Sprite coordinates
 
-    const spriteAngle = Math.atan2(spriteY, spriteX) - camera.get('angle');
-
     const viewDist = canvas.getConfig().height; // OK
 
     const x0 = Math.tan(spriteAngle) * viewDist; // The glitch on sprite probably here
@@ -94,9 +94,7 @@ function Sprite(image: HTMLImageElement) {
     // Render column by column so we can check if it's behind a wall
     for (let i = 0; i < maxTextureWidth; i++) {
       for (let j = 0; j < columnHeight; j++) {
-        // need to correct fish eye efect here!
-        //const x1 = Math.floor(xFinal + (i - 1) * columnHeight + j); // The glitch on sprite probably here
-        const x1 = Math.floor(xFinal + i * columnHeight - j); // The glitch on sprite probably here
+        const x1 = Math.floor(xFinal + (i - 1) * columnHeight + j); // The glitch on sprite probably here
 
         // Check distance before render column
         if (rayDistances[x1] > props.distance && props.distance < game.depthfOfField) {
@@ -114,6 +112,42 @@ function Sprite(image: HTMLImageElement) {
         }
       }
     }
+
+    canvas.drawText({
+      x: 50,
+      y: 50,
+      color: '#FF0',
+      text: `spriteX:${spriteX}, spriteY:${spriteY}, distanceProjectionPlane:${distanceProjectionPlane}`,
+      size: 10,
+    });
+    canvas.drawText({
+      x: 50,
+      y: 80,
+      color: '#FF0',
+      text: `y0:${y0}, y1:${y1}, spriteHeight:${spriteHeight}`,
+      size: 10,
+    });
+    canvas.drawText({
+      x: 50,
+      y: 110,
+      color: '#FF0',
+      text: `textureHeight:${textureHeight}, spriteAngle:${spriteAngle},`,
+      size: 10,
+    });
+    canvas.drawText({
+      x: 50,
+      y: 130,
+      color: '#FF0',
+      text: `x0:${x0}, xFinal:${xFinal}`,
+      size: 10,
+    });
+    canvas.drawText({
+      x: 50,
+      y: 150,
+      color: '#FF0',
+      text: `columnHeight:${columnHeight}`,
+      size: 10,
+    });
   };
 
   return { render, get, calcDistance };

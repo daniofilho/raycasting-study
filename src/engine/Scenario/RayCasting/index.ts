@@ -37,6 +37,7 @@ const RayCasting = (
   );
 
   const fovAngle = props.fov * (Math.PI / 180);
+  const distanceProjectionPlane = canvasScreen.getConfig().width / 2 / Math.tan(fovAngle / 2);
 
   let minWallHeight = 0;
 
@@ -51,8 +52,7 @@ const RayCasting = (
 
   // Calculate the wall Height
   const calculateWallHeight = (distance: number, rayAngle: number) => {
-    const correctWallDistance = distance * Math.cos(rayAngle - player.get('angle')); // This prevents fish eye effect
-    const distanceProjectionPlane = canvasScreen.getConfig().width / 2 / Math.tan(fovAngle / 2);
+    const correctWallDistance = distance * Math.cos(player.get('angle') - rayAngle); // This prevents fish eye effect
     return Math.round((tileSize / correctWallDistance) * distanceProjectionPlane);
   };
 
@@ -97,11 +97,11 @@ const RayCasting = (
     const adjacent = (rayY - playerY) / Math.tan(rayAngle);
     rayX = playerX + adjacent;
 
-    // Now we need X and Y offset
+    // Now we need X and Y offset - next ray step
     rayYoffset = tileSize;
     if (isRayFacingUp) rayYoffset *= -1; // negative or positive according to angle direction
 
-    rayXoffset = tileSize / Math.tan(rayAngle);
+    rayXoffset = rayYoffset / Math.tan(rayAngle);
     rayXoffset *= isRayFacingLeft && rayXoffset > 0 ? -1 : 1;
     rayXoffset *= isRayFacingRight && rayXoffset < 0 ? -1 : 1;
 
@@ -196,8 +196,8 @@ const RayCasting = (
     rayX = interceptionX;
     rayX += isRayFacingRight ? tileSize : 0;
 
-    const adjacent = (rayX - playerX) * Math.tan(rayAngle);
-    rayY = playerY + adjacent;
+    const oposite = (rayX - playerX) * Math.tan(rayAngle);
+    rayY = playerY + oposite;
 
     // Now we need X and Y offset
     rayXoffset = tileSize;
@@ -325,6 +325,9 @@ const RayCasting = (
       horizontalRay = false;
     }
 
+    // Corrects fish eye effect
+    //distance = distance * Math.cos(player.get('angle') - rayAngle);
+
     return {
       rayX,
       rayY,
@@ -426,14 +429,14 @@ const RayCasting = (
 
       return canvasScreen.drawImage({
         image: objectTexture.image,
-        x: wallX,
-        y: wallY1,
-        width: wallWidth,
-        height: wallY0 - wallY1,
         clipX: pixelToDraw,
         clipY: clip.clipY,
         clipWidth: 1,
         clipHeight: tileSize,
+        x: wallX,
+        y: wallY1,
+        width: wallWidth,
+        height: wallY0 - wallY1,
       });
     }
 
@@ -567,8 +570,8 @@ const RayCasting = (
     }
 
     // Find positions
-    const wallX = index * wallWidth;
-    const wallY0 = canvasScreen.getConfig().height / 2 - wallHeight / 2;
+    const wallX = index; // * wallWidth;
+    const wallY0 = Math.floor(canvasScreen.getConfig().height / 2) - Math.floor(wallHeight / 2);
     const wallY1 = wallY0 + wallHeight;
 
     // Set alpha color to simulate lighting

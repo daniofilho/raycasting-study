@@ -24,21 +24,15 @@ const config = require("../../config");
 const Collision_1 = require("../../engine/Collision");
 const Player = (minimap, debugmap, screen, textures) => {
     // Constructor
-    const props = {
+    const props = Object.assign(Object.assign({}, config.player), {
         minimap,
         debugmap,
         screen,
-        width: config.player.width,
-        height: config.player.height,
-        x: config.player.x,
-        y: config.player.y,
-        deltaX: Math.cos(2 * Math.PI) * 5,
-        deltaY: Math.sin(2 * Math.PI) * 5,
+        deltaX: 0,
+        deltaY: 0,
         angle: 5.98,
-        turnSpeed: config.player.turnSpeed,
-        speed: config.player.speed,
-        fieldOfView: config.player.fieldOfView,
-    };
+    });
+    const fix = 5;
     const tiles = config.scenario.tiles;
     const tileSize = config.scenario.tileSize;
     const scenarioWidth = config.scenario.tilesX * tileSize;
@@ -154,8 +148,8 @@ const Player = (minimap, debugmap, screen, textures) => {
             newAngle = angle + 2 * Math.PI; // invert
         setAngle(newAngle);
         // Deltas
-        setDeltaX(Math.cos(newAngle) * 5);
-        setDeltaY(Math.sin(newAngle) * 5);
+        setDeltaX(Math.cos(newAngle) * fix);
+        setDeltaY(Math.sin(newAngle) * fix);
     };
     const turnRight = () => {
         const { angle, turnSpeed } = props;
@@ -165,15 +159,15 @@ const Player = (minimap, debugmap, screen, textures) => {
             newAngle = angle - 2 * Math.PI;
         setAngle(newAngle);
         // Deltas
-        setDeltaX(Math.cos(newAngle) * 5);
-        setDeltaY(Math.sin(newAngle) * 5);
+        setDeltaX(Math.cos(newAngle) * fix);
+        setDeltaY(Math.sin(newAngle) * fix);
     };
     const strafeLeft = () => {
         const { x, y, speed, angle } = props;
         const leftAngle = 90 * (Math.PI / 180);
         const newAngle = angle - leftAngle;
-        const deltaX = Math.cos(newAngle) * 5;
-        const deltaY = Math.sin(newAngle) * 5;
+        const deltaX = Math.cos(newAngle) * fix;
+        const deltaY = Math.sin(newAngle) * fix;
         setX(x + (speed / 2) * deltaX);
         setY(y + (speed / 2) * deltaY);
     };
@@ -181,8 +175,8 @@ const Player = (minimap, debugmap, screen, textures) => {
         const { x, y, speed, angle } = props;
         const leftAngle = 90 * (Math.PI / 180);
         const newAngle = angle + leftAngle;
-        const deltaX = Math.cos(newAngle) * 5;
-        const deltaY = Math.sin(newAngle) * 5;
+        const deltaX = Math.cos(newAngle) * fix;
+        const deltaY = Math.sin(newAngle) * fix;
         setX(x + (speed / 2) * deltaX);
         setY(y + (speed / 2) * deltaY);
     };
@@ -214,15 +208,15 @@ const Player = (minimap, debugmap, screen, textures) => {
         props.minimap.drawLine({
             x,
             y,
-            toX: x + deltaX * 5,
-            toY: y + deltaY * 5,
+            toX: x + deltaX * fix,
+            toY: y + deltaY * fix,
             color: '#FF0000',
         });
         props.debugmap.drawLine({
             x,
             y,
-            toX: x + deltaX * 5,
-            toY: y + deltaY * 5,
+            toX: x + deltaX * fix,
+            toY: y + deltaY * fix,
             color: '#FF0000',
         });
     };
@@ -616,6 +610,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
     };
     const raysQuantity = Math.ceil(canvasScreen.getConfig().width / config.game.render.wallPixelWidth);
     const fovAngle = props.fov * (Math.PI / 180);
+    const distanceProjectionPlane = canvasScreen.getConfig().width / 2 / Math.tan(fovAngle / 2);
     let minWallHeight = 0;
     // Ray
     let rayX, rayY;
@@ -625,8 +620,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
     // ###################  Misc  ###################
     // Calculate the wall Height
     const calculateWallHeight = (distance, rayAngle) => {
-        const correctWallDistance = distance * Math.cos(rayAngle - player.get('angle')); // This prevents fish eye effect
-        const distanceProjectionPlane = canvasScreen.getConfig().width / 2 / Math.tan(fovAngle / 2);
+        const correctWallDistance = distance * Math.cos(player.get('angle') - rayAngle); // This prevents fish eye effect
         return Math.round((tileSize / correctWallDistance) * distanceProjectionPlane);
     };
     // Get the minimum Height of all walls
@@ -659,11 +653,11 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
         rayY += isRayFacingDown ? tileSize : 0;
         const adjacent = (rayY - playerY) / Math.tan(rayAngle);
         rayX = playerX + adjacent;
-        // Now we need X and Y offset
+        // Now we need X and Y offset - next ray step
         rayYoffset = tileSize;
         if (isRayFacingUp)
             rayYoffset *= -1; // negative or positive according to angle direction
-        rayXoffset = tileSize / Math.tan(rayAngle);
+        rayXoffset = rayYoffset / Math.tan(rayAngle);
         rayXoffset *= isRayFacingLeft && rayXoffset > 0 ? -1 : 1;
         rayXoffset *= isRayFacingRight && rayXoffset < 0 ? -1 : 1;
         // If facing up, need to add tile size so rayY will be right
@@ -744,8 +738,8 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
         const interceptionX = Math.floor(playerX / tileSize) * tileSize;
         rayX = interceptionX;
         rayX += isRayFacingRight ? tileSize : 0;
-        const adjacent = (rayX - playerX) * Math.tan(rayAngle);
-        rayY = playerY + adjacent;
+        const oposite = (rayX - playerX) * Math.tan(rayAngle);
+        rayY = playerY + oposite;
         // Now we need X and Y offset
         rayXoffset = tileSize;
         if (isRayFacingLeft)
@@ -850,6 +844,8 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             // Facing direction
             horizontalRay = false;
         }
+        // Corrects fish eye effect
+        //distance = distance * Math.cos(player.get('angle') - rayAngle);
         return {
             rayX,
             rayY,
@@ -927,14 +923,14 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             pixelToDraw += clip.clipX;
             return canvasScreen.drawImage({
                 image: objectTexture.image,
-                x: wallX,
-                y: wallY1,
-                width: wallWidth,
-                height: wallY0 - wallY1,
                 clipX: pixelToDraw,
                 clipY: clip.clipY,
                 clipWidth: 1,
                 clipHeight: tileSize,
+                x: wallX,
+                y: wallY1,
+                width: wallWidth,
+                height: wallY0 - wallY1,
             });
         }
         // # Wall texture
@@ -1034,8 +1030,8 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             fog = true;
         }
         // Find positions
-        const wallX = index * wallWidth;
-        const wallY0 = canvasScreen.getConfig().height / 2 - wallHeight / 2;
+        const wallX = index; // * wallWidth;
+        const wallY0 = Math.floor(canvasScreen.getConfig().height / 2) - Math.floor(wallHeight / 2);
         const wallY1 = wallY0 + wallHeight;
         // Set alpha color to simulate lighting
         const alpha = config.game.render.light / distance;
@@ -1227,7 +1223,7 @@ function Sprite(image) {
             targetX: props.x,
             targetY: props.y,
         });
-        props.visible = props.angle < halfFOV * 1.5 ? true : false;
+        props.visible = props.angle < halfFOV * 1.5 ? true : false; // 1.5 margin error adjust
         calcDistance(camera, props.x, props.y);
     };
     const render = (camera, canvas, x, y, rayDistances) => {
@@ -1239,6 +1235,7 @@ function Sprite(image) {
         const FOV = camera.get('fieldOfView');
         const spriteX = props.x - camera.get('x');
         const spriteY = props.y - camera.get('y');
+        const spriteAngle = Math.atan2(spriteY, spriteX) - camera.get('angle'); // check this angle
         const distanceProjectionPlane = canvasWidth / 2 / Math.tan(FOV / 2);
         const spriteHeight = (canvasHeight / props.distance) * distanceProjectionPlane * 2;
         // Calculate where line starts and ends, centering on screen vertically
@@ -1249,7 +1246,6 @@ function Sprite(image) {
         const textureHeight = y0 - y1;
         const textureWidth = textureHeight; // Square sprites
         // Calculate Sprite coordinates
-        const spriteAngle = Math.atan2(spriteY, spriteX) - camera.get('angle');
         const viewDist = canvas.getConfig().height; // OK
         const x0 = Math.tan(spriteAngle) * viewDist; // The glitch on sprite probably here
         const xFinal = canvasWidth / 2 + x0 - textureWidth / 2;
@@ -1260,9 +1256,7 @@ function Sprite(image) {
         // Render column by column so we can check if it's behind a wall
         for (let i = 0; i < maxTextureWidth; i++) {
             for (let j = 0; j < columnHeight; j++) {
-                // need to correct fish eye efect here!
-                //const x1 = Math.floor(xFinal + (i - 1) * columnHeight + j); // The glitch on sprite probably here
-                const x1 = Math.floor(xFinal + i * columnHeight - j); // The glitch on sprite probably here
+                const x1 = Math.floor(xFinal + (i - 1) * columnHeight + j); // The glitch on sprite probably here
                 // Check distance before render column
                 if (rayDistances[x1] > props.distance && props.distance < config_1.game.depthfOfField) {
                     canvas.drawImage({
@@ -1279,6 +1273,41 @@ function Sprite(image) {
                 }
             }
         }
+        canvas.drawText({
+            x: 50,
+            y: 50,
+            color: '#FF0',
+            text: `spriteX:${spriteX}, spriteY:${spriteY}, distanceProjectionPlane:${distanceProjectionPlane}`,
+            size: 10,
+        });
+        canvas.drawText({
+            x: 50,
+            y: 80,
+            color: '#FF0',
+            text: `y0:${y0}, y1:${y1}, spriteHeight:${spriteHeight}`,
+            size: 10,
+        });
+        canvas.drawText({
+            x: 50,
+            y: 110,
+            color: '#FF0',
+            text: `textureHeight:${textureHeight}, spriteAngle:${spriteAngle},`,
+            size: 10,
+        });
+        canvas.drawText({
+            x: 50,
+            y: 130,
+            color: '#FF0',
+            text: `x0:${x0}, xFinal:${xFinal}`,
+            size: 10,
+        });
+        canvas.drawText({
+            x: 50,
+            y: 150,
+            color: '#FF0',
+            text: `columnHeight:${columnHeight}`,
+            size: 10,
+        });
     };
     return { render, get, calcDistance };
 }
