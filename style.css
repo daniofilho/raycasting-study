@@ -65,6 +65,7 @@ button {
 }
 
 .controls {
+  z-index: -1;
   display: flex;
   position: absolute;
   width: 100%;

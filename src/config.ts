@@ -24,7 +24,7 @@ gunImg.src = 'assets/gun.gif';
 
 export const game: Types.GameType = {
   fps: 60,
-  depthfOfField: 1450,
+  depthfOfField: 3000,
   render: {
     wallPixelWidth: 1, // the higher value, the more pixelated the walls will be
     light: 40,
@@ -33,9 +33,9 @@ export const game: Types.GameType = {
 };
 
 export const scenario: ScenarioPropType = {
-  tileSize: 63,
+  tileSize: 64,
   tilesX: 15,
-  tilesY: 19,
+  tilesY: 40,
   tiles: map,
   minimap: {
     wall: { color: '#008800' },

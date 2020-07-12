@@ -57,7 +57,7 @@ export default {
     isCollidable: true,
   },
   table: {
-    image: 'assets/pillar.png',
+    image: 'assets/table.png',
     horizontal: {
       clipX: 0,
       clipY: 0,
@@ -71,7 +71,7 @@ export default {
     isCollidable: true,
   },
   lamp: {
-    image: 'assets/pillar.png',
+    image: 'assets/lamp.png',
     horizontal: {
       clipX: 0,
       clipY: 0,

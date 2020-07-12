@@ -14,7 +14,7 @@ const gunImg = new Image();
 gunImg.src = 'assets/gun.gif';
 exports.game = {
     fps: 60,
-    depthfOfField: 1450,
+    depthfOfField: 3000,
     render: {
         wallPixelWidth: 1,
         light: 40,
@@ -22,9 +22,9 @@ exports.game = {
     },
 };
 exports.scenario = {
-    tileSize: 63,
+    tileSize: 64,
     tilesX: 15,
-    tilesY: 19,
+    tilesY: 40,
     tiles: map_1.default,
     minimap: {
         wall: { color: '#008800' },

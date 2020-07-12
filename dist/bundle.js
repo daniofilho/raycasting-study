@@ -369,7 +369,7 @@ exports.default = {
         isCollidable: true,
     },
     table: {
-        image: 'assets/pillar.png',
+        image: 'assets/table.png',
         horizontal: {
             clipX: 0,
             clipY: 0,
@@ -383,7 +383,7 @@ exports.default = {
         isCollidable: true,
     },
     lamp: {
-        image: 'assets/pillar.png',
+        image: 'assets/lamp.png',
         horizontal: {
             clipX: 0,
             clipY: 0,
@@ -415,7 +415,7 @@ const gunImg = new Image();
 gunImg.src = 'assets/gun.gif';
 exports.game = {
     fps: 60,
-    depthfOfField: 1450,
+    depthfOfField: 3000,
     render: {
         wallPixelWidth: 1,
         light: 40,
@@ -423,9 +423,9 @@ exports.game = {
     },
 };
 exports.scenario = {
-    tileSize: 63,
+    tileSize: 64,
     tilesX: 15,
-    tilesY: 19,
+    tilesY: 40,
     tiles: map_1.default,
     minimap: {
         wall: { color: '#008800' },
@@ -1251,8 +1251,6 @@ function Sprite(image) {
         const xFinal = canvasWidth / 2 + x0 - textureWidth / 2;
         // X Height proportion
         const columnHeight = textureHeight / maxTextureHeight;
-        // debug
-        canvas.drawLine({ x: 0, y: 10, toX: xFinal, toY: 100, color: '#FF0' });
         // Render column by column so we can check if it's behind a wall
         for (let i = 0; i < maxTextureWidth; i++) {
             for (let j = 0; j < columnHeight; j++) {
@@ -1273,41 +1271,6 @@ function Sprite(image) {
                 }
             }
         }
-        canvas.drawText({
-            x: 50,
-            y: 50,
-            color: '#FF0',
-            text: `spriteX:${spriteX}, spriteY:${spriteY}, distanceProjectionPlane:${distanceProjectionPlane}`,
-            size: 10,
-        });
-        canvas.drawText({
-            x: 50,
-            y: 80,
-            color: '#FF0',
-            text: `y0:${y0}, y1:${y1}, spriteHeight:${spriteHeight}`,
-            size: 10,
-        });
-        canvas.drawText({
-            x: 50,
-            y: 110,
-            color: '#FF0',
-            text: `textureHeight:${textureHeight}, spriteAngle:${spriteAngle},`,
-            size: 10,
-        });
-        canvas.drawText({
-            x: 50,
-            y: 130,
-            color: '#FF0',
-            text: `x0:${x0}, xFinal:${xFinal}`,
-            size: 10,
-        });
-        canvas.drawText({
-            x: 50,
-            y: 150,
-            color: '#FF0',
-            text: `columnHeight:${columnHeight}`,
-            size: 10,
-        });
     };
     return { render, get, calcDistance };
 }
@@ -1466,11 +1429,11 @@ exports.default = [
     'wall', 0, 0, 'jail', 0, 0, 0, 0, 0, 0, 'wall', 0, 0, 0, 'wood',
     'wall', 0, 'wall', 'wall', 0, 0, 0, 0, 0, 0, 'wall', 0, 0, 0, 'wood',
     'wall', 0, 0, 'jail', 0, 0, 'stone', 'stone', 'stone', 0, 'wall', 0, 0, 0, 'wood',
-    'wall', 0, 'wall', 'wall', 0, 0, 0, 0, 'stone', 0, 'wall', 'wall', 'wall', 0, 'wood',
+    'wall', 0, 'wall', 'wall', 0, 0, 0, 0, 'stone', 0, 'wall', 'wall', 'wall', 'lamp', 'wood',
     'wall', 0, 0, 'jail', 0, 0, 0, 0, 'stone', 0, 0, 0, 0, 0, 'wood',
     'wall', 0, 'wall', 'wall', 0, 'stone', 'stone', 'stone', 'stone', 0, 0, 0, 0, 0, 'wood',
     'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 'table', 0, 0, 0, 0, 0, 0, 'wood',
     'wall', 0, 0, 0, 0, 'stone', 0, 0, 0, 0, 'lamp', 'stone', 'wall', 'wall', 'wood',
     'wall', 0, 0, 0, 0, 'stone', 'stone', 'stone', 'stone', 0, 0, 0, 'wall', 0, 'wood',
     'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wall', 0, 'wood',
@@ -1480,30 +1443,29 @@ exports.default = [
     'wall', 0, 0, 0, 'wall', 0, 0, 'stone', 0, 0, 'wall', 0, 0, 0, 'wood',
     'wall', 0, 0, 0, 'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
     'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 'lamp', 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 'table', 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 'wall', 'wall', 'wall', 'wall', 0, 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall',
+    'wall', 0, 'wall', 0, 0, 0, 0, 0, 'table', 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 'table', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
+    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
     'wall', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood',
 ];
-// prettier-ignore
-/*export default [
-  0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       0,      0,      0,      0,   0,
-  0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       0,      0,      0,      0,   0,
-  0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       0,      0,      0,      0,   0,
-  0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       0,      0,      0,      0,   0,
-  0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       0,      0,      0,      0,   0,
-  0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       0,      0,      0,      0,   0,
-  0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       0,      0,      0,      0,   0,
-  0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       0,      0,      0,      0,   0,
-  0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       'stone',      0,      0,      0,   0,
-  0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       0,      0,      0,      0,   0,
-  0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       0,      0,      0,      0,   0,
-  0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       0,      0,      0,      0,   0,
-  0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       0,      0,      0,      0,   0,
-  0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       0,      0,      0,      0,   0,
-  0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       0,      0,      0,      0,   0,
-  0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       0,      0,      0,      0,   0,
-  0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       0,      0,      0,      0,   0,
-  0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       0,      0,      0,      0,   0,
-  0,      0,      0,      0,      0,       0,       0,       0,       0,      0,       0,      0,      0,      0,   0,
-];*/
 
 },{}],16:[function(require,module,exports){
 // stats.js - http://github.com/mrdoob/stats.js
