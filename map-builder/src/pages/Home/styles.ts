@@ -7,6 +7,12 @@ export const Container = styled.div`
       cursor: pointer;
     }
   }
+  .result {
+    textarea {
+      height: 400px;
+      width: 100%;
+    }
+  }
 `;
 
 interface GridType {
@@ -16,7 +22,7 @@ interface GridType {
 export const Grid = styled.div<GridType>`
   display: grid;
   box-sizing: border-box;
-  max-width: 1000px;
+  max-width: 90vw;
   margin: 20px auto;
 
   & > div {

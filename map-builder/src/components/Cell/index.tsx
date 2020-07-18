@@ -1,42 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 import { getTexture } from 'lib/common';
+
+import { reducerType } from 'pages/Home/types';
 
 import { Container } from './styles';
 
 interface CellType {
-  selectedTexture: string;
   index: number;
-  w: number;
-  h: number;
-  mapHeight: number;
-  mapWidth: number;
   updateMap: Function;
+  reducer: reducerType;
 }
 
-const Cell: React.FC<CellType> = ({
-  index,
-  selectedTexture,
-  w,
-  h,
-  mapHeight,
-  mapWidth,
-  updateMap,
-}) => {
-  // Define walls on edges by default
-  let initialTexture = 'floor';
-  if (w === 0 || w === mapWidth - 1) initialTexture = 'wall';
-  if (h === 0 || h === mapHeight - 1) initialTexture = 'wall';
-
-  const [texture, setTexture] = useState<string>(initialTexture);
+const Cell: React.FC<CellType> = ({ index, reducer, updateMap }) => {
+  const {
+    state: { selectedTexture, map },
+  } = reducer;
+  const texture = map[index];
 
   const changeTexture = () => {
-    setTexture(selectedTexture);
+    updateMap(index, getTexture(selectedTexture).id);
   };
-
-  useEffect(() => {
-    updateMap(index, getTexture(texture).id);
-  }, [texture]);
 
   return (
     <Container onClick={() => changeTexture()}>

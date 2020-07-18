@@ -20,6 +20,9 @@ export const textures: Array<textureType> = [
     id: 'wood',
     image: 'assets/wood.png',
   },
+];
+
+export const objects: Array<textureType> = [
   {
     id: 'lamp',
     image: 'assets/lamp.png',
