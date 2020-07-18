@@ -31,8 +31,8 @@ export default (WrappedComponent: React.FC<HomeType>) => {
       const _map: Partial<mapType> = [];
 
       let index = 0;
-      new Array(mapWidth).fill('').map((_, w) => {
-        return new Array(mapHeight).fill('').map((_, h) => {
+      new Array(mapHeight).fill('').map((_, h) => {
+        return new Array(mapWidth).fill('').map((_, w) => {
           // Define walls on edges by default
           let texture = 'floor';
           if (w === 0 || w === mapWidth - 1) texture = 'wall';
@@ -55,23 +55,16 @@ export default (WrappedComponent: React.FC<HomeType>) => {
 
     const updateMap = (index: number, type: string) => {
       const auxMap = [...map];
-      let i = 0;
-      new Array(mapWidth).fill('').map((w) => {
-        return new Array(mapHeight).fill('').map((h) => {
-          if (i === index) auxMap[index] = type;
-          return i++;
-        });
-      });
-
+      auxMap[index] = type;
       setMap(auxMap);
     };
 
     const renderGrid = () => {
       let index = 0;
-      return new Array(mapWidth).fill('').map((_, w) => {
+      return new Array(mapHeight).fill('').map((_, h) => {
         return (
-          <div key={w}>
-            {new Array(mapHeight).fill('').map((_, h) => {
+          <div key={h}>
+            {new Array(mapWidth).fill('').map((_, w) => {
               const r = (
                 <Cell
                   key={`${w}${h}`}

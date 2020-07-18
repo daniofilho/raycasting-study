@@ -23,8 +23,8 @@ const Cell: React.FC<CellType> = ({ index, reducer, updateMap }) => {
   };
 
   return (
-    <Container onClick={() => changeTexture()}>
-      <img src={getTexture(texture).image} alt="texture" />
+    <Container onMouseDown={() => changeTexture()}>
+      <img draggable={false} src={getTexture(texture).image} alt="texture" />
     </Container>
   );
 };
