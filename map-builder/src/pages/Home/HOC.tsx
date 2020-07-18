@@ -85,7 +85,7 @@ export default (WrappedComponent: React.FC<HomeType>) => {
       let string = '[';
 
       map.map((m: string) => {
-        string += m + ', ';
+        string += `'${m}', `;
         return true;
       });
       string += ']';

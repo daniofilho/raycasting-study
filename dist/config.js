@@ -23,8 +23,8 @@ exports.game = {
 };
 exports.scenario = {
     tileSize: 64,
-    tilesX: 15,
-    tilesY: 40,
+    tilesX: 30,
+    tilesY: 10,
     tiles: map_1.default,
     minimap: {
         wall: { color: '#008800' },
@@ -47,8 +47,8 @@ exports.scenario = {
 exports.screen = {
     canvasID: 'screen',
     backgroundColor: '#333333',
-    width: 400,
-    height: 350,
+    width: 300,
+    height: 220,
 };
 exports.miniMapSingleRay = {
     canvasID: 'minimap_singleRay',
@@ -73,8 +73,8 @@ exports.miniMapAllRays = {
     y: exports.screen.height - 100,
 };
 exports.player = {
-    x: exports.miniMapAllRays.width / 2 + 50,
-    y: exports.miniMapAllRays.height / 2,
+    x: exports.miniMapAllRays.width / 2 + 100,
+    y: 100,
     width: exports.scenario.tileSize / 2.5,
     height: exports.scenario.tileSize / 2.5,
     color: '#FFFF00',

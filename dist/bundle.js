@@ -424,8 +424,8 @@ exports.game = {
 };
 exports.scenario = {
     tileSize: 64,
-    tilesX: 15,
-    tilesY: 40,
+    tilesX: 30,
+    tilesY: 10,
     tiles: map_1.default,
     minimap: {
         wall: { color: '#008800' },
@@ -448,8 +448,8 @@ exports.scenario = {
 exports.screen = {
     canvasID: 'screen',
     backgroundColor: '#333333',
-    width: 400,
-    height: 350,
+    width: 300,
+    height: 220,
 };
 exports.miniMapSingleRay = {
     canvasID: 'minimap_singleRay',
@@ -474,8 +474,8 @@ exports.miniMapAllRays = {
     y: exports.screen.height - 100,
 };
 exports.player = {
-    x: exports.miniMapAllRays.width / 2 + 50,
-    y: exports.miniMapAllRays.height / 2,
+    x: exports.miniMapAllRays.width / 2 + 100,
+    y: 100,
     width: exports.scenario.tileSize / 2.5,
     height: exports.scenario.tileSize / 2.5,
     color: '#FFFF00',
@@ -1124,7 +1124,7 @@ const Scenario = (player, canvasMiniMap, canvasMiniMapDebug, canvasScreen, confi
                 const x0 = x * tileSize;
                 const y0 = y * tileSize;
                 // Define tile color based on tile value (0,1)
-                const tileColor = tiles[y * tilesX + x] !== 0 ? wallColor : floorColor;
+                const tileColor = tiles[y * tilesX + x] !== 'floor' ? wallColor : floorColor;
                 const mapPosition = y * tilesX + x;
                 const objectTexture = textures.get(tiles[mapPosition]);
                 if (objectTexture) {
@@ -1424,48 +1424,7 @@ engine.startGame();
 Object.defineProperty(exports, "__esModule", { value: true });
 //https://onlinetexttools.com/convert-text-to-nice-columns <= beautify this array - Right-align columns
 // prettier-ignore
-exports.default = [
-    'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall',
-    'wall', 0, 0, 'jail', 0, 0, 0, 0, 0, 0, 'wall', 0, 0, 0, 'wood',
-    'wall', 0, 'wall', 'wall', 0, 0, 0, 0, 0, 0, 'wall', 0, 0, 0, 'wood',
-    'wall', 0, 0, 'jail', 0, 0, 'stone', 'stone', 'stone', 0, 'wall', 0, 0, 0, 'wood',
-    'wall', 0, 'wall', 'wall', 0, 0, 0, 0, 'stone', 0, 'wall', 'wall', 'wall', 'lamp', 'wood',
-    'wall', 0, 0, 'jail', 0, 0, 0, 0, 'stone', 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 'wall', 'wall', 0, 'stone', 'stone', 'stone', 'stone', 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 'table', 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 'stone', 0, 0, 0, 0, 'lamp', 'stone', 'wall', 'wall', 'wood',
-    'wall', 0, 0, 0, 0, 'stone', 'stone', 'stone', 'stone', 0, 0, 0, 'wall', 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wall', 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wall', 'wall', 'wall', 0, 'wood',
-    'wall', 0, 0, 0, 'wall', 'wall', 0, 0, 0, 0, 'wall', 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 'wall', 0, 0, 0, 0, 0, 'wall', 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 'wall', 0, 0, 'stone', 0, 0, 'wall', 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 'lamp', 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 'table', 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 'wall', 'wall', 'wall', 'wall', 0, 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall',
-    'wall', 0, 'wall', 0, 0, 0, 0, 0, 'table', 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 'table', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'wood',
-    'wall', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood',
-];
+exports.default = ['wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wood', 'floor', 'floor', 'floor', 'floor', 'wood', 'floor', 'wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall', 'floor', 'floor', 'floor', 'wall', 'wood', 'floor', 'floor', 'floor', 'floor', 'wood', 'floor', 'wall', 'floor', 'stone', 'stone', 'floor', 'stone', 'stone', 'floor', 'wall', 'floor', 'stone', 'floor', 'floor', 'floor', 'floor', 'wall', 'wall', 'wall', 'wall', 'floor', 'floor', 'floor', 'wall', 'wood', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall', 'floor', 'stone', 'floor', 'floor', 'floor', 'stone', 'floor', 'wall', 'floor', 'floor', 'floor', 'wall', 'floor', 'floor', 'wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall', 'wood', 'floor', 'floor', 'floor', 'floor', 'wood', 'floor', 'wall', 'floor', 'stone', 'floor', 'floor', 'floor', 'stone', 'floor', 'wall', 'floor', 'stone', 'floor', 'wall', 'floor', 'wall', 'wall', 'wall', 'wall', 'wall', 'floor', 'floor', 'floor', 'wall', 'wood', 'wood', 'wood', 'wood', 'wood', 'wood', 'floor', 'floor', 'floor', 'stone', 'floor', 'floor', 'floor', 'stone', 'floor', 'wall', 'floor', 'floor', 'floor', 'wall', 'floor', 'floor', 'floor', 'wall', 'floor', 'floor', 'floor', 'floor', 'stone', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'stone', 'stone', 'stone', 'stone', 'stone', 'stone', 'stone', 'stone', 'floor', 'wall', 'wall', 'wall', 'wall', 'wall', 'floor', 'floor', 'floor', 'wall', 'floor', 'floor', 'stone', 'floor', 'stone', 'wall', 'wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall', 'floor', 'floor', 'floor', 'wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'stone', 'floor', 'floor', 'wall', 'wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall', 'floor', 'floor', 'floor', 'wall', 'floor', 'wall', 'floor', 'wall', 'floor', 'wall', 'floor', 'wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'stone', 'floor', 'floor', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall',];
 
 },{}],16:[function(require,module,exports){
 // stats.js - http://github.com/mrdoob/stats.js

@@ -34,8 +34,8 @@ export const game: Types.GameType = {
 
 export const scenario: ScenarioPropType = {
   tileSize: 64,
-  tilesX: 15,
-  tilesY: 40,
+  tilesX: 30,
+  tilesY: 10,
   tiles: map,
   minimap: {
     wall: { color: '#008800' },
@@ -59,8 +59,8 @@ export const scenario: ScenarioPropType = {
 export const screen: ScreenPropType = {
   canvasID: 'screen',
   backgroundColor: '#333333',
-  width: 400,
-  height: 350,
+  width: 300,
+  height: 220,
 };
 
 export const miniMapSingleRay: MiniMapPropType = {
@@ -88,8 +88,8 @@ export const miniMapAllRays: MiniMapPropType = {
 };
 
 export const player: PlayerPropsType = {
-  x: miniMapAllRays.width / 2 + 50,
-  y: miniMapAllRays.height / 2,
+  x: miniMapAllRays.width / 2 + 100,
+  y: 100,
   width: scenario.tileSize / 2.5,
   height: scenario.tileSize / 2.5,
   color: '#FFFF00',

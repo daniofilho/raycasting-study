@@ -43,7 +43,7 @@ const Scenario = (
         const y0 = y * tileSize;
 
         // Define tile color based on tile value (0,1)
-        const tileColor = tiles[y * tilesX + x] !== 0 ? wallColor : floorColor;
+        const tileColor = tiles[y * tilesX + x] !== 'floor' ? wallColor : floorColor;
 
         const mapPosition = y * tilesX + x;
 
