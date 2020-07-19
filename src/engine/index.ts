@@ -78,10 +78,8 @@ const Game = () => {
   const updateGame = () => {
     // # What to update every frame?
     scenario.render();
-
     player.render(keysDown);
-
-    player.postRender();
+    //player.postRender();
   };
 
   // # "Thread" tha runs the game

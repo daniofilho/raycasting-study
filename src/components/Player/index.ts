@@ -18,21 +18,19 @@ const Player = (
       minimap,
       debugmap,
       screen,
-      deltaX: 0, //Math.cos(2 * Math.PI) * fix,
-      deltaY: 0, //Math.sin(2 * Math.PI) * fix,
-      angle: 5.98,
+      jump: 0,
+      jumpSpeed: 0,
+      speed: 0,
+      turnSpeed: 0,
+      look: 0,
+      lookSpeed: 0,
+      moveDirection: 0,
     },
   };
 
-  const fix = 5;
+  const { tileSize, map } = config.scenario;
 
-  const tiles = config.scenario.tiles;
-  const tileSize = config.scenario.tileSize;
-
-  const scenarioWidth = config.scenario.tilesX * tileSize;
-  const scenarioHeight = config.scenario.tilesY * tileSize;
-
-  const isPlayerCollidingWall = (x: number, y: number) => {
+  /*const isPlayerCollidingWall = (x: number, y: number) => {
     const collision = Collision();
     let isColliding = false;
 
@@ -40,7 +38,7 @@ const Player = (
     new Array(config.scenario.tilesX).fill('').forEach((_, spriteX) => {
       new Array(config.scenario.tilesY).fill('').forEach((_, spriteY) => {
         const mapPosition = spriteY * config.scenario.tilesX + spriteX;
-        const objectId = tiles[mapPosition];
+        const objectId = map[mapPosition];
         const objectTexture: TextureType = textures.get(objectId);
 
         if (!objectTexture) return;
@@ -92,108 +90,89 @@ const Player = (
     });
     return isColliding;
   };
+  */
 
   // Middlwares for setting props
   const setX = (x: number) => {
-    let newX = x;
-
-    // limit player
-    if (newX > scenarioWidth) newX = scenarioWidth;
-    if (newX < 0) newX = 0;
-
-    // Check collision before set
-    const isColliding = isPlayerCollidingWall(newX, props.y);
-
-    if (!isColliding) props.x = newX;
+    props.x = x;
   };
   const setY = (y: number) => {
-    let newY = y;
-
-    // limit player
-    if (newY > scenarioHeight) newY = scenarioHeight;
-    if (newY < 0) newY = 0;
-
-    // Check collision before set
-    const isColliding = isPlayerCollidingWall(props.x, newY);
-
-    if (!isColliding) props.y = newY;
-  };
-  const setAngle = (angle: number) => {
-    props.angle = angle;
-  };
-  const setDeltaX = (x: number) => {
-    props.deltaX = x;
-  };
-  const setDeltaY = (y: number) => {
-    props.deltaY = y;
+    props.y = y;
   };
 
   const get = (prop: string) => {
     return props[prop];
   };
 
-  // Player movements
-  const goFront = () => {
-    const { x, y, deltaX, deltaY, speed } = props;
+  const turn = (turn: number, look: number) => {
+    props.look += look;
+    if (props.look > 1000) props.look = 1000;
+    if (props.look < -1000) props.look = -1000;
 
-    setX(x + speed * deltaX);
-    setY(y + speed * deltaY);
+    props.pod += turn;
+    if (props.pod >= 360) props.pod -= 360;
+    if (props.pod < 0) props.pod += 360;
+  };
+
+  const move = () => {
+    if (props.speed === 0) return;
+    const speedMultiplier = 40;
+
+    const speed = (props.speed * speedMultiplier) / 10;
+    const deviation = props.size / 2;
+    const block = tileSize;
+
+    let newx = props.x + Math.cos((props.pod + props.moveDirection) * (Math.PI / 180)) * speed;
+    let newy = props.y + Math.sin((props.pod + props.moveDirection) * (Math.PI / 180)) * speed;
+
+    // Colission
+    if (
+      !(
+        map[Math.floor((newy + deviation) / block)][Math.floor((newx + deviation) / block)] !==
+          'floor' ||
+        map[Math.floor((newy - deviation) / block)][Math.floor((newx - deviation) / block)] !==
+          'floor' ||
+        map[Math.floor((newy + deviation) / block)][Math.floor((newx - deviation) / block)] !==
+          'floor' ||
+        map[Math.floor((newy - deviation) / block)][Math.floor((newx + deviation) / block)] !==
+          'floor' ||
+        map[Math.floor(newy / block)][Math.floor(newx / block)] !== 'floor'
+      )
+    ) {
+      props.x = newx;
+      props.y = newy;
+    }
+  };
+
+  const goFront = () => {
+    props.speed = 1;
+    props.moveDirection = 0;
+    move();
   };
   const goBack = () => {
-    const { x, y, deltaX, deltaY, speed } = props;
-
-    setX(x - speed * deltaX);
-    setY(y - speed * deltaY);
-  };
-  const turnLeft = () => {
-    const { angle, turnSpeed } = props;
-
-    // Define angle
-    let newAngle = angle - turnSpeed;
-    if (newAngle < 0) newAngle = angle + 2 * Math.PI; // invert
-
-    setAngle(newAngle);
-
-    // Deltas
-    setDeltaX(Math.cos(newAngle) * fix);
-    setDeltaY(Math.sin(newAngle) * fix);
-  };
-  const turnRight = () => {
-    const { angle, turnSpeed } = props;
-
-    // Define angle
-    let newAngle = angle + turnSpeed;
-    if (newAngle > 2 * Math.PI) newAngle = angle - 2 * Math.PI;
-
-    setAngle(newAngle);
-
-    // Deltas
-    setDeltaX(Math.cos(newAngle) * fix);
-    setDeltaY(Math.sin(newAngle) * fix);
+    props.speed = 0.75;
+    props.moveDirection = 180;
+    move();
   };
   const strafeLeft = () => {
-    const { x, y, speed, angle } = props;
-
-    const leftAngle = 90 * (Math.PI / 180);
-    const newAngle = angle - leftAngle;
-
-    const deltaX = Math.cos(newAngle) * fix;
-    const deltaY = Math.sin(newAngle) * fix;
-
-    setX(x + (speed / 2) * deltaX);
-    setY(y + (speed / 2) * deltaY);
+    props.speed = 0.75;
+    props.moveDirection = 270;
+    move();
   };
   const strafeRight = () => {
-    const { x, y, speed, angle } = props;
+    props.speed = 0.75;
+    props.moveDirection = 90;
+    move();
+  };
 
-    const leftAngle = 90 * (Math.PI / 180);
-    const newAngle = angle + leftAngle;
+  const turnRight = () => {
+    props.turnSpeed = 2;
+    turn(props.turnSpeed, 5);
+  };
 
-    const deltaX = Math.cos(newAngle) * fix;
-    const deltaY = Math.sin(newAngle) * fix;
-
-    setX(x + (speed / 2) * deltaX);
-    setY(y + (speed / 2) * deltaY);
+  const turnLeft = () => {
+    props.turnSpeed = -2;
+    turn(props.turnSpeed, 5);
   };
 
   // Actions on key press
@@ -208,60 +187,39 @@ const Player = (
 
   // Render the player
   const render = (keyCodes: any) => {
-    const { x, y, deltaX, deltaY } = props;
-    const { width, color } = config.player;
+    const { x, y, size, look, pod } = props;
+    //const { width, color } = config.player;
     handleKeyUp(keyCodes);
 
     // player body
     //props.canvas.drawRectangle({ x, y, width, height, color });
-    props.minimap.drawElipse({ x, y, radius: width, color });
-    props.debugmap.drawElipse({ x, y, radius: width, color });
+    props.minimap.drawElipse({ x, y, radius: size, color: '#FF0' });
+    props.debugmap.drawElipse({
+      x,
+      y,
+      radius: size,
+      color: '#FF0',
+    });
 
     // player eye direction
     props.minimap.drawLine({
       x,
       y,
-      toX: x + deltaX * fix,
-      toY: y + deltaY * fix,
+      toX: x + look * 5,
+      toY: y + pod * 5,
       color: '#FF0000',
     });
     props.debugmap.drawLine({
       x,
       y,
-      toX: x + deltaX * fix,
-      toY: y + deltaY * fix,
+      toX: x + look * 5,
+      toY: y + pod * 5,
       color: '#FF0000',
     });
   };
 
   // Render everything that needs to render after everything finished render
-  const postRender = () => {
-    const canvasWidth = config.screen.width;
-    const canvasHeight = config.screen.height;
-
-    const centerX = canvasWidth / 2;
-    const centerY = canvasHeight / 2;
-
-    // Player sprite
-    const { gun } = config.player;
-    props.screen.drawImage({
-      x: centerX - gun.width / 2,
-      y: canvasHeight - gun.height,
-      image: gun.image,
-      width: gun.width,
-      height: gun.height,
-    });
-
-    // Player crosshair
-    const { crosshair } = config.player;
-    props.screen.drawImage({
-      x: centerX - crosshair.width / 2,
-      y: centerY - crosshair.height / 2,
-      image: crosshair.image,
-      width: crosshair.width,
-      height: crosshair.height,
-    });
-  };
+  const postRender = () => {};
 
   // Return all public functions
   return {

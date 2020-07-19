@@ -33,8 +33,6 @@ function Textures() {
 
   const get = (id: string) => {
     const r = textures.find((o) => o.id === id);
-
-    // can be string on number
     return r;
   };
 

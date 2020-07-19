@@ -5,7 +5,7 @@ import { ScreenPropType } from './components/Screen/types';
 import { MiniMapPropType } from './components/MiniMap/types';
 import { PlayerPropsType } from './components/Player/types';
 
-import map from './map';
+import { map, mapWidth, mapHeight } from './map';
 
 const fogImage = new Image();
 fogImage.src = 'assets/sky.png';
@@ -23,7 +23,7 @@ const gunImg = new Image();
 gunImg.src = 'assets/gun.gif';
 
 export const game: Types.GameType = {
-  fps: 60,
+  fps: 30,
   depthfOfField: 3000,
   render: {
     wallPixelWidth: 1, // the higher value, the more pixelated the walls will be
@@ -34,9 +34,9 @@ export const game: Types.GameType = {
 
 export const scenario: ScenarioPropType = {
   tileSize: 64,
-  tilesX: 30,
-  tilesY: 10,
-  tiles: map,
+  tilesX: mapWidth,
+  tilesY: mapHeight,
+  map,
   minimap: {
     wall: { color: '#008800' },
     floor: { color: '#707070' },
@@ -69,8 +69,8 @@ export const miniMapSingleRay: MiniMapPropType = {
   opacity: 1,
   width: scenario.tilesX * scenario.tileSize,
   height: scenario.tilesY * scenario.tileSize,
-  relativeWidth: 290,
-  relativeHeight: 317,
+  relativeWidth: 500,
+  relativeHeight: 500,
   x: screen.width - 100,
   y: screen.height - 100,
 };
@@ -88,9 +88,12 @@ export const miniMapAllRays: MiniMapPropType = {
 };
 
 export const player: PlayerPropsType = {
-  x: miniMapAllRays.width / 2 + 100,
-  y: 100,
-  width: scenario.tileSize / 2.5,
+  x: 350,
+  y: 725,
+  pod: 0,
+  fov: 90 * (Math.PI / 180),
+  size: 15,
+  /*width: scenario.tileSize / 2.5,
   height: scenario.tileSize / 2.5,
   color: '#FFFF00',
   speed: 1,
@@ -105,5 +108,5 @@ export const player: PlayerPropsType = {
     image: gunImg,
     width: 200,
     height: 255,
-  },
+  },*/
 };

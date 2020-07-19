@@ -18,7 +18,7 @@ const Scenario = (
     tileSize,
     tilesX,
     tilesY,
-    tiles,
+    map,
     minimap: {
       wall: { color: wallColor },
       floor: { color: floorColor },
@@ -37,18 +37,16 @@ const Scenario = (
   // Tiles
   const renderTiles = () => {
     // Loop tiles
-    new Array(tilesX).fill('').forEach((_, x) => {
-      new Array(tilesY).fill('').forEach((_, y) => {
+    new Array(tilesY).fill('').forEach((_, y) => {
+      new Array(tilesX).fill('').forEach((_, x) => {
         const x0 = x * tileSize;
         const y0 = y * tileSize;
 
         // Define tile color based on tile value (0,1)
-        const tileColor = tiles[y * tilesX + x] !== 'floor' ? wallColor : floorColor;
+        const tileColor = map[y][x] !== 'floor' ? wallColor : floorColor;
 
-        const mapPosition = y * tilesX + x;
-
-        const objectTexture: TextureType = textures.get(tiles[mapPosition]);
-
+        const objectTexture: TextureType = textures.get(map[y][x]);
+        //console.log(objectTexture);
         if (objectTexture) {
           // Minimap
           canvasMiniMap.drawImage({

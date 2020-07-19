@@ -7,6 +7,11 @@ export interface PlayerType {
 export interface PlayerPropsType {
   x: number;
   y: number;
+  pod: number;
+  fov: number;
+  size: number;
+  /*x: number;
+  y: number;
   width: number;
   height: number;
   color: string;
@@ -22,5 +27,5 @@ export interface PlayerPropsType {
     image: HTMLImageElement;
     width: number;
     height: number;
-  };
+  };*/
 }

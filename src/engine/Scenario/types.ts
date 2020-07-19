@@ -8,7 +8,7 @@ export interface ScenarioPropType {
   tileSize: number;
   tilesX: number;
   tilesY: number;
-  tiles: Array<any>;
+  map: Array<Array<string>>;
   minimap: {
     wall: { color: string };
     floor: { color: string };
