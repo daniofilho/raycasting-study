@@ -26,7 +26,8 @@ const actions: actionsGenericType = {
 
 function reducer(state: stateType, action: actionType) {
   const fn = actions[action.type];
-  if (fn) return immer(state, (draftState) => fn(draftState, action));
+  if (fn)
+    return immer(state, (draftState: stateType) => fn(draftState, action));
 
   return state;
 }

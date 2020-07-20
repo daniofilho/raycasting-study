@@ -54,7 +54,7 @@ export interface CanvasType {
   drawRectangle: Function;
   drawLine: Function;
   drawElipse: Function;
-  drawText: Function;
+  drawText(args: drawTextType): Function;
   drawImage: Function;
   get: Function;
   getConfig: Function;

@@ -23,7 +23,7 @@ export default (WrappedComponent: React.FC<HomeType>) => {
     const {
       state: { mapWidth, mapHeight, map },
       actions: { setMap },
-    } = reducer;
+    }: reducerType = reducer;
 
     // # Regras
 
