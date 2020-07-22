@@ -20,8 +20,6 @@ function Textures() {
       textures.push({
         id: key,
         image: img,
-        vertical: rawTextures[key].vertical,
-        horizontal: rawTextures[key].horizontal,
         isWall: rawTextures[key].isWall,
         isObject: rawTextures[key].isObject,
         isCollidable: rawTextures[key].isCollidable,
@@ -33,6 +31,9 @@ function Textures() {
 
   const get = (id: string) => {
     const r = textures.find((o) => o.id === id);
+
+    //if (!r) return textures[0];
+
     return r;
   };
 

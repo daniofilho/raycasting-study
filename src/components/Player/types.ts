@@ -10,14 +10,9 @@ export interface PlayerPropsType {
   pod: number;
   fov: number;
   size: number;
-  /*x: number;
-  y: number;
-  width: number;
-  height: number;
-  color: string;
   speed: number;
   turnSpeed: number;
-  fieldOfView: number;
+  jumpSpeed: number;
   crosshair: {
     image: HTMLImageElement;
     width: number;
@@ -27,5 +22,5 @@ export interface PlayerPropsType {
     image: HTMLImageElement;
     width: number;
     height: number;
-  };*/
+  };
 }

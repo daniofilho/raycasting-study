@@ -7,3 +7,4 @@ window.global = {
 // Start the engine
 const engine = engine_1.default();
 engine.startGame();
+//# sourceMappingURL=main.js.map

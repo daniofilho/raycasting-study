@@ -1,87 +1,53 @@
-// All texture sizes must be equal to Tile size!
+// All texture sizes must be equal to Tile size width and height!
 export default {
+  // # "Walls"
   wall: {
     image: 'assets/walls.png',
-    horizontal: {
-      clipX: 0,
-      clipY: 0,
-    },
-    vertical: {
-      clipX: 64,
-      clipY: 0,
-    },
     isWall: true,
     isObject: false,
     isCollidable: true,
   },
   stone: {
-    image: 'assets/walls.png',
-    horizontal: {
-      clipX: 0,
-      clipY: 128,
-    },
-    vertical: {
-      clipX: 64,
-      clipY: 128,
-    },
+    image: 'assets/stone.png',
     isWall: true,
     isObject: false,
     isCollidable: true,
   },
   jail: {
-    image: 'assets/walls.png',
-    horizontal: {
-      clipX: 0,
-      clipY: 64,
-    },
-    vertical: {
-      clipX: 64,
-      clipY: 64,
-    },
+    image: 'assets/jail.png',
     isWall: true,
     isObject: false,
     isCollidable: true,
   },
   wood: {
-    image: 'assets/walls.png',
-    horizontal: {
-      clipX: 0,
-      clipY: 192,
-    },
-    vertical: {
-      clipX: 64,
-      clipY: 192,
-    },
+    image: 'assets/wood.png',
     isWall: true,
     isObject: false,
     isCollidable: true,
   },
+  // # Objects
   table: {
     image: 'assets/table.png',
-    horizontal: {
-      clipX: 0,
-      clipY: 0,
-    },
-    vertical: {
-      clipX: 0,
-      clipY: 0,
-    },
     isWall: false,
     isObject: true,
     isCollidable: true,
   },
   lamp: {
     image: 'assets/lamp.png',
-    horizontal: {
-      clipX: 0,
-      clipY: 0,
-    },
-    vertical: {
-      clipX: 0,
-      clipY: 0,
-    },
     isWall: false,
     isObject: true,
     isCollidable: false,
+  },
+  pillar: {
+    image: 'assets/pillar.png',
+    isWall: false,
+    isObject: true,
+    isCollidable: true,
+  },
+  barrel: {
+    image: 'assets/barrel.png',
+    isWall: false,
+    isObject: true,
+    isCollidable: true,
   },
 };

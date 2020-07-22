@@ -15,10 +15,12 @@ gunImg.src = 'assets/gun.gif';
 exports.game = {
     fps: 30,
     depthfOfField: 3000,
+    gravity: 1.7,
     render: {
         wallPixelWidth: 1,
         light: 40,
         fogImage,
+        wallHeight: 1100,
     },
 };
 exports.scenario = {
@@ -47,8 +49,8 @@ exports.scenario = {
 exports.screen = {
     canvasID: 'screen',
     backgroundColor: '#333333',
-    width: 300,
-    height: 220,
+    width: 1024,
+    height: 768,
 };
 exports.miniMapSingleRay = {
     canvasID: 'minimap_singleRay',
@@ -56,8 +58,8 @@ exports.miniMapSingleRay = {
     opacity: 1,
     width: exports.scenario.tilesX * exports.scenario.tileSize,
     height: exports.scenario.tilesY * exports.scenario.tileSize,
-    relativeWidth: 500,
-    relativeHeight: 500,
+    relativeWidth: 290,
+    relativeHeight: 317,
     x: exports.screen.width - 100,
     y: exports.screen.height - 100,
 };
@@ -75,7 +77,21 @@ exports.miniMapAllRays = {
 exports.player = {
     x: 350,
     y: 725,
-    pod: 0,
-    fov: 90 * (Math.PI / 180),
-    size: 15,
+    pod: 45,
+    fov: 90,
+    size: exports.scenario.tileSize / 2.5,
+    speed: 10,
+    turnSpeed: 2,
+    jumpSpeed: 6,
+    crosshair: {
+        image: crosshairImg,
+        width: 10,
+        height: 10,
+    },
+    gun: {
+        image: gunImg,
+        width: 200,
+        height: 255,
+    },
 };
+//# sourceMappingURL=config.js.map

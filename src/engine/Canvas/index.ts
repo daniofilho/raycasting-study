@@ -28,8 +28,8 @@ class Canvas {
     return this.canvas[prop];
   };
 
-  getConfig = () => {
-    return this.config;
+  getConfig = (prop: string) => {
+    return this.config[prop];
   };
 
   getContext = () => {

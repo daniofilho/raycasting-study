@@ -24,151 +24,146 @@ const config = require("../../config");
 const Player = (minimap, debugmap, screen, textures) => {
     // Constructor
     const props = Object.assign(Object.assign({}, config.player), {
+        fov: config.player.fov * (Math.PI / 180),
+        // canvas
         minimap,
         debugmap,
         screen,
+        // jump props
+        isJumping: false,
         jump: 0,
-        jumpSpeed: 0,
-        speed: 0,
-        turnSpeed: 0,
+        jumpVelocity: 0,
+        // crouch props
+        isCrouching: false,
+        // look props
         look: 0,
-        lookSpeed: 0,
         moveDirection: 0,
+        deltaX: Math.cos(config.player.pod * (Math.PI / 180)),
+        deltaY: Math.sin(config.player.pod * (Math.PI / 180)),
     });
     const { tileSize, map } = config.scenario;
-    /*const isPlayerCollidingWall = (x: number, y: number) => {
-      const collision = Collision();
-      let isColliding = false;
-  
-      // Check collision against all objects
-      new Array(config.scenario.tilesX).fill('').forEach((_, spriteX) => {
-        new Array(config.scenario.tilesY).fill('').forEach((_, spriteY) => {
-          const mapPosition = spriteY * config.scenario.tilesX + spriteX;
-          const objectId = map[mapPosition];
-          const objectTexture: TextureType = textures.get(objectId);
-  
-          if (!objectTexture) return;
-          if (!objectTexture.isCollidable) return;
-  
-          // Check Tile on position
-          const mapX = spriteX * tileSize;
-          const mapY = spriteY * tileSize;
-  
-          const collisionX = x - props.width / 2;
-          const collisionY = y - props.height / 2;
-  
-          const collided = collision.check({
-            object: {
-              x: collisionX,
-              y: collisionY,
-              width: props.width,
-              height: props.height,
-            },
-            target: {
-              x: mapX,
-              y: mapY,
-              width: tileSize,
-              height: tileSize,
-            },
-          });
-  
-          if (collided) {
-            isColliding = collided;
-            return true; // end loop
-          }
-  
-          // Debug information
-          debugmap.drawRectangle({
-            x: collisionX,
-            y: collisionY,
-            width: props.width,
-            height: props.height,
-            color: 'rgba(0,0,200, 0.5)',
-          });
-          debugmap.drawRectangle({
-            x: mapX,
-            y: mapY,
-            width: tileSize,
-            height: tileSize,
-            color: 'rgba(255,100,100,0.5)',
-          });
+    const isPlayerCollidingWall = (x, y) => {
+        const deviation = props.size / 2;
+        const block = tileSize;
+        if (!(map[Math.floor((y + deviation) / block)][Math.floor((x + deviation) / block)] !== 'floor' ||
+            map[Math.floor((y - deviation) / block)][Math.floor((x - deviation) / block)] !== 'floor' ||
+            map[Math.floor((y + deviation) / block)][Math.floor((x - deviation) / block)] !== 'floor' ||
+            map[Math.floor((y - deviation) / block)][Math.floor((x + deviation) / block)] !== 'floor' ||
+            map[Math.floor(y / block)][Math.floor(x / block)] !== 'floor')) {
+            return false;
+        }
+        // Debug information
+        /*debugmap.drawRectangle({
+          x: collisionX,
+          y: collisionY,
+          width: props.width,
+          height: props.height,
+          color: 'rgba(0,0,200, 0.5)',
         });
-      });
-      return isColliding;
+        debugmap.drawRectangle({
+          x: mapX,
+          y: mapY,
+          width: tileSize,
+          height: tileSize,
+          color: 'rgba(255,100,100,0.5)',
+        });*/
+        return true;
     };
-    */
     // Middlwares for setting props
     const setX = (x) => {
-        props.x = x;
+        if (!isPlayerCollidingWall(x, props.y))
+            props.x = x;
     };
     const setY = (y) => {
-        props.y = y;
+        if (!isPlayerCollidingWall(props.x, y))
+            props.y = y;
     };
     const get = (prop) => {
         return props[prop];
     };
-    const turn = (turn, look) => {
-        props.look += look;
-        if (props.look > 1000)
-            props.look = 1000;
-        if (props.look < -1000)
-            props.look = -1000;
-        props.pod += turn;
+    // # Movement
+    const turn = (direction) => {
+        props.pod += props.turnSpeed * direction;
         if (props.pod >= 360)
             props.pod -= 360;
         if (props.pod < 0)
             props.pod += 360;
+        props.deltaX = Math.cos(props.pod * (Math.PI / 180));
+        props.deltaY = Math.sin(props.pod * (Math.PI / 180));
     };
-    const move = () => {
-        if (props.speed === 0)
-            return;
-        const speedMultiplier = 40;
-        const speed = (props.speed * speedMultiplier) / 10;
-        const deviation = props.size / 2;
-        const block = tileSize;
-        let newx = props.x + Math.cos((props.pod + props.moveDirection) * (Math.PI / 180)) * speed;
-        let newy = props.y + Math.sin((props.pod + props.moveDirection) * (Math.PI / 180)) * speed;
+    const look = (direction) => {
+        props.look += props.turnSpeed * direction * 3;
+        if (props.look > 80)
+            props.look = 80;
+        if (props.look < -80)
+            props.look = -80;
+    };
+    const move = (_speed) => {
+        const speed = _speed * props.speed;
+        let newX = props.x + Math.cos((props.pod + props.moveDirection) * (Math.PI / 180)) * speed;
+        let newY = props.y + Math.sin((props.pod + props.moveDirection) * (Math.PI / 180)) * speed;
         // Colission
-        if (!(map[Math.floor((newy + deviation) / block)][Math.floor((newx + deviation) / block)] !==
-            'floor' ||
-            map[Math.floor((newy - deviation) / block)][Math.floor((newx - deviation) / block)] !==
-                'floor' ||
-            map[Math.floor((newy + deviation) / block)][Math.floor((newx - deviation) / block)] !==
-                'floor' ||
-            map[Math.floor((newy - deviation) / block)][Math.floor((newx + deviation) / block)] !==
-                'floor' ||
-            map[Math.floor(newy / block)][Math.floor(newx / block)] !== 'floor')) {
-            props.x = newx;
-            props.y = newy;
-        }
+        setX(newX);
+        setY(newY);
     };
+    // # Walk
     const goFront = () => {
-        props.speed = 1;
         props.moveDirection = 0;
-        move();
+        move(1);
     };
     const goBack = () => {
-        props.speed = 0.75;
         props.moveDirection = 180;
-        move();
+        move(0.75);
     };
+    // # Strafe
     const strafeLeft = () => {
-        props.speed = 0.75;
         props.moveDirection = 270;
-        move();
+        move(0.75);
     };
     const strafeRight = () => {
-        props.speed = 0.75;
         props.moveDirection = 90;
-        move();
+        move(0.75);
     };
+    // # Turn
     const turnRight = () => {
-        props.turnSpeed = 2;
-        turn(props.turnSpeed, 5);
+        turn(1);
     };
     const turnLeft = () => {
-        props.turnSpeed = -2;
-        turn(props.turnSpeed, 5);
+        turn(-1);
+    };
+    // # Look
+    const lookUp = () => {
+        look(1);
+    };
+    const lookDown = () => {
+        look(-1);
+    };
+    // # Jump
+    const jump = () => {
+        if (props.isJumping)
+            return;
+        props.isJumping = true;
+        props.jumpVelocity = props.jumpSpeed;
+    };
+    const applyGravity = () => {
+        props.jump += props.jumpVelocity;
+        props.jumpVelocity -= config.game.gravity;
+        // Limit player on ground
+        if (props.jump <= 0 && props.isJumping) {
+            props.isJumping = false;
+            props.jump = 0;
+        }
+    };
+    // # Crouch
+    const crouch = () => {
+        if (props.isJumping)
+            return;
+        if (props.isCrouching) {
+            props.jump = -20;
+        }
+        else {
+            props.jump = 0;
+        }
     };
     // Actions on key press
     const handleKeyUp = (keyCodes) => {
@@ -184,35 +179,36 @@ const Player = (minimap, debugmap, screen, textures) => {
             strafeLeft(); // A
         if (keyCodes[68])
             strafeRight(); // D
+        if (keyCodes[69])
+            lookUp(); // E
+        if (keyCodes[67])
+            lookDown(); // C
+        if (keyCodes[32])
+            jump(); // Space
+        // Toggle Crouch if Z is pressed
+        props.isCrouching = keyCodes[90] ? true : false;
     };
     // Render the player
     const render = (keyCodes) => {
-        const { x, y, size, look, pod } = props;
-        //const { width, color } = config.player;
+        const { x, y, size, deltaX, deltaY } = props;
         handleKeyUp(keyCodes);
+        applyGravity();
+        crouch();
         // player body
-        //props.canvas.drawRectangle({ x, y, width, height, color });
-        props.minimap.drawElipse({ x, y, radius: size, color: '#FF0' });
+        props.minimap.drawElipse({ x, y, radius: size, color: '#BBFF00' });
         props.debugmap.drawElipse({
             x,
             y,
             radius: size,
-            color: '#FF0',
+            color: '#BBFF00',
         });
-        // player eye direction
-        props.minimap.drawLine({
-            x,
-            y,
-            toX: x + look * 5,
-            toY: y + pod * 5,
-            color: '#FF0000',
-        });
+        // player eye direction - single ray debug
         props.debugmap.drawLine({
             x,
             y,
-            toX: x + look * 5,
-            toY: y + pod * 5,
-            color: '#FF0000',
+            toX: x + deltaX * config.screen.width,
+            toY: y + deltaY * config.screen.height,
+            color: '#BBFF00',
         });
     };
     // Render everything that needs to render after everything finished render
@@ -260,8 +256,6 @@ function Textures() {
             textures.push({
                 id: key,
                 image: img,
-                vertical: textures_1.default[key].vertical,
-                horizontal: textures_1.default[key].horizontal,
                 isWall: textures_1.default[key].isWall,
                 isObject: textures_1.default[key].isObject,
                 isCollidable: textures_1.default[key].isCollidable,
@@ -272,6 +266,7 @@ function Textures() {
     preload();
     const get = (id) => {
         const r = textures.find((o) => o.id === id);
+        //if (!r) return textures[0];
         return r;
     };
     return { get };
@@ -281,91 +276,57 @@ exports.default = Textures;
 },{"../../engine/Sprite":10,"./textures":5}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-// All texture sizes must be equal to Tile size!
+// All texture sizes must be equal to Tile size width and height!
 exports.default = {
+    // # "Walls"
     wall: {
         image: 'assets/walls.png',
-        horizontal: {
-            clipX: 0,
-            clipY: 0,
-        },
-        vertical: {
-            clipX: 64,
-            clipY: 0,
-        },
         isWall: true,
         isObject: false,
         isCollidable: true,
     },
     stone: {
-        image: 'assets/walls.png',
-        horizontal: {
-            clipX: 0,
-            clipY: 128,
-        },
-        vertical: {
-            clipX: 64,
-            clipY: 128,
-        },
+        image: 'assets/stone.png',
         isWall: true,
         isObject: false,
         isCollidable: true,
     },
     jail: {
-        image: 'assets/walls.png',
-        horizontal: {
-            clipX: 0,
-            clipY: 64,
-        },
-        vertical: {
-            clipX: 64,
-            clipY: 64,
-        },
+        image: 'assets/jail.png',
         isWall: true,
         isObject: false,
         isCollidable: true,
     },
     wood: {
-        image: 'assets/walls.png',
-        horizontal: {
-            clipX: 0,
-            clipY: 192,
-        },
-        vertical: {
-            clipX: 64,
-            clipY: 192,
-        },
+        image: 'assets/wood.png',
         isWall: true,
         isObject: false,
         isCollidable: true,
     },
+    // # Objects
     table: {
         image: 'assets/table.png',
-        horizontal: {
-            clipX: 0,
-            clipY: 0,
-        },
-        vertical: {
-            clipX: 0,
-            clipY: 0,
-        },
         isWall: false,
         isObject: true,
         isCollidable: true,
     },
     lamp: {
         image: 'assets/lamp.png',
-        horizontal: {
-            clipX: 0,
-            clipY: 0,
-        },
-        vertical: {
-            clipX: 0,
-            clipY: 0,
-        },
         isWall: false,
         isObject: true,
         isCollidable: false,
+    },
+    pillar: {
+        image: 'assets/pillar.png',
+        isWall: false,
+        isObject: true,
+        isCollidable: true,
+    },
+    barrel: {
+        image: 'assets/barrel.png',
+        isWall: false,
+        isObject: true,
+        isCollidable: true,
     },
 };
 
@@ -387,10 +348,12 @@ gunImg.src = 'assets/gun.gif';
 exports.game = {
     fps: 30,
     depthfOfField: 3000,
+    gravity: 1.7,
     render: {
         wallPixelWidth: 1,
         light: 40,
         fogImage,
+        wallHeight: 1100,
     },
 };
 exports.scenario = {
@@ -419,8 +382,8 @@ exports.scenario = {
 exports.screen = {
     canvasID: 'screen',
     backgroundColor: '#333333',
-    width: 300,
-    height: 220,
+    width: 1024,
+    height: 768,
 };
 exports.miniMapSingleRay = {
     canvasID: 'minimap_singleRay',
@@ -428,8 +391,8 @@ exports.miniMapSingleRay = {
     opacity: 1,
     width: exports.scenario.tilesX * exports.scenario.tileSize,
     height: exports.scenario.tilesY * exports.scenario.tileSize,
-    relativeWidth: 500,
-    relativeHeight: 500,
+    relativeWidth: 290,
+    relativeHeight: 317,
     x: exports.screen.width - 100,
     y: exports.screen.height - 100,
 };
@@ -447,9 +410,22 @@ exports.miniMapAllRays = {
 exports.player = {
     x: 350,
     y: 725,
-    pod: 0,
-    fov: 90 * (Math.PI / 180),
-    size: 15,
+    pod: 45,
+    fov: 90,
+    size: exports.scenario.tileSize / 2.5,
+    speed: 10,
+    turnSpeed: 2,
+    jumpSpeed: 6,
+    crosshair: {
+        image: crosshairImg,
+        width: 10,
+        height: 10,
+    },
+    gun: {
+        image: gunImg,
+        width: 200,
+        height: 255,
+    },
 };
 
 },{"./map":14}],7:[function(require,module,exports){
@@ -464,8 +440,8 @@ class Canvas {
         this.get = (prop) => {
             return this.canvas[prop];
         };
-        this.getConfig = () => {
-            return this.config;
+        this.getConfig = (prop) => {
+            return this.config[prop];
         };
         this.getContext = () => {
             return this.context;
@@ -548,102 +524,143 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
         resolution: 1,
         podDistance: 0,
     };
-    const canvasWidth = canvasScreen.getConfig().width;
-    const canvasHeight = canvasScreen.getConfig().height;
+    const canvasWidth = canvasScreen.getConfig('width');
+    const canvasHeight = canvasScreen.getConfig('height');
+    // # Wall - - - - - - - - - - - - - - - - - - - - - - - -
     const renderWall = (x, wall) => {
-        let size = 1200 / wall.distance;
+        // Wall props
+        let size = config.game.render.wallHeight / wall.distance;
         let texture = textures.get(wall.texture);
-        let textureX = Math.floor((texture.width / 50) * wall.textureX);
+        let textureX = Math.floor((tileSize / tileSize) * wall.textureX);
+        // Check if player is jumping and adjust wall Y
         let jump = (player.get('jump') * 10) / wall.distance;
         let y = canvasHeight / 2 - size / 2 + player.get('look') + jump;
+        // Draw
         canvasScreen.drawImage({
             image: texture.image,
             clipX: textureX,
             clipY: 0,
             clipWidth: 1,
-            clipHeight: texture.height,
+            clipHeight: tileSize,
             x,
             y,
             width: 1,
             height: size,
         });
-        /*if (wall.shadow) {
-          ctx.fillStyle = this.texture.colors.shadow;
-          ctx.globalAlpha = 0.4;
-          ctx.fillRect(x, y, 1, size);
-          ctx.globalAlpha = 1;
-        }*/
+        // Shadow
+        if (wall.shadow) {
+            canvasScreen.drawRectangle({
+                x,
+                y,
+                width: 1,
+                height: size,
+                color: 'rgba(0,0,0,0.4)',
+            });
+        }
+        // "light"
+        const alpha = 0.2; // @ TODO: make shadow opacity on every wall acoording to distance
+        canvasScreen.drawRectangle({
+            x,
+            y,
+            width: 1,
+            height: size,
+            color: `rgba(0,0,0,${alpha})`,
+        });
         //this.renderGround(x, y + size);
     };
     const castWall = (angle) => {
+        // Angle correction
         const PI2 = Math.PI * 2;
         angle %= PI2;
         if (angle < 0) {
             angle += PI2;
         }
+        // Initial values
         const { tilesX, tilesY, map } = config.scenario;
         const playerX = player.get('x');
         const playerY = player.get('y');
-        const right = angle > PI2 * 0.75 || angle < PI2 * 0.25;
-        const up = angle < 0 || angle > Math.PI;
         const sin = Math.sin(angle);
         const cos = Math.cos(angle);
-        const px = playerX / 50;
-        const py = playerY / 50;
+        const px = playerX / tileSize; // Fix camera position
+        const py = playerY / tileSize;
+        // Ray Facing diretion
+        const rayFacingRight = angle > PI2 * 0.75 || angle < PI2 * 0.25;
+        const rayFacingUp = angle < 0 || angle > Math.PI;
+        // Define mutable variables
         let shadow = false;
+        let rayDirection = 'vertical';
         let dist = 0;
         let textureX;
         let texture;
+        //#  Vertical Ray ------
+        // Camera slope
         let slope = sin / cos;
-        let dXVer = right ? 1 : -1;
-        let dYVer = dXVer * slope;
-        let x = right ? Math.ceil(px) : Math.floor(px);
-        let y = py + (x - px) * slope;
-        // Horizontal Ray
-        while (x >= 0 && x < tilesX && y >= 0 && y < tilesY) {
-            let wallX = Math.floor(x + (right ? 0 : -1));
-            let wallY = Math.floor(y);
+        let nextVerticalX = rayFacingRight ? 1 : -1;
+        let nextVerticalY = nextVerticalX * slope;
+        let verX = rayFacingRight ? Math.ceil(px) : Math.floor(px);
+        let verY = py + (verX - px) * slope;
+        // Loop all map tiles
+        while (verX >= 0 && verX < tilesX && verY >= 0 && verY < tilesY) {
+            let wallX = Math.floor(verX + (rayFacingRight ? 0 : -1));
+            let wallY = Math.floor(verY);
+            // Hitted a floor?
+            // @TODO change floor and make based on object "isWall"
             if (map[wallY][wallX] !== 'floor') {
-                dist = Math.sqrt(Math.pow(x - px, 2) + Math.pow(y - py, 2));
+                // Calculate distance from camera to ray
+                dist = Math.sqrt(Math.pow(verX - px, 2) + Math.pow(verY - py, 2));
+                // Define Texture props
                 texture = map[wallY][wallX];
-                textureX = (y * 50) % 50;
-                if (!right) {
-                    textureX = 50 - textureX;
-                    shadow = true;
-                }
+                textureX = (verY * tileSize) % tileSize;
                 break;
             }
-            x += dXVer;
-            y += dYVer;
+            // Didn't hit, try next ray (this is the key for algorithm speed)
+            verX += nextVerticalX;
+            verY += nextVerticalY;
         }
+        //#  Horizontal Ray ------
         slope = cos / sin;
-        let dYHor = up ? -1 : 1;
-        let dXHor = dYHor * slope;
-        y = up ? Math.floor(py) : Math.ceil(py);
-        x = px + (y - py) * slope;
+        let nextHorizontalY = rayFacingUp ? -1 : 1;
+        let nextHorizontalX = nextHorizontalY * slope;
+        let horY = rayFacingUp ? Math.floor(py) : Math.ceil(py);
+        let horX = px + (horY - py) * slope;
         // Vertical Ray
-        while (x >= 0 && x < tilesX && y >= 0 && y < tilesY) {
-            let wallY = Math.floor(y + (up ? -1 : 0));
-            let wallX = Math.floor(x);
+        while (horX >= 0 && horX < tilesX && horY >= 0 && horY < tilesY) {
+            let wallY = Math.floor(horY + (rayFacingUp ? -1 : 0));
+            let wallX = Math.floor(horX);
             if (map[wallY][wallX] !== 'floor') {
-                let distHor = Math.sqrt(Math.pow(x - px, 2) + Math.pow(y - py, 2));
-                if (dist === 0 || distHor < dist) {
+                let distanceHorizontal = Math.sqrt(Math.pow(horX - px, 2) + Math.pow(horY - py, 2));
+                // Only calc this if Vertical distance is higher than horizontal
+                if (dist === 0 || distanceHorizontal < dist) {
                     shadow = true;
-                    dist = distHor;
+                    dist = distanceHorizontal;
                     texture = map[wallY][wallX];
-                    textureX = (x * 50) % 50;
-                    if (!up) {
-                        shadow = false;
-                        //textureX = 50 - textureX;
-                    }
+                    textureX = (horX * tileSize) % tileSize;
+                    rayDirection = 'horizontal';
                 }
                 break;
             }
-            x += dXHor;
-            y += dYHor;
+            horX += nextHorizontalX;
+            horY += nextHorizontalY;
         }
+        // Store ray distance
         props.zIndex.push(dist);
+        // Fix distance to avoid fish eye effect
         dist *= Math.cos(player.get('pod') * (Math.PI / 180) - angle);
+        // Set shadow according to ray direction
+        shadow = rayDirection === 'horizontal';
+        // Debug ray
+        let toX = rayDirection === 'vertical' ? verX : horX;
+        toX *= tileSize;
+        let toY = rayDirection === 'vertical' ? verY : horY;
+        toY *= tileSize;
+        canvasMinimap.drawLine({
+            x: playerX,
+            y: playerY,
+            toX: toX,
+            toY: toY,
+            color: '#BBFF00',
+        });
+        // Return Ray props
         return {
             distance: dist,
             texture: texture,
@@ -654,7 +671,9 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
     const renderWalls = () => {
         props.zIndex = [];
         const pod = player.get('pod');
+        // Set base resolution according to canvas width
         let resolution = Math.ceil(canvasWidth / props.resolution);
+        // For each resolution, cast a wall
         for (let x = 0; x < resolution; x++) {
             let viewDist = canvasWidth / props.resolution / Math.tan(props.fov / 2);
             let rayx = (-resolution / 2 + x) * props.resolution;
@@ -667,6 +686,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             renderWall(x, wall);
         }
     };
+    // - - - - - - - - - - - - - - - - - - - - - - - -
     // Render everything
     const render = () => {
         renderWalls();
@@ -694,7 +714,6 @@ const Scenario = (player, canvasMiniMap, canvasMiniMapDebug, canvasScreen, confi
                 // Define tile color based on tile value (0,1)
                 const tileColor = map[y][x] !== 'floor' ? wallColor : floorColor;
                 const objectTexture = textures.get(map[y][x]);
-                //console.log(objectTexture);
                 if (objectTexture) {
                     // Minimap
                     canvasMiniMap.drawImage({
@@ -703,8 +722,8 @@ const Scenario = (player, canvasMiniMap, canvasMiniMapDebug, canvasScreen, confi
                         y: y0,
                         width: tileSize,
                         height: tileSize,
-                        clipX: objectTexture.horizontal.clipX,
-                        clipY: objectTexture.horizontal.clipY,
+                        clipX: 0,
+                        clipY: 0,
                         clipWidth: tileSize,
                         clipHeight: tileSize,
                     });
@@ -714,8 +733,8 @@ const Scenario = (player, canvasMiniMap, canvasMiniMapDebug, canvasScreen, confi
                         y: y0,
                         width: tileSize,
                         height: tileSize,
-                        clipX: objectTexture.horizontal.clipX,
-                        clipY: objectTexture.horizontal.clipY,
+                        clipX: 0,
+                        clipY: 0,
                         clipWidth: tileSize,
                         clipHeight: tileSize,
                     });
@@ -994,30 +1013,30 @@ exports.mapHeight = exports.mapWidth = exports.map = void 0;
 //https://onlinetexttools.com/convert-text-to-nice-columns <= beautify this array - Right-align columns
 // prettier-ignore
 const map = [
-    ['wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall'],
-    ['wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'stone', 'stone', 'stone', 'stone', 'stone', 'floor', 'floor', 'floor', 'floor', 'wood', 'floor', 'wood', 'floor', 'wood', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'stone', 'floor', 'floor', 'floor', 'stone', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'stone', 'floor', 'floor', 'floor', 'stone', 'floor', 'floor', 'floor', 'floor', 'wood', 'floor', 'floor', 'floor', 'wood', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'stone', 'floor', 'floor', 'floor', 'stone', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'stone', 'stone', 'floor', 'stone', 'stone', 'floor', 'floor', 'floor', 'floor', 'wood', 'floor', 'wood', 'floor', 'wood', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'jail', 'jail', 'jail', 'jail', 'jail', 'jail', 'jail', 'jail', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'jail', 'floor', 'jail', 'floor', 'floor', 'floor', 'floor', 'jail', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'jail', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'jail', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'jail', 'floor', 'jail', 'floor', 'floor', 'floor', 'floor', 'jail', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'jail', 'floor', 'jail', 'jail', 'jail', 'jail', 'jail', 'jail', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'jail', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'jail', 'jail', 'jail', 'jail', 'jail', 'jail', 'jail', 'jail', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
-    ['wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall']
+    ['stone', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall'],
+    ['stone', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'floor', 'floor', 'floor', 'floor', 'floor', 'stone', 'stone', 'stone', 'stone', 'stone', 'floor', 'floor', 'floor', 'floor', 'wood', 'floor', 'wood', 'floor', 'wood', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'floor', 'floor', 'floor', 'floor', 'floor', 'stone', 'floor', 'floor', 'floor', 'stone', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'floor', 'floor', 'floor', 'floor', 'floor', 'stone', 'floor', 'floor', 'floor', 'stone', 'floor', 'floor', 'floor', 'floor', 'wood', 'floor', 'floor', 'floor', 'wood', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'floor', 'floor', 'floor', 'floor', 'floor', 'stone', 'floor', 'floor', 'floor', 'stone', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'floor', 'floor', 'floor', 'floor', 'floor', 'stone', 'stone', 'floor', 'stone', 'stone', 'floor', 'floor', 'floor', 'floor', 'wood', 'floor', 'wood', 'floor', 'wood', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'jail', 'jail', 'jail', 'jail', 'jail', 'jail', 'jail', 'jail', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'jail', 'floor', 'jail', 'floor', 'floor', 'floor', 'floor', 'jail', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'jail', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'jail', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'jail', 'floor', 'jail', 'floor', 'floor', 'floor', 'floor', 'jail', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'jail', 'floor', 'jail', 'jail', 'jail', 'jail', 'jail', 'jail', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'jail', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'jail', 'jail', 'jail', 'jail', 'jail', 'jail', 'jail', 'jail', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'floor', 'wall'],
+    ['stone', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall']
 ];
 exports.map = map;
 const mapWidth = map[0].length;

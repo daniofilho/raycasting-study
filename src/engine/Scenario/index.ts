@@ -46,7 +46,7 @@ const Scenario = (
         const tileColor = map[y][x] !== 'floor' ? wallColor : floorColor;
 
         const objectTexture: TextureType = textures.get(map[y][x]);
-        //console.log(objectTexture);
+
         if (objectTexture) {
           // Minimap
           canvasMiniMap.drawImage({
@@ -55,8 +55,8 @@ const Scenario = (
             y: y0,
             width: tileSize,
             height: tileSize,
-            clipX: objectTexture.horizontal.clipX,
-            clipY: objectTexture.horizontal.clipY,
+            clipX: 0,
+            clipY: 0,
             clipWidth: tileSize,
             clipHeight: tileSize,
           });
@@ -66,8 +66,8 @@ const Scenario = (
             y: y0,
             width: tileSize,
             height: tileSize,
-            clipX: objectTexture.horizontal.clipX,
-            clipY: objectTexture.horizontal.clipY,
+            clipX: 0,
+            clipY: 0,
             clipWidth: tileSize,
             clipHeight: tileSize,
           });

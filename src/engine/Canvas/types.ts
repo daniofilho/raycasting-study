@@ -51,14 +51,14 @@ export interface CanvasPropType {
 
 export interface CanvasType {
   reset: Function;
-  drawRectangle: Function;
-  drawLine: Function;
-  drawElipse: Function;
-  drawText: Function;
-  drawImage: Function;
-  get: Function;
-  getConfig: Function;
   getContext: Function;
-  createLineGradient: Function;
-  createPattern: Function;
+  drawRectangle(args: drawRectangleType): Function;
+  drawLine(args: drawLineType): Function;
+  drawElipse(args: drawElipseType): Function;
+  drawText(args: drawTextType): Function;
+  drawImage(args: drawImageType): Function;
+  get(prop: string): any;
+  getConfig(prop: string): any;
+  createLineGradient(color1: string, color2: string): Function;
+  createPattern(img: HTMLImageElement): Function;
 }

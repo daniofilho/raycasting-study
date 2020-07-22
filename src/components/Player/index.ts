@@ -15,164 +15,162 @@ const Player = (
   const props = {
     ...config.player,
     ...{
+      fov: config.player.fov * (Math.PI / 180),
+      // canvas
       minimap,
       debugmap,
       screen,
-      jump: 0,
-      jumpSpeed: 0,
-      speed: 0,
-      turnSpeed: 0,
+      // jump props
+      isJumping: false,
+      jump: 0, // controls player position relative to floor
+      jumpVelocity: 0,
+      // crouch props
+      isCrouching: false,
+      // look props
       look: 0,
-      lookSpeed: 0,
       moveDirection: 0,
+      deltaX: Math.cos(config.player.pod * (Math.PI / 180)),
+      deltaY: Math.sin(config.player.pod * (Math.PI / 180)),
     },
   };
 
   const { tileSize, map } = config.scenario;
 
-  /*const isPlayerCollidingWall = (x: number, y: number) => {
-    const collision = Collision();
-    let isColliding = false;
+  const isPlayerCollidingWall = (x: number, y: number) => {
+    const deviation = props.size / 2;
+    const block = tileSize;
 
-    // Check collision against all objects
-    new Array(config.scenario.tilesX).fill('').forEach((_, spriteX) => {
-      new Array(config.scenario.tilesY).fill('').forEach((_, spriteY) => {
-        const mapPosition = spriteY * config.scenario.tilesX + spriteX;
-        const objectId = map[mapPosition];
-        const objectTexture: TextureType = textures.get(objectId);
+    if (
+      !(
+        map[Math.floor((y + deviation) / block)][Math.floor((x + deviation) / block)] !== 'floor' ||
+        map[Math.floor((y - deviation) / block)][Math.floor((x - deviation) / block)] !== 'floor' ||
+        map[Math.floor((y + deviation) / block)][Math.floor((x - deviation) / block)] !== 'floor' ||
+        map[Math.floor((y - deviation) / block)][Math.floor((x + deviation) / block)] !== 'floor' ||
+        map[Math.floor(y / block)][Math.floor(x / block)] !== 'floor'
+      )
+    ) {
+      return false;
+    }
 
-        if (!objectTexture) return;
-        if (!objectTexture.isCollidable) return;
-
-        // Check Tile on position
-        const mapX = spriteX * tileSize;
-        const mapY = spriteY * tileSize;
-
-        const collisionX = x - props.width / 2;
-        const collisionY = y - props.height / 2;
-
-        const collided = collision.check({
-          object: {
-            x: collisionX,
-            y: collisionY,
-            width: props.width,
-            height: props.height,
-          },
-          target: {
-            x: mapX,
-            y: mapY,
-            width: tileSize,
-            height: tileSize,
-          },
-        });
-
-        if (collided) {
-          isColliding = collided;
-          return true; // end loop
-        }
-
-        // Debug information
-        debugmap.drawRectangle({
-          x: collisionX,
-          y: collisionY,
-          width: props.width,
-          height: props.height,
-          color: 'rgba(0,0,200, 0.5)',
-        });
-        debugmap.drawRectangle({
-          x: mapX,
-          y: mapY,
-          width: tileSize,
-          height: tileSize,
-          color: 'rgba(255,100,100,0.5)',
-        });
-      });
+    // Debug information
+    /*debugmap.drawRectangle({
+      x: collisionX,
+      y: collisionY,
+      width: props.width,
+      height: props.height,
+      color: 'rgba(0,0,200, 0.5)',
     });
-    return isColliding;
+    debugmap.drawRectangle({
+      x: mapX,
+      y: mapY,
+      width: tileSize,
+      height: tileSize,
+      color: 'rgba(255,100,100,0.5)',
+    });*/
+    return true;
   };
-  */
 
   // Middlwares for setting props
   const setX = (x: number) => {
-    props.x = x;
+    if (!isPlayerCollidingWall(x, props.y)) props.x = x;
   };
   const setY = (y: number) => {
-    props.y = y;
+    if (!isPlayerCollidingWall(props.x, y)) props.y = y;
   };
 
   const get = (prop: string) => {
     return props[prop];
   };
 
-  const turn = (turn: number, look: number) => {
-    props.look += look;
-    if (props.look > 1000) props.look = 1000;
-    if (props.look < -1000) props.look = -1000;
-
-    props.pod += turn;
+  // # Movement
+  const turn = (direction: number) => {
+    props.pod += props.turnSpeed * direction;
     if (props.pod >= 360) props.pod -= 360;
     if (props.pod < 0) props.pod += 360;
+
+    props.deltaX = Math.cos(props.pod * (Math.PI / 180));
+    props.deltaY = Math.sin(props.pod * (Math.PI / 180));
   };
 
-  const move = () => {
-    if (props.speed === 0) return;
-    const speedMultiplier = 40;
+  const look = (direction: number) => {
+    props.look += props.turnSpeed * direction * 3;
+    if (props.look > 80) props.look = 80;
+    if (props.look < -80) props.look = -80;
+  };
 
-    const speed = (props.speed * speedMultiplier) / 10;
-    const deviation = props.size / 2;
-    const block = tileSize;
+  const move = (_speed: number) => {
+    const speed = _speed * props.speed;
 
-    let newx = props.x + Math.cos((props.pod + props.moveDirection) * (Math.PI / 180)) * speed;
-    let newy = props.y + Math.sin((props.pod + props.moveDirection) * (Math.PI / 180)) * speed;
+    let newX = props.x + Math.cos((props.pod + props.moveDirection) * (Math.PI / 180)) * speed;
+    let newY = props.y + Math.sin((props.pod + props.moveDirection) * (Math.PI / 180)) * speed;
 
     // Colission
-    if (
-      !(
-        map[Math.floor((newy + deviation) / block)][Math.floor((newx + deviation) / block)] !==
-          'floor' ||
-        map[Math.floor((newy - deviation) / block)][Math.floor((newx - deviation) / block)] !==
-          'floor' ||
-        map[Math.floor((newy + deviation) / block)][Math.floor((newx - deviation) / block)] !==
-          'floor' ||
-        map[Math.floor((newy - deviation) / block)][Math.floor((newx + deviation) / block)] !==
-          'floor' ||
-        map[Math.floor(newy / block)][Math.floor(newx / block)] !== 'floor'
-      )
-    ) {
-      props.x = newx;
-      props.y = newy;
+    setX(newX);
+    setY(newY);
+  };
+
+  // # Walk
+  const goFront = () => {
+    props.moveDirection = 0;
+    move(1);
+  };
+  const goBack = () => {
+    props.moveDirection = 180;
+    move(0.75);
+  };
+
+  // # Strafe
+  const strafeLeft = () => {
+    props.moveDirection = 270;
+    move(0.75);
+  };
+  const strafeRight = () => {
+    props.moveDirection = 90;
+    move(0.75);
+  };
+
+  // # Turn
+  const turnRight = () => {
+    turn(1);
+  };
+  const turnLeft = () => {
+    turn(-1);
+  };
+
+  // # Look
+  const lookUp = () => {
+    look(1);
+  };
+  const lookDown = () => {
+    look(-1);
+  };
+
+  // # Jump
+  const jump = () => {
+    if (props.isJumping) return;
+    props.isJumping = true;
+    props.jumpVelocity = props.jumpSpeed;
+  };
+  const applyGravity = () => {
+    props.jump += props.jumpVelocity;
+    props.jumpVelocity -= config.game.gravity;
+
+    // Limit player on ground
+    if (props.jump <= 0 && props.isJumping) {
+      props.isJumping = false;
+      props.jump = 0;
     }
   };
 
-  const goFront = () => {
-    props.speed = 1;
-    props.moveDirection = 0;
-    move();
-  };
-  const goBack = () => {
-    props.speed = 0.75;
-    props.moveDirection = 180;
-    move();
-  };
-  const strafeLeft = () => {
-    props.speed = 0.75;
-    props.moveDirection = 270;
-    move();
-  };
-  const strafeRight = () => {
-    props.speed = 0.75;
-    props.moveDirection = 90;
-    move();
-  };
+  // # Crouch
+  const crouch = () => {
+    if (props.isJumping) return;
 
-  const turnRight = () => {
-    props.turnSpeed = 2;
-    turn(props.turnSpeed, 5);
-  };
-
-  const turnLeft = () => {
-    props.turnSpeed = -2;
-    turn(props.turnSpeed, 5);
+    if (props.isCrouching) {
+      props.jump = -20;
+    } else {
+      props.jump = 0;
+    }
   };
 
   // Actions on key press
@@ -183,38 +181,38 @@ const Player = (
     if (keyCodes[87]) goFront(); // W
     if (keyCodes[65]) strafeLeft(); // A
     if (keyCodes[68]) strafeRight(); // D
+    if (keyCodes[69]) lookUp(); // E
+    if (keyCodes[67]) lookDown(); // C
+    if (keyCodes[32]) jump(); // Space
+
+    // Toggle Crouch if Z is pressed
+    props.isCrouching = keyCodes[90] ? true : false;
   };
 
   // Render the player
   const render = (keyCodes: any) => {
-    const { x, y, size, look, pod } = props;
-    //const { width, color } = config.player;
+    const { x, y, size, deltaX, deltaY } = props;
     handleKeyUp(keyCodes);
 
+    applyGravity();
+    crouch();
+
     // player body
-    //props.canvas.drawRectangle({ x, y, width, height, color });
-    props.minimap.drawElipse({ x, y, radius: size, color: '#FF0' });
+    props.minimap.drawElipse({ x, y, radius: size, color: '#BBFF00' });
     props.debugmap.drawElipse({
       x,
       y,
       radius: size,
-      color: '#FF0',
+      color: '#BBFF00',
     });
 
-    // player eye direction
-    props.minimap.drawLine({
-      x,
-      y,
-      toX: x + look * 5,
-      toY: y + pod * 5,
-      color: '#FF0000',
-    });
+    // player eye direction - single ray debug
     props.debugmap.drawLine({
       x,
       y,
-      toX: x + look * 5,
-      toY: y + pod * 5,
-      color: '#FF0000',
+      toX: x + deltaX * config.screen.width,
+      toY: y + deltaY * config.screen.height,
+      color: '#BBFF00',
     });
   };
 

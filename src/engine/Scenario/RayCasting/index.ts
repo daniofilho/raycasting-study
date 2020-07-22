@@ -35,8 +35,8 @@ const RayCasting = (
     podDistance: 0,
   };
 
-  const canvasWidth = canvasScreen.getConfig().width;
-  const canvasHeight = canvasScreen.getConfig().height;
+  const canvasWidth = canvasScreen.getConfig('width');
+  const canvasHeight = canvasScreen.getConfig('height');
 
   interface wallType {
     distance: number;
@@ -45,36 +45,57 @@ const RayCasting = (
     shadow: boolean;
   }
 
+  // # Wall - - - - - - - - - - - - - - - - - - - - - - - -
+
   const renderWall = (x: number, wall: wallType) => {
-    let size = 1200 / wall.distance;
+    // Wall props
+    let size = config.game.render.wallHeight / wall.distance;
     let texture = textures.get(wall.texture);
-    let textureX = Math.floor((texture.width / 50) * wall.textureX);
+    let textureX = Math.floor((tileSize / tileSize) * wall.textureX);
+
+    // Check if player is jumping and adjust wall Y
     let jump = (player.get('jump') * 10) / wall.distance;
     let y = canvasHeight / 2 - size / 2 + player.get('look') + jump;
 
+    // Draw
     canvasScreen.drawImage({
       image: texture.image,
       clipX: textureX,
       clipY: 0,
       clipWidth: 1,
-      clipHeight: texture.height,
+      clipHeight: tileSize,
       x,
       y,
       width: 1,
       height: size,
     });
 
-    /*if (wall.shadow) {
-      ctx.fillStyle = this.texture.colors.shadow;
-      ctx.globalAlpha = 0.4;
-      ctx.fillRect(x, y, 1, size);
-      ctx.globalAlpha = 1;
-    }*/
+    // Shadow
+    if (wall.shadow) {
+      canvasScreen.drawRectangle({
+        x,
+        y,
+        width: 1,
+        height: size,
+        color: 'rgba(0,0,0,0.4)',
+      });
+    }
+
+    // "light"
+    const alpha = 0.2; // @ TODO: make shadow opacity on every wall acoording to distance
+    canvasScreen.drawRectangle({
+      x,
+      y,
+      width: 1,
+      height: size,
+      color: `rgba(0,0,0,${alpha})`,
+    });
 
     //this.renderGround(x, y + size);
   };
 
   const castWall = (angle: number) => {
+    // Angle correction
     const PI2 = Math.PI * 2;
     angle %= PI2;
 
@@ -82,89 +103,120 @@ const RayCasting = (
       angle += PI2;
     }
 
+    // Initial values
     const { tilesX, tilesY, map } = config.scenario;
 
     const playerX = player.get('x');
     const playerY = player.get('y');
 
-    const right = angle > PI2 * 0.75 || angle < PI2 * 0.25;
-    const up = angle < 0 || angle > Math.PI;
-
     const sin = Math.sin(angle);
     const cos = Math.cos(angle);
 
-    const px = playerX / 50;
-    const py = playerY / 50;
+    const px = playerX / tileSize; // Fix camera position
+    const py = playerY / tileSize;
 
+    // Ray Facing diretion
+    const rayFacingRight = angle > PI2 * 0.75 || angle < PI2 * 0.25;
+    const rayFacingUp = angle < 0 || angle > Math.PI;
+
+    // Define mutable variables
     let shadow = false;
 
+    let rayDirection = 'vertical';
+
     let dist = 0;
-    let textureX;
-    let texture;
+    let textureX: number;
+    let texture: string;
 
+    //#  Vertical Ray ------
+
+    // Camera slope
     let slope = sin / cos;
-    let dXVer = right ? 1 : -1;
-    let dYVer = dXVer * slope;
+    let nextVerticalX = rayFacingRight ? 1 : -1;
+    let nextVerticalY = nextVerticalX * slope;
 
-    let x = right ? Math.ceil(px) : Math.floor(px);
-    let y = py + (x - px) * slope;
+    let verX = rayFacingRight ? Math.ceil(px) : Math.floor(px);
+    let verY = py + (verX - px) * slope;
 
-    // Horizontal Ray
-    while (x >= 0 && x < tilesX && y >= 0 && y < tilesY) {
-      let wallX = Math.floor(x + (right ? 0 : -1));
-      let wallY = Math.floor(y);
+    // Loop all map tiles
+    while (verX >= 0 && verX < tilesX && verY >= 0 && verY < tilesY) {
+      let wallX = Math.floor(verX + (rayFacingRight ? 0 : -1));
+      let wallY = Math.floor(verY);
 
+      // Hitted a floor?
+      // @TODO change floor and make based on object "isWall"
       if (map[wallY][wallX] !== 'floor') {
-        dist = Math.sqrt(Math.pow(x - px, 2) + Math.pow(y - py, 2));
-        texture = map[wallY][wallX];
-        textureX = (y * 50) % 50;
+        // Calculate distance from camera to ray
+        dist = Math.sqrt(Math.pow(verX - px, 2) + Math.pow(verY - py, 2));
 
-        if (!right) {
-          textureX = 50 - textureX;
-          shadow = true;
-        }
+        // Define Texture props
+        texture = map[wallY][wallX];
+        textureX = (verY * tileSize) % tileSize;
+
         break;
       }
-      x += dXVer;
-      y += dYVer;
+
+      // Didn't hit, try next ray (this is the key for algorithm speed)
+      verX += nextVerticalX;
+      verY += nextVerticalY;
     }
 
+    //#  Horizontal Ray ------
     slope = cos / sin;
 
-    let dYHor = up ? -1 : 1;
-    let dXHor = dYHor * slope;
+    let nextHorizontalY = rayFacingUp ? -1 : 1;
+    let nextHorizontalX = nextHorizontalY * slope;
 
-    y = up ? Math.floor(py) : Math.ceil(py);
-    x = px + (y - py) * slope;
+    let horY = rayFacingUp ? Math.floor(py) : Math.ceil(py);
+    let horX = px + (horY - py) * slope;
 
     // Vertical Ray
-    while (x >= 0 && x < tilesX && y >= 0 && y < tilesY) {
-      let wallY = Math.floor(y + (up ? -1 : 0));
-      let wallX = Math.floor(x);
+    while (horX >= 0 && horX < tilesX && horY >= 0 && horY < tilesY) {
+      let wallY = Math.floor(horY + (rayFacingUp ? -1 : 0));
+      let wallX = Math.floor(horX);
 
       if (map[wallY][wallX] !== 'floor') {
-        let distHor = Math.sqrt(Math.pow(x - px, 2) + Math.pow(y - py, 2));
+        let distanceHorizontal = Math.sqrt(Math.pow(horX - px, 2) + Math.pow(horY - py, 2));
 
-        if (dist === 0 || distHor < dist) {
+        // Only calc this if Vertical distance is higher than horizontal
+        if (dist === 0 || distanceHorizontal < dist) {
           shadow = true;
-          dist = distHor;
+          dist = distanceHorizontal;
           texture = map[wallY][wallX];
-          textureX = (x * 50) % 50;
+          textureX = (horX * tileSize) % tileSize;
 
-          if (!up) {
-            shadow = false;
-            //textureX = 50 - textureX;
-          }
+          rayDirection = 'horizontal';
         }
         break;
       }
-      x += dXHor;
-      y += dYHor;
+      horX += nextHorizontalX;
+      horY += nextHorizontalY;
     }
 
+    // Store ray distance
     props.zIndex.push(dist);
+
+    // Fix distance to avoid fish eye effect
     dist *= Math.cos(player.get('pod') * (Math.PI / 180) - angle);
 
+    // Set shadow according to ray direction
+    shadow = rayDirection === 'horizontal';
+
+    // Debug ray
+    let toX = rayDirection === 'vertical' ? verX : horX;
+    toX *= tileSize;
+    let toY = rayDirection === 'vertical' ? verY : horY;
+    toY *= tileSize;
+
+    canvasMinimap.drawLine({
+      x: playerX,
+      y: playerY,
+      toX: toX,
+      toY: toY,
+      color: '#BBFF00',
+    });
+
+    // Return Ray props
     return {
       distance: dist,
       texture: texture,
@@ -178,8 +230,10 @@ const RayCasting = (
 
     const pod = player.get('pod');
 
+    // Set base resolution according to canvas width
     let resolution = Math.ceil(canvasWidth / props.resolution);
 
+    // For each resolution, cast a wall
     for (let x = 0; x < resolution; x++) {
       let viewDist = canvasWidth / props.resolution / Math.tan(props.fov / 2);
       let rayx = (-resolution / 2 + x) * props.resolution;
@@ -193,6 +247,8 @@ const RayCasting = (
       renderWall(x, wall);
     }
   };
+
+  // - - - - - - - - - - - - - - - - - - - - - - - -
 
   // Render everything
   const render = () => {

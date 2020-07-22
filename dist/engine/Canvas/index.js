@@ -9,8 +9,8 @@ class Canvas {
         this.get = (prop) => {
             return this.canvas[prop];
         };
-        this.getConfig = () => {
-            return this.config;
+        this.getConfig = (prop) => {
+            return this.config[prop];
         };
         this.getContext = () => {
             return this.context;
@@ -79,3 +79,4 @@ class Canvas {
     }
 }
 exports.default = Canvas;
+//# sourceMappingURL=index.js.map

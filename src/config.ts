@@ -25,10 +25,12 @@ gunImg.src = 'assets/gun.gif';
 export const game: Types.GameType = {
   fps: 30,
   depthfOfField: 3000,
+  gravity: 1.7,
   render: {
     wallPixelWidth: 1, // the higher value, the more pixelated the walls will be
     light: 40,
     fogImage,
+    wallHeight: 1100,
   },
 };
 
@@ -59,8 +61,8 @@ export const scenario: ScenarioPropType = {
 export const screen: ScreenPropType = {
   canvasID: 'screen',
   backgroundColor: '#333333',
-  width: 300,
-  height: 220,
+  width: 1024,
+  height: 768,
 };
 
 export const miniMapSingleRay: MiniMapPropType = {
@@ -69,8 +71,8 @@ export const miniMapSingleRay: MiniMapPropType = {
   opacity: 1,
   width: scenario.tilesX * scenario.tileSize,
   height: scenario.tilesY * scenario.tileSize,
-  relativeWidth: 500,
-  relativeHeight: 500,
+  relativeWidth: 290,
+  relativeHeight: 317,
   x: screen.width - 100,
   y: screen.height - 100,
 };
@@ -90,15 +92,12 @@ export const miniMapAllRays: MiniMapPropType = {
 export const player: PlayerPropsType = {
   x: 350,
   y: 725,
-  pod: 0,
-  fov: 90 * (Math.PI / 180),
-  size: 15,
-  /*width: scenario.tileSize / 2.5,
-  height: scenario.tileSize / 2.5,
-  color: '#FFFF00',
-  speed: 1,
-  turnSpeed: 0.03,
-  fieldOfView: 60,
+  pod: 45, // Direction player is look ( 0 - 360 )
+  fov: 90, // Field of view
+  size: scenario.tileSize / 2.5,
+  speed: 10,
+  turnSpeed: 2,
+  jumpSpeed: 6,
   crosshair: {
     image: crosshairImg,
     width: 10,
@@ -108,5 +107,5 @@ export const player: PlayerPropsType = {
     image: gunImg,
     width: 200,
     height: 255,
-  },*/
+  },
 };
