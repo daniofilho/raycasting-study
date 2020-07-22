@@ -27,6 +27,6 @@ export const Grid = styled.div<GridType>`
 
   & > div {
     display: grid;
-    grid-template-columns: repeat(${(props) => props.mapWidth}, 1fr);
+    grid-template-columns: repeat(${(props: GridType) => props.mapWidth}, 1fr);
   }
 `;
