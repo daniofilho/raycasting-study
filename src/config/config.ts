@@ -19,29 +19,29 @@ gunImg.src = 'assets/gun.gif';
 export const screen: ScreenPropType = {
   canvasID: 'screen',
   backgroundColor: '#333333',
-  width: 500,
-  height: 375,
+  width: 800,
+  height: 600,
 };
 
 export const scenario: ScenarioPropType = {
-  tileSize: 64,
+  tileSize: 32,
   tilesX: InitialMap.map.width,
   tilesY: InitialMap.map.height,
   map: InitialMap.map.tiles,
   screen: {
     sky: {
       image: skyImg,
-      width: screen.width,
-      height: screen.height,
+      width: screen.width * 0.8,
+      height: screen.height * 0.5,
     },
   },
 };
 
 export const game: Types.GameType = {
-  fps: 60,
-  gravity: 1.7,
+  fps: 30,
+  gravity: 1.5,
   render: {
-    wallHeight: screen.height * 1.1, // 1100
+    wallHeight: screen.height * 1.5,
     maxDistanceVisible: 20,
   },
 };
@@ -77,7 +77,7 @@ export const player: PlayerPropsType = {
   fov: 90, // Field of view
   size: scenario.tileSize / 2.5,
   speed: 10,
-  turnSpeed: 2,
+  turnSpeed: 3,
   jumpSpeed: 8,
   crosshair: {
     image: crosshairImg,

@@ -12,27 +12,27 @@ gunImg.src = 'assets/gun.gif';
 exports.screen = {
     canvasID: 'screen',
     backgroundColor: '#333333',
-    width: 500,
-    height: 375,
+    width: 800,
+    height: 600,
 };
 exports.scenario = {
-    tileSize: 64,
+    tileSize: 32,
     tilesX: InitialMap.map.width,
     tilesY: InitialMap.map.height,
     map: InitialMap.map.tiles,
     screen: {
         sky: {
             image: skyImg,
-            width: exports.screen.width,
-            height: exports.screen.height,
+            width: exports.screen.width * 0.8,
+            height: exports.screen.height * 0.5,
         },
     },
 };
 exports.game = {
-    fps: 60,
-    gravity: 1.7,
+    fps: 30,
+    gravity: 1.5,
     render: {
-        wallHeight: exports.screen.height * 1.1,
+        wallHeight: exports.screen.height * 1.5,
         maxDistanceVisible: 20,
     },
 };
@@ -65,7 +65,7 @@ exports.player = {
     fov: 90,
     size: exports.scenario.tileSize / 2.5,
     speed: 10,
-    turnSpeed: 2,
+    turnSpeed: 3,
     jumpSpeed: 8,
     crosshair: {
         image: crosshairImg,
@@ -404,11 +404,11 @@ const Player = (minimap, debugmap, screen, textures, configScenario) => {
     // # Strafe
     const strafeLeft = () => {
         props.moveDirection = 270;
-        move(0.75);
+        move(0.25);
     };
     const strafeRight = () => {
         props.moveDirection = 90;
-        move(0.75);
+        move(0.25);
     };
     // # Turn
     const turnRight = () => {
@@ -445,7 +445,7 @@ const Player = (minimap, debugmap, screen, textures, configScenario) => {
         if (props.isJumping)
             return;
         if (props.isCrouching) {
-            props.jump = -20;
+            props.jump = screen.getConfig('height') / 1000 - 10;
         }
         else {
             props.jump = 0;

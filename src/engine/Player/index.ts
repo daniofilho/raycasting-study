@@ -126,11 +126,11 @@ const Player = (
   // # Strafe
   const strafeLeft = () => {
     props.moveDirection = 270;
-    move(0.75);
+    move(0.25);
   };
   const strafeRight = () => {
     props.moveDirection = 90;
-    move(0.75);
+    move(0.25);
   };
 
   // # Turn
@@ -171,7 +171,7 @@ const Player = (
     if (props.isJumping) return;
 
     if (props.isCrouching) {
-      props.jump = -20;
+      props.jump = screen.getConfig('height') / 1000 - 10;
     } else {
       props.jump = 0;
     }
