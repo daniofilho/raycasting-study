@@ -19,8 +19,8 @@ gunImg.src = 'assets/gun.gif';
 export const screen: ScreenPropType = {
   canvasID: 'screen',
   backgroundColor: '#333333',
-  width: 400,
-  height: 320,
+  width: 500,
+  height: 375,
 };
 
 export const scenario: ScenarioPropType = {
@@ -42,7 +42,7 @@ export const game: Types.GameType = {
   gravity: 1.7,
   render: {
     wallHeight: screen.height * 1.1, // 1100
-    maxDistanceVisible: 25,
+    maxDistanceVisible: 20,
   },
 };
 

@@ -6,6 +6,7 @@ import { TextureType, TexturesType } from '../Textures/types';
 import { ScenarioPropType } from '../Scenario/types';
 
 import Collision from '../Collision';
+import { truncate } from 'fs';
 
 const Player = (
   minimap: MiniMapType,
@@ -194,6 +195,7 @@ const Player = (
 
   // Draw player body on inimaps
   const drawPlayerBody = () => {
+    if (!window.global.renderTextures) return;
     const { x, y, size } = props;
 
     props.minimap.drawElipse({ x, y, radius: size, color: '#F00', fillColor: '#F00' });

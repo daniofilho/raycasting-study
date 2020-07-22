@@ -6,45 +6,36 @@
     <title>Raycasting Study</title>
     <link rel="shortcut icon" href="assets/favicon.png" />
     <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <main>
-      <section>
-        <div>
-          <p>Single Ray</p>
-          <canvas id="minimap_singleRay"></canvas>
-        </div>
+    <canvas id="screen"></canvas>
 
-        <div>
-          <p>All rays</p>
-          <canvas id="minimap_allRays"></canvas>
-        </div>
-      </section>
+    <div class="instructions">
+      <button type="button" onClick="javascript=toggleControls()">Controls<br />ON / OFF</button>
+      <button type="button" onClick="javascript=toggleTextures()">Textures<br />ON / OFF</button>
+      <button type="button" onClick="javascript=toggleMinimapSingleRay()">
+        Minimap Single Ray<br />ON / OFF
+      </button>
+      <button type="button" onClick="javascript=toggleMinimapAllRays()">
+        Minimap All Rays<br />ON / OFF
+      </button>
+    </div>
 
-      <section>
-        <div id="screenContainer">
-          <div class="controls">
-            <p>
-              "3D" Render Result<br />
-              <strong>
-                Controls: <br />
-                A / D => Strafe Left/Right <br />
-                W / S => Move Front/Back <br />
-                < / > => Turn Left/Right
-              </strong>
-            </p>
-            <button type="button" onClick="javascript=toggleTextures()">
-              Textures ON / OFF
-            </button>
-            <button type="button" onClick="javascript=toggleFullScreen()">
-              Full Screen ON / OFF
-            </button>
-          </div>
+    <div id="controls">
+      <img src="assets/controls.png" />
+    </div>
 
-          <canvas id="screen"></canvas>
-        </div>
-      </section>
-    </main>
+    <div id="container_singleRay" class="show">
+      <canvas id="minimap_singleRay"></canvas>
+    </div>
+
+    <div id="container_allRays" class="show">
+      <canvas id="minimap_allRays"></canvas>
+    </div>
 
     <a href="https://github.com/daniofilho/raycasting-study/" target="_blank" class="github">
       <img src="assets/github.png" />
@@ -55,9 +46,14 @@
       function toggleTextures() {
         window.global.renderTextures = !window.global.renderTextures;
       }
-      function toggleFullScreen() {
-        var element = document.getElementById('screenContainer');
-        element.classList.toggle('full-screen');
+      function toggleControls() {
+        document.getElementById('controls').classList.toggle('show');
+      }
+      function toggleMinimapSingleRay() {
+        document.getElementById('container_singleRay').classList.toggle('show');
+      }
+      function toggleMinimapAllRays() {
+        document.getElementById('container_allRays').classList.toggle('show');
       }
     </script>
   </body>

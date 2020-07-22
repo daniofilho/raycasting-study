@@ -12,8 +12,8 @@ gunImg.src = 'assets/gun.gif';
 exports.screen = {
     canvasID: 'screen',
     backgroundColor: '#333333',
-    width: 400,
-    height: 320,
+    width: 500,
+    height: 375,
 };
 exports.scenario = {
     tileSize: 64,
@@ -33,7 +33,7 @@ exports.game = {
     gravity: 1.7,
     render: {
         wallHeight: exports.screen.height * 1.1,
-        maxDistanceVisible: 25,
+        maxDistanceVisible: 20,
     },
 };
 exports.miniMapSingleRay = {
@@ -476,6 +476,8 @@ const Player = (minimap, debugmap, screen, textures, configScenario) => {
     };
     // Draw player body on inimaps
     const drawPlayerBody = () => {
+        if (!window.global.renderTextures)
+            return;
         const { x, y, size } = props;
         props.minimap.drawElipse({ x, y, radius: size, color: '#F00', fillColor: '#F00' });
         props.debugmap.drawElipse({
@@ -564,7 +566,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             clipX: (sky.width / (6 * 60)) * pod,
             clipY: 0,
             clipWidth: sky.width,
-            clipHeight: sky.height * 2,
+            clipHeight: sky.height * 3,
             x: 0,
             y: -sky.height + look,
             width: canvasWidth,
@@ -575,7 +577,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
             clipX: (sky.width / (6 * 60)) * (pod - 360),
             clipY: 0,
             clipWidth: sky.width,
-            clipHeight: sky.height * 2,
+            clipHeight: sky.height * 3,
             x: 0,
             y: -sky.height + look,
             width: canvasWidth,
