@@ -4,6 +4,8 @@ This technique consist of moving a block (player) on a 2D map and "cast" rays un
 
 [DEMO](https://daniofilho.com.br/estudo/raycasting-study/)
 
+[Map Builder](https://daniofilho.com.br/estudo/raycasting-study/map-builder)
+
 # Install
 
 Install Typescript globally:
@@ -36,10 +38,4 @@ If you have error running, try to create a folder `dist`. Sometimes browserify t
 
 [Lode's Computer Graphics Tutorial](https://lodev.org/cgtutor/index.html)
 
-https://github.com/okkindel/Labyrinth
-
-https://github.com/mir3z/raycaster.js
-
-https://github.com/Nichtgian/sandbox
-
-https://github.com/Nichtgian/sandbox/blob/master/script/model/player.js
+[Sandbox - Nichtgian](https://github.com/Nichtgian/sandbox)

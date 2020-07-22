@@ -1,8 +1,8 @@
-import { MiniMapType } from '../../components/MiniMap/types';
-import { ScreenType } from '../../components/Screen/types';
-import { PlayerType } from '../../components/Player/types';
+import { MiniMapType } from '../MiniMap/types';
+import { ScreenType } from '../Screen/types';
+import { PlayerType } from '../Player/types';
 import { ScenarioPropType } from './types';
-import { TexturesType, TextureType } from '../../components/Textures/types';
+import { TexturesType, TextureType } from '../Textures/types';
 
 import RayCasting from './RayCasting';
 
@@ -14,16 +14,14 @@ const Scenario = (
   config: ScenarioPropType,
   textures: TexturesType
 ) => {
-  const {
-    tileSize,
-    tilesX,
-    tilesY,
-    map,
-    minimap: {
-      wall: { color: wallColor },
-      floor: { color: floorColor },
-    },
-  } = config;
+  const { tileSize, tilesX, tilesY, map } = config;
+
+  const getConfig = (prop: string) => {
+    return config[prop];
+  };
+  const getConfigs = () => {
+    return config;
+  };
 
   const rayCasting = RayCasting(
     config,
@@ -33,68 +31,47 @@ const Scenario = (
     canvasScreen,
     textures
   );
+  rayCasting.setup();
 
   // Tiles
-  const renderTiles = () => {
+  const renderMiniMaps = () => {
     // Loop tiles
     new Array(tilesY).fill('').forEach((_, y) => {
       new Array(tilesX).fill('').forEach((_, x) => {
         const x0 = x * tileSize;
         const y0 = y * tileSize;
 
-        // Define tile color based on tile value (0,1)
-        const tileColor = map[y][x] !== 'floor' ? wallColor : floorColor;
-
         const objectTexture: TextureType = textures.get(map[y][x]);
 
-        if (objectTexture) {
-          // Minimap
-          canvasMiniMap.drawImage({
-            image: objectTexture.image,
-            x: x0,
-            y: y0,
-            width: tileSize,
-            height: tileSize,
-            clipX: 0,
-            clipY: 0,
-            clipWidth: tileSize,
-            clipHeight: tileSize,
-          });
-          canvasMiniMapDebug.drawImage({
-            image: objectTexture.image,
-            x: x0,
-            y: y0,
-            width: tileSize,
-            height: tileSize,
-            clipX: 0,
-            clipY: 0,
-            clipWidth: tileSize,
-            clipHeight: tileSize,
-          });
-
-          return;
-        }
-
-        canvasMiniMap.drawRectangle({
+        // Minimap
+        canvasMiniMap.drawImage({
+          image: objectTexture.image,
           x: x0,
           y: y0,
           width: tileSize,
           height: tileSize,
-          color: tileColor,
+          clipX: 0,
+          clipY: 0,
+          clipWidth: tileSize,
+          clipHeight: tileSize,
         });
-        canvasMiniMapDebug.drawRectangle({
+        canvasMiniMapDebug.drawImage({
+          image: objectTexture.image,
           x: x0,
           y: y0,
           width: tileSize,
           height: tileSize,
-          color: tileColor,
+          clipX: 0,
+          clipY: 0,
+          clipWidth: tileSize,
+          clipHeight: tileSize,
         });
       });
     });
   };
 
   // Ray Casting
-  const renderRays = () => {
+  const renderScreen = () => {
     canvasScreen.render();
     rayCasting.render();
   };
@@ -104,14 +81,16 @@ const Scenario = (
     canvasMiniMap.render();
     canvasMiniMapDebug.render();
 
-    renderTiles();
+    renderMiniMaps();
 
-    renderRays();
+    renderScreen();
   };
 
   // Return all public functions
   return {
     render,
+    getConfig,
+    getConfigs,
   };
 };
 

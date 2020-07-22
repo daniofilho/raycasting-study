@@ -82,7 +82,7 @@ exports.player = {
     size: exports.scenario.tileSize / 2.5,
     speed: 10,
     turnSpeed: 2,
-    jumpSpeed: 6,
+    jumpSpeed: 8,
     crosshair: {
         image: crosshairImg,
         width: 10,
@@ -90,8 +90,8 @@ exports.player = {
     },
     gun: {
         image: gunImg,
-        width: 200,
-        height: 255,
+        width: exports.screen.width / 2,
+        height: exports.screen.width / 2,
     },
 };
 //# sourceMappingURL=config.js.map

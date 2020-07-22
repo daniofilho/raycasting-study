@@ -29,7 +29,7 @@
     "watchify": "^3.11.1"
   },
   "dependencies": {
-    "@types/node": "^14.0.22",
+    "@types/node": "^14.0.24",
     "stats.js": "^0.17.0"
   }
 }

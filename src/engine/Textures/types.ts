@@ -1,12 +1,10 @@
-import { SpriteType } from '../../engine/Sprite/types';
-
 export interface TextureType {
   id: string;
   image: HTMLImageElement;
   isWall: boolean;
   isObject: boolean;
   isCollidable: boolean;
-  sprite?: SpriteType;
+  isLight: boolean;
 }
 
 export interface TexturesType {

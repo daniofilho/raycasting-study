@@ -1,15 +1,18 @@
-import * as config from '../../config';
+import * as config from '../../config/config';
+
 import { MiniMapType } from '../MiniMap/types';
 import { ScreenType } from '../Screen/types';
 import { TextureType, TexturesType } from '../Textures/types';
+import { ScenarioPropType } from '../Scenario/types';
 
-import Collision from '../../engine/Collision';
+import Collision from '../Collision';
 
 const Player = (
   minimap: MiniMapType,
   debugmap: MiniMapType,
   screen: ScreenType,
-  textures: TexturesType
+  textures: TexturesType,
+  configScenario: ScenarioPropType
 ) => {
   // Constructor
   const props = {
@@ -34,50 +37,52 @@ const Player = (
     },
   };
 
-  const { tileSize, map } = config.scenario;
+  const { tileSize, map } = configScenario;
 
-  const isPlayerCollidingWall = (x: number, y: number) => {
+  const canvasWidth = screen.getConfig('width');
+  const canvasHeight = screen.getConfig('height');
+
+  const isPlayerColliding = (x: number, y: number) => {
     const deviation = props.size / 2;
     const block = tileSize;
 
+    // Check if there is an object inside next coordinates
+    const target1 = textures.get(
+      map[Math.floor((y + deviation) / block)][Math.floor((x + deviation) / block)]
+    );
+    const target2 = textures.get(
+      map[Math.floor((y - deviation) / block)][Math.floor((x - deviation) / block)]
+    );
+    const target3 = textures.get(
+      map[Math.floor((y + deviation) / block)][Math.floor((x - deviation) / block)]
+    );
+    const target4 = textures.get(
+      map[Math.floor((y - deviation) / block)][Math.floor((x + deviation) / block)]
+    );
+    const target5 = textures.get(map[Math.floor(y / block)][Math.floor(x / block)]);
+
     if (
       !(
-        map[Math.floor((y + deviation) / block)][Math.floor((x + deviation) / block)] !== 'floor' ||
-        map[Math.floor((y - deviation) / block)][Math.floor((x - deviation) / block)] !== 'floor' ||
-        map[Math.floor((y + deviation) / block)][Math.floor((x - deviation) / block)] !== 'floor' ||
-        map[Math.floor((y - deviation) / block)][Math.floor((x + deviation) / block)] !== 'floor' ||
-        map[Math.floor(y / block)][Math.floor(x / block)] !== 'floor'
+        target1.isCollidable ||
+        target2.isCollidable ||
+        target3.isCollidable ||
+        target4.isCollidable ||
+        target5.isCollidable
       )
     ) {
       return false;
     }
 
-    // Debug information
-    /*debugmap.drawRectangle({
-      x: collisionX,
-      y: collisionY,
-      width: props.width,
-      height: props.height,
-      color: 'rgba(0,0,200, 0.5)',
-    });
-    debugmap.drawRectangle({
-      x: mapX,
-      y: mapY,
-      width: tileSize,
-      height: tileSize,
-      color: 'rgba(255,100,100,0.5)',
-    });*/
     return true;
   };
 
   // Middlwares for setting props
   const setX = (x: number) => {
-    if (!isPlayerCollidingWall(x, props.y)) props.x = x;
+    if (!isPlayerColliding(x, props.y)) props.x = x;
   };
   const setY = (y: number) => {
-    if (!isPlayerCollidingWall(props.x, y)) props.y = y;
+    if (!isPlayerColliding(props.x, y)) props.y = y;
   };
-
   const get = (prop: string) => {
     return props[prop];
   };
@@ -91,13 +96,11 @@ const Player = (
     props.deltaX = Math.cos(props.pod * (Math.PI / 180));
     props.deltaY = Math.sin(props.pod * (Math.PI / 180));
   };
-
   const look = (direction: number) => {
     props.look += props.turnSpeed * direction * 3;
     if (props.look > 80) props.look = 80;
     if (props.look < -80) props.look = -80;
   };
-
   const move = (_speed: number) => {
     const speed = _speed * props.speed;
 
@@ -189,35 +192,53 @@ const Player = (
     props.isCrouching = keyCodes[90] ? true : false;
   };
 
-  // Render the player
-  const render = (keyCodes: any) => {
-    const { x, y, size, deltaX, deltaY } = props;
-    handleKeyUp(keyCodes);
+  // Draw player body on inimaps
+  const drawPlayerBody = () => {
+    const { x, y, size } = props;
 
-    applyGravity();
-    crouch();
-
-    // player body
-    props.minimap.drawElipse({ x, y, radius: size, color: '#BBFF00' });
+    props.minimap.drawElipse({ x, y, radius: size, color: '#F00', fillColor: '#F00' });
     props.debugmap.drawElipse({
       x,
       y,
       radius: size,
-      color: '#BBFF00',
-    });
-
-    // player eye direction - single ray debug
-    props.debugmap.drawLine({
-      x,
-      y,
-      toX: x + deltaX * config.screen.width,
-      toY: y + deltaY * config.screen.height,
-      color: '#BBFF00',
+      color: '#F00',
+      fillColor: '#F00',
     });
   };
 
+  // Render the player
+  const render = (keyCodes: Array<number>) => {
+    handleKeyUp(keyCodes);
+    drawPlayerBody();
+    applyGravity();
+    crouch();
+  };
+
   // Render everything that needs to render after everything finished render
-  const postRender = () => {};
+  const postRender = () => {
+    const centerX = canvasWidth / 2;
+    const centerY = canvasHeight / 2;
+
+    // Player sprite
+    const { gun } = config.player;
+    props.screen.drawImage({
+      x: centerX - gun.width / 2,
+      y: canvasHeight - gun.height,
+      image: gun.image,
+      width: gun.width,
+      height: gun.height,
+    });
+
+    // Player crosshair
+    const { crosshair } = config.player;
+    props.screen.drawImage({
+      x: centerX - crosshair.width / 2,
+      y: centerY - crosshair.height / 2,
+      image: crosshair.image,
+      width: crosshair.width,
+      height: crosshair.height,
+    });
+  };
 
   // Return all public functions
   return {
