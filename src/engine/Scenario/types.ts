@@ -1,29 +1,20 @@
-import { rgbType } from '../../types';
-export interface ScenarioType {
-  render: Function;
-  getTiles: Function;
-}
-
 export interface ScenarioPropType {
   tileSize: number;
   tilesX: number;
   tilesY: number;
-  tiles: Array<any>;
-  minimap: {
-    wall: { color: string };
-    floor: { color: string };
-  };
+  map: Array<Array<string>>;
   screen: {
     sky: {
-      color: rgbType;
       image: HTMLImageElement;
-    };
-    floor: {
-      color: {
-        from: string;
-        to: string;
-      };
-      image: HTMLImageElement;
+      width: number;
+      height: number;
     };
   };
+}
+
+export interface ScenarioType {
+  getConfig(prop: string): any;
+  getConfigs: ScenarioPropType;
+  render: Function;
+  getTiles: Function;
 }

@@ -1,6 +1,6 @@
 import { ScreenPropType } from './types';
 
-import Canvas from '../../engine/Canvas';
+import Canvas from '../Canvas';
 
 class Screen extends Canvas {
   constructor(config: ScreenPropType) {

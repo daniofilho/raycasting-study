@@ -7,12 +7,12 @@ export interface PlayerType {
 export interface PlayerPropsType {
   x: number;
   y: number;
-  width: number;
-  height: number;
-  color: string;
+  pod: number;
+  fov: number;
+  size: number;
   speed: number;
   turnSpeed: number;
-  fieldOfView: number;
+  jumpSpeed: number;
   crosshair: {
     image: HTMLImageElement;
     width: number;

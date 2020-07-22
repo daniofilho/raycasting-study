@@ -1,4 +1,4 @@
-import { CanvasType } from '../../engine/Canvas/types';
+import { CanvasType } from '../Canvas/types';
 
 export interface ScreenPropType {
   canvasID: string;

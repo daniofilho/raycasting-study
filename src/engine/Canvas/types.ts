@@ -28,6 +28,7 @@ export interface drawElipseType {
   y: number;
   radius: number;
   color?: string;
+  fillColor?: string;
 }
 
 export interface drawImageType {
@@ -40,6 +41,8 @@ export interface drawImageType {
   y: number;
   width: number;
   height: number;
+  opacity?: number;
+  filter?: string | boolean;
 }
 
 export interface CanvasPropType {
@@ -50,15 +53,15 @@ export interface CanvasPropType {
 }
 
 export interface CanvasType {
+  drawRectangle(args: drawRectangleType): void;
+  drawLine(args: drawLineType): void;
+  drawElipse(args: drawElipseType): void;
+  drawText(args: drawTextType): void;
+  drawImage(args: drawImageType): void;
+  get(prop: string): any;
+  getConfig(prop: string): any;
+  createLineGradient(color1: string, color2: string): string;
+  createPattern(img: HTMLImageElement): string;
   reset: Function;
-  drawRectangle: Function;
-  drawLine: Function;
-  drawElipse: Function;
-  drawText(args: drawTextType): Function;
-  drawImage: Function;
-  get: Function;
-  getConfig: Function;
   getContext: Function;
-  createLineGradient: Function;
-  createPattern: Function;
 }

@@ -1,14 +1,14 @@
 // tslint:disable-next-line
-const Stats = require('stats.js'); // This method is required for Stats JS to work with Typescript
+const Stats = require('stats.js'); // This "require" is necessary for Stats JS to work with Typescript
 
-import Screen from '../components/Screen';
-import MiniMap from '../components/MiniMap';
-import Player from '../components/Player';
-import Textures from '../components/Textures';
+import Screen from './Screen';
+import MiniMap from './MiniMap';
+import Player from './Player';
+import Textures from './Textures';
 
 import Scenario from './Scenario';
 
-import * as config from '../config';
+import * as config from '../config/config';
 
 const Game = () => {
   // FPS Status
@@ -16,17 +16,19 @@ const Game = () => {
   FPSstats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
   document.body.appendChild(FPSstats.dom);
 
+  // Game Objects
   const textures = Textures();
 
   const screen = new Screen(config.screen);
 
+  const minimap = new MiniMap(config.miniMapAllRays);
   const minimap_singleRay = new MiniMap(config.miniMapSingleRay);
 
-  const minimap = new MiniMap(config.miniMapAllRays);
+  const configScenario = config.scenario;
 
-  const player = Player(minimap, minimap_singleRay, screen, textures);
+  const player = Player(minimap, minimap_singleRay, screen, textures, configScenario);
 
-  const scenario = Scenario(player, minimap, minimap_singleRay, screen, config.scenario, textures);
+  const scenario = Scenario(player, minimap, minimap_singleRay, screen, configScenario, textures);
 
   // FPS Control
   let fpsInterval = 0;
@@ -35,7 +37,7 @@ const Game = () => {
   let elapsed = 0;
 
   // Events
-  let keysDown = {};
+  let keysDown = [];
 
   // Game
   let gameReady = false;
@@ -78,9 +80,7 @@ const Game = () => {
   const updateGame = () => {
     // # What to update every frame?
     scenario.render();
-
     player.render(keysDown);
-
     player.postRender();
   };
 

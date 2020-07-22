@@ -13,19 +13,21 @@ crosshairImg.src = 'assets/crosshair.png';
 const gunImg = new Image();
 gunImg.src = 'assets/gun.gif';
 exports.game = {
-    fps: 60,
+    fps: 30,
     depthfOfField: 3000,
+    gravity: 1.7,
     render: {
         wallPixelWidth: 1,
         light: 40,
         fogImage,
+        wallHeight: 1100,
     },
 };
 exports.scenario = {
     tileSize: 64,
-    tilesX: 30,
-    tilesY: 10,
-    tiles: map_1.default,
+    tilesX: map_1.mapWidth,
+    tilesY: map_1.mapHeight,
+    map: map_1.map,
     minimap: {
         wall: { color: '#008800' },
         floor: { color: '#707070' },
@@ -47,8 +49,8 @@ exports.scenario = {
 exports.screen = {
     canvasID: 'screen',
     backgroundColor: '#333333',
-    width: 300,
-    height: 220,
+    width: 1024,
+    height: 768,
 };
 exports.miniMapSingleRay = {
     canvasID: 'minimap_singleRay',
@@ -73,14 +75,14 @@ exports.miniMapAllRays = {
     y: exports.screen.height - 100,
 };
 exports.player = {
-    x: exports.miniMapAllRays.width / 2 + 100,
-    y: 100,
-    width: exports.scenario.tileSize / 2.5,
-    height: exports.scenario.tileSize / 2.5,
-    color: '#FFFF00',
-    speed: 1,
-    turnSpeed: 0.03,
-    fieldOfView: 60,
+    x: 350,
+    y: 725,
+    pod: 45,
+    fov: 90,
+    size: exports.scenario.tileSize / 2.5,
+    speed: 10,
+    turnSpeed: 2,
+    jumpSpeed: 8,
     crosshair: {
         image: crosshairImg,
         width: 10,
@@ -88,7 +90,8 @@ exports.player = {
     },
     gun: {
         image: gunImg,
-        width: 200,
-        height: 255,
+        width: exports.screen.width / 2,
+        height: exports.screen.width / 2,
     },
 };
+//# sourceMappingURL=config.js.map

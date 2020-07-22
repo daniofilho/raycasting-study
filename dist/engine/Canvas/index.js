@@ -9,8 +9,8 @@ class Canvas {
         this.get = (prop) => {
             return this.canvas[prop];
         };
-        this.getConfig = () => {
-            return this.config;
+        this.getConfig = (prop) => {
+            return this.config[prop];
         };
         this.getContext = () => {
             return this.context;
@@ -58,20 +58,32 @@ class Canvas {
             context.stroke();
         };
         // Draw a circle on canvas
-        this.drawElipse = ({ x, y, radius, color = '#FFF' }) => {
+        this.drawElipse = ({ x, y, radius, color = '#FFF', fillColor = 'rgba(0,0,0,0)' }) => {
             const { context } = this;
             context.strokeStyle = color;
             context.beginPath();
             context.arc(x, y, radius, 0, 2 * Math.PI);
+            context.fillStyle = fillColor;
+            context.fill();
             context.stroke();
         };
         // Draw an image on Canvas
-        this.drawImage = ({ image, x, y, width, height, clipX, clipY, clipWidth, clipHeight, }) => {
-            this.context.imageSmoothingEnabled = false; // Pixelate image
+        this.doDrawImage = ({ image, x, y, width, height, clipX, clipY, clipWidth, clipHeight, opacity = 1, }) => {
             if (clipWidth && clipHeight) {
                 return this.context.drawImage(image, clipX, clipY, clipWidth, clipHeight, x, y, width, height);
             }
             this.context.drawImage(image, x, y, width, height);
+        };
+        this.drawImage = (params) => {
+            const { filter } = params;
+            this.context.imageSmoothingEnabled = false; // Pixelate image
+            // Will draw with filter?
+            if (filter)
+                this.context.filter = filter;
+            this.doDrawImage(params);
+            // Reset filter
+            if (filter)
+                this.context.filter = 'none';
         };
         this.canvas = document.getElementById(config.canvasID);
         this.context = this.canvas.getContext('2d');
@@ -79,3 +91,4 @@ class Canvas {
     }
 }
 exports.default = Canvas;
+//# sourceMappingURL=index.js.map

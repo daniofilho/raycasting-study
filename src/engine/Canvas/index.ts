@@ -28,8 +28,8 @@ class Canvas {
     return this.canvas[prop];
   };
 
-  getConfig = () => {
-    return this.config;
+  getConfig = (prop: string) => {
+    return this.config[prop];
   };
 
   getContext = () => {
@@ -91,17 +91,19 @@ class Canvas {
   };
 
   // Draw a circle on canvas
-  drawElipse = ({ x, y, radius, color = '#FFF' }: drawElipseType) => {
+  drawElipse = ({ x, y, radius, color = '#FFF', fillColor = 'rgba(0,0,0,0)' }: drawElipseType) => {
     const { context } = this;
 
     context.strokeStyle = color;
     context.beginPath();
     context.arc(x, y, radius, 0, 2 * Math.PI);
+    context.fillStyle = fillColor;
+    context.fill();
     context.stroke();
   };
 
   // Draw an image on Canvas
-  drawImage = ({
+  doDrawImage = ({
     image,
     x,
     y,
@@ -111,9 +113,8 @@ class Canvas {
     clipY,
     clipWidth,
     clipHeight,
+    opacity = 1,
   }: drawImageType) => {
-    this.context.imageSmoothingEnabled = false; // Pixelate image
-
     if (clipWidth && clipHeight) {
       return this.context.drawImage(
         image,
@@ -129,6 +130,19 @@ class Canvas {
     }
 
     this.context.drawImage(image, x, y, width, height);
+  };
+  drawImage = (params: drawImageType) => {
+    const { filter } = params;
+
+    this.context.imageSmoothingEnabled = false; // Pixelate image
+
+    // Will draw with filter?
+    if (filter) this.context.filter = filter;
+
+    this.doDrawImage(params);
+
+    // Reset filter
+    if (filter) this.context.filter = 'none';
   };
 }
 

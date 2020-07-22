@@ -1,6 +1,6 @@
 import { MiniMapPropType } from './types';
 
-import Canvas from '../../engine/Canvas';
+import Canvas from '../Canvas';
 
 class MiniMap extends Canvas {
   constructor(config: MiniMapPropType) {
