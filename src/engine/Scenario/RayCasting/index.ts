@@ -37,13 +37,14 @@ const RayCasting = (
   let objects: Partial<Array<objectType>> = [];
 
   // # Enviroment - - - - - - - - - - - - - - - - - - - - - - - -
-  const drawFloor = (x: number, y: number) => {
+  const drawFloor = (wall: wallType, x: number, y: number, size: number) => {
+    const finalY = y + size;
     const gradient = canvasScreen.createLineGradient('#222', '#555');
     canvasScreen.drawRectangle({
       x,
-      y,
+      y: finalY,
       width: 1,
-      height: canvasHeight - y,
+      height: canvasHeight - finalY,
       color: gradient,
     });
   };
@@ -212,6 +213,7 @@ const RayCasting = (
   // # Wall - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   const drawWall = (x: number, wall: wallType, debugSingleRay: boolean) => {
+    //return;
     // Wall props
     let size = config.game.render.wallHeight / wall.distance;
     let texture = textures.get(wall.texture);
@@ -277,7 +279,7 @@ const RayCasting = (
       });
     }
 
-    drawFloor(x, y + size);
+    drawFloor(wall, x, y, size);
   };
 
   const castWallRay = (angle: number) => {

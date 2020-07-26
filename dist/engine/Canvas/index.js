@@ -37,35 +37,43 @@ class Canvas {
         // Draw a text
         this.drawText = ({ text, x, y, color = '#000', size = 20, align = 'left' }) => {
             const { context } = this;
+            this.context.restore();
             context.font = `${size}px Arial`;
             context.fillStyle = color;
             context.textAlign = align;
             context.fillText(text, x, y);
+            return context;
         };
         // Draw a rectangle on canvas
         this.drawRectangle = ({ x, y, width, height, color }) => {
             const { context } = this;
+            this.context.restore();
             context.fillStyle = color;
             context.fillRect(x, y, width, height);
+            return context;
         };
         // Draw a line on canvas
         this.drawLine = ({ x, y, toX, toY, color }) => {
             const { context } = this;
+            this.context.restore();
             context.strokeStyle = color;
             context.beginPath();
             context.moveTo(x, y);
             context.lineTo(toX, toY);
             context.stroke();
+            return context;
         };
         // Draw a circle on canvas
         this.drawElipse = ({ x, y, radius, color = '#FFF', fillColor = 'rgba(0,0,0,0)' }) => {
             const { context } = this;
+            this.context.restore();
             context.strokeStyle = color;
             context.beginPath();
             context.arc(x, y, radius, 0, 2 * Math.PI);
             context.fillStyle = fillColor;
             context.fill();
             context.stroke();
+            return context;
         };
         // Draw an image on Canvas
         this.doDrawImage = ({ image, x, y, width, height, clipX, clipY, clipWidth, clipHeight, opacity = 1, }) => {
@@ -76,6 +84,7 @@ class Canvas {
         };
         this.drawImage = (params) => {
             const { filter } = params;
+            this.context.restore();
             this.context.imageSmoothingEnabled = false; // Pixelate image
             // Will draw with filter?
             if (filter)
@@ -84,6 +93,7 @@ class Canvas {
             // Reset filter
             if (filter)
                 this.context.filter = 'none';
+            return this.context;
         };
         this.canvas = document.getElementById(config.canvasID);
         this.context = this.canvas.getContext('2d');

@@ -32,9 +32,9 @@ const map = {
   height: tiles.length,
 };
 const player = {
-  x: 8.5,
-  y: 6,
-  pod: 90,
+  x: 18.5,
+  y: 16,
+  pod: 270,
 };
 
 export { map, player };

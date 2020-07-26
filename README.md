@@ -39,3 +39,9 @@ If you have error running, try to create a folder `dist`. Sometimes browserify t
 [Lode's Computer Graphics Tutorial](https://lodev.org/cgtutor/index.html)
 
 [Sandbox - Nichtgian](https://github.com/Nichtgian/sandbox)
+
+http://qzx.com/pc-gpe/doom.txt
+
+https://stackoverflow.com/questions/47239797/ray-casting-with-different-height-size
+
+https://permadi.com/1996/05/ray-casting-tutorial-12/

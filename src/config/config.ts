@@ -38,7 +38,7 @@ export const scenario: ScenarioPropType = {
 };
 
 export const game: Types.GameType = {
-  fps: 30,
+  fps: 36,
   gravity: 1.5,
   render: {
     wallHeight: screen.height * 1.5,

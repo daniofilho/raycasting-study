@@ -29,7 +29,7 @@ exports.scenario = {
     },
 };
 exports.game = {
-    fps: 30,
+    fps: 36,
     gravity: 1.5,
     render: {
         wallHeight: exports.screen.height * 1.5,
@@ -117,9 +117,9 @@ const map = {
 };
 exports.map = map;
 const player = {
-    x: 8.5,
-    y: 6,
-    pod: 90,
+    x: 18.5,
+    y: 16,
+    pod: 270,
 };
 exports.player = player;
 
@@ -130,7 +130,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = {
     // # "Floors"
     floor: {
-        image: 'assets/floor.jpg',
+        image: 'assets/floor-test.jpg',
         isWall: false,
         isObject: false,
         isCollidable: false,
@@ -236,35 +236,43 @@ class Canvas {
         // Draw a text
         this.drawText = ({ text, x, y, color = '#000', size = 20, align = 'left' }) => {
             const { context } = this;
+            this.context.restore();
             context.font = `${size}px Arial`;
             context.fillStyle = color;
             context.textAlign = align;
             context.fillText(text, x, y);
+            return context;
         };
         // Draw a rectangle on canvas
         this.drawRectangle = ({ x, y, width, height, color }) => {
             const { context } = this;
+            this.context.restore();
             context.fillStyle = color;
             context.fillRect(x, y, width, height);
+            return context;
         };
         // Draw a line on canvas
         this.drawLine = ({ x, y, toX, toY, color }) => {
             const { context } = this;
+            this.context.restore();
             context.strokeStyle = color;
             context.beginPath();
             context.moveTo(x, y);
             context.lineTo(toX, toY);
             context.stroke();
+            return context;
         };
         // Draw a circle on canvas
         this.drawElipse = ({ x, y, radius, color = '#FFF', fillColor = 'rgba(0,0,0,0)' }) => {
             const { context } = this;
+            this.context.restore();
             context.strokeStyle = color;
             context.beginPath();
             context.arc(x, y, radius, 0, 2 * Math.PI);
             context.fillStyle = fillColor;
             context.fill();
             context.stroke();
+            return context;
         };
         // Draw an image on Canvas
         this.doDrawImage = ({ image, x, y, width, height, clipX, clipY, clipWidth, clipHeight, opacity = 1, }) => {
@@ -275,6 +283,7 @@ class Canvas {
         };
         this.drawImage = (params) => {
             const { filter } = params;
+            this.context.restore();
             this.context.imageSmoothingEnabled = false; // Pixelate image
             // Will draw with filter?
             if (filter)
@@ -283,6 +292,7 @@ class Canvas {
             // Reset filter
             if (filter)
                 this.context.filter = 'none';
+            return this.context;
         };
         this.canvas = document.getElementById(config.canvasID);
         this.context = this.canvas.getContext('2d');
@@ -333,6 +343,10 @@ const Player = (minimap, debugmap, screen, textures, configScenario) => {
         moveDirection: 0,
         deltaX: Math.cos(config.player.pod * (Math.PI / 180)),
         deltaY: Math.sin(config.player.pod * (Math.PI / 180)),
+        dirX: 1,
+        dirY: 0,
+        planeX: 0,
+        planeY: 0.9,
     });
     const { tileSize, map } = configScenario;
     const canvasWidth = screen.getConfig('width');
@@ -376,6 +390,13 @@ const Player = (minimap, debugmap, screen, textures, configScenario) => {
             props.pod += 360;
         props.deltaX = Math.cos(props.pod * (Math.PI / 180));
         props.deltaY = Math.sin(props.pod * (Math.PI / 180));
+        const rotSpeed = props.turnSpeed * 0.0175 * -direction; // turnspeed * direction;
+        const oldDirX = props.dirX;
+        props.dirX = props.dirX * Math.cos(-rotSpeed) - props.dirY * Math.sin(-rotSpeed);
+        props.dirY = oldDirX * Math.sin(-rotSpeed) + props.dirY * Math.cos(-rotSpeed);
+        const oldPlaneX = props.planeX;
+        props.planeX = props.planeX * Math.cos(-rotSpeed) - props.planeY * Math.sin(-rotSpeed);
+        props.planeY = oldPlaneX * Math.sin(-rotSpeed) + props.planeY * Math.cos(-rotSpeed);
     };
     const look = (direction) => {
         props.look += props.turnSpeed * direction * 3;
@@ -497,6 +518,8 @@ const Player = (minimap, debugmap, screen, textures, configScenario) => {
     };
     // Render everything that needs to render after everything finished render
     const postRender = () => {
+        if (!window.global.renderTextures)
+            return;
         const centerX = canvasWidth / 2;
         const centerY = canvasHeight / 2;
         // Player sprite
@@ -542,13 +565,14 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
     const canvasHeight = canvasScreen.getConfig('height');
     let objects = [];
     // # Enviroment - - - - - - - - - - - - - - - - - - - - - - - -
-    const drawFloor = (x, y) => {
+    const drawFloor = (wall, x, y, size) => {
+        const finalY = y + size;
         const gradient = canvasScreen.createLineGradient('#222', '#555');
         canvasScreen.drawRectangle({
             x,
-            y,
+            y: finalY,
             width: 1,
-            height: canvasHeight - y,
+            height: canvasHeight - finalY,
             color: gradient,
         });
     };
@@ -691,6 +715,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // # Wall - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const drawWall = (x, wall, debugSingleRay) => {
+        //return;
         // Wall props
         let size = config.game.render.wallHeight / wall.distance;
         let texture = textures.get(wall.texture);
@@ -751,7 +776,7 @@ const RayCasting = (scenario, player, canvasMinimap, canvasMiniMapDebug, canvasS
                 color: '#F00',
             });
         }
-        drawFloor(x, y + size);
+        drawFloor(wall, x, y, size);
     };
     const castWallRay = (angle) => {
         // Angle correction

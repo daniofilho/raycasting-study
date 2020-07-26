@@ -35,6 +35,11 @@ const Player = (
       moveDirection: 0,
       deltaX: Math.cos(config.player.pod * (Math.PI / 180)),
       deltaY: Math.sin(config.player.pod * (Math.PI / 180)),
+
+      dirX: 1,
+      dirY: 0,
+      planeX: 0,
+      planeY: 0.9,
     },
   };
 
@@ -96,6 +101,16 @@ const Player = (
 
     props.deltaX = Math.cos(props.pod * (Math.PI / 180));
     props.deltaY = Math.sin(props.pod * (Math.PI / 180));
+
+    const rotSpeed = props.turnSpeed * 0.0175 * -direction; // turnspeed * direction;
+
+    const oldDirX = props.dirX;
+    props.dirX = props.dirX * Math.cos(-rotSpeed) - props.dirY * Math.sin(-rotSpeed);
+    props.dirY = oldDirX * Math.sin(-rotSpeed) + props.dirY * Math.cos(-rotSpeed);
+
+    const oldPlaneX = props.planeX;
+    props.planeX = props.planeX * Math.cos(-rotSpeed) - props.planeY * Math.sin(-rotSpeed);
+    props.planeY = oldPlaneX * Math.sin(-rotSpeed) + props.planeY * Math.cos(-rotSpeed);
   };
   const look = (direction: number) => {
     props.look += props.turnSpeed * direction * 3;
@@ -218,6 +233,8 @@ const Player = (
 
   // Render everything that needs to render after everything finished render
   const postRender = () => {
+    if (!window.global.renderTextures) return;
+
     const centerX = canvasWidth / 2;
     const centerY = canvasHeight / 2;
 

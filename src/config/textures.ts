@@ -2,7 +2,7 @@
 export default {
   // # "Floors"
   floor: {
-    image: 'assets/floor.jpg',
+    image: 'assets/floor-test.jpg',
     isWall: false,
     isObject: false,
     isCollidable: false,

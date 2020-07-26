@@ -2,7 +2,7 @@ export interface drawTextType {
   text: string;
   x: number;
   y: number;
-  color?: string;
+  color?: string | CanvasPattern;
   size?: number;
   align?: CanvasTextAlign;
 }
@@ -12,7 +12,7 @@ export interface drawRectangleType {
   y: number;
   width: number;
   height: number;
-  color: string;
+  color: string | CanvasPattern;
 }
 
 export interface drawLineType {
@@ -20,14 +20,14 @@ export interface drawLineType {
   y: number;
   toX: number;
   toY: number;
-  color: string;
+  color: string | CanvasPattern;
 }
 
 export interface drawElipseType {
   x: number;
   y: number;
   radius: number;
-  color?: string;
+  color?: string | CanvasPattern;
   fillColor?: string;
 }
 
@@ -53,7 +53,7 @@ export interface CanvasPropType {
 }
 
 export interface CanvasType {
-  drawRectangle(args: drawRectangleType): void;
+  drawRectangle(args: drawRectangleType): CanvasRenderingContext2D;
   drawLine(args: drawLineType): void;
   drawElipse(args: drawElipseType): void;
   drawText(args: drawTextType): void;
@@ -61,7 +61,7 @@ export interface CanvasType {
   get(prop: string): any;
   getConfig(prop: string): any;
   createLineGradient(color1: string, color2: string): string;
-  createPattern(img: HTMLImageElement): string;
+  createPattern(img: HTMLImageElement): CanvasPattern;
   reset: Function;
   getContext: Function;
 }
