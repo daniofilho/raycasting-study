@@ -14,6 +14,8 @@ Install Typescript globally:
 
 And run:
 
+`npm install`
+
 `npm start`
 
 ## Errors
